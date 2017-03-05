@@ -1,0 +1,23 @@
+{
+  "name": "hana_ssbm",
+  "version": "1.0.0",
+  "description": "Running the ssbm benchmark on HANA.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Osslack/HANA_SSBM.git"
+  },
+  "keywords": [
+    "HANA",
+    "SSBM"
+  ],
+  "author": "Simon, Arwed, Dominic, Jendrik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Osslack/HANA_SSBM/issues"
+  },
+  "homepage": "https://github.com/Osslack/HANA_SSBM#readme"
+}
