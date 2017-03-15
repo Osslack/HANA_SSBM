@@ -220,3 +220,7 @@ TSWLatexianTemp*
 *-tags.tex
 
 # End of https://www.gitignore.io/api/tex
+
+# Documents
+SAP_HANA_Administration_Guide_en.pdf
+SAP_HANA_Troubleshooting_and_Performance_Analysis_Guide_en.pdf
