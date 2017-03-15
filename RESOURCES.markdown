@@ -1,3 +1,5 @@
+# General
+https://www.sap.com/developer/how-tos/2016/09/hxe-howto-tutorialprep.html
 # Ports
 https://wiki.scn.sap.com/wiki/display/TCPIP/SAP+HANA+Platform
 # hdbsql
