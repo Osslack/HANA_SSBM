@@ -1,15 +1,15 @@
 DROP TABLE row_customer;
 
 CREATE ROW TABLE row_customer (
-				C_CUSTOMERKEY INTEGER,
-				C_Name varchar(25),
-				C_Address varchar(25),
-				C_City varchar(10),
-				C_Nation varchar(15),
-				C_Region varchar(12),
-				C_Phone varchar(15),
-				C_MktSegment varchar(10),
-				PRIMARY KEY ("C_CUSTOMERKEY")
+	C_CUSTOMERKEY INTEGER,
+	C_Name varchar(25),
+	C_Address varchar(25),
+	C_City varchar(10),
+	C_Nation varchar(15),
+	C_Region varchar(12),
+	C_Phone varchar(15),
+	C_MktSegment varchar(10),
+	PRIMARY KEY ("C_CUSTOMERKEY")
 );
 
 DROP TABLE row_part;
@@ -91,15 +91,15 @@ CREATE ROW TABLE row_lineorder
 DROP TABLE col_customer;
 
 CREATE COLUMN TABLE col_customer (
-				C_CUSTOMERKEY INTEGER,
-				C_Name varchar(25),
-				C_Address varchar(25),
-				C_City varchar(10),
-				C_Nation varchar(15),
-				C_Region varchar(12),
-				C_Phone varchar(15),
-				C_MktSegment varchar(10),
-				PRIMARY KEY ("C_CUSTOMERKEY")
+	C_CUSTOMERKEY INTEGER,
+	C_Name varchar(25),
+	C_Address varchar(25),
+	C_City varchar(10),
+	C_Nation varchar(15),
+	C_Region varchar(12),
+	C_Phone varchar(15),
+	C_MktSegment varchar(10),
+	PRIMARY KEY ("C_CUSTOMERKEY")
 );
 
 DROP TABLE col_part;
