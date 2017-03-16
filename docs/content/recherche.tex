@@ -1,0 +1,52 @@
+\chapter{Recherche}
+
+Eine Datenbank hat die folgenden Performanz Faktoren\footnote{Vgl. \cite{sap:hana:performance_guide}[Seite 6]}:
+
+\begin{itemize}
+	\item Resourcen $\rightarrow$ CPU, Hauptspeicher, Festplatte
+	\item Größe und Wachstum der Datenstrukturen
+	\item Transaktionen
+	\item Sicherheit, Autorisierung, und Lizensierung
+	\item Konfiguration
+\end{itemize}
+
+\section{Permanent Langsames System}
+Ein langsames System kann von vielen Faktoren abhängen.
+Oft liegt es allerdings an zu wenigen Resourcen.
+Dies kann mittels \verb+Administration > Overview+ oder \\
+\verb+Administration > Performance > Load+ überprüft werden,
+idem dort eine konstant hohe CPU, Hauptspeicher oder Netzwerk Auslastung angezeigt wird.
+
+Dies kann auch mittels eines Betriebssystem Tools wie HTOP
+analysiert werden.\footnote{Vgl. \cite{sap:hana:performance_guide}[Seite 8]}
+
+% Wenn andere Queries laufen kann es sein dass HANA paging betreibt und ein Performanz test unnötig wäre.
+
+%TODO Statement Performance Analysis
+
+\section{Lizenzprobleme}
+Es kann sein dass die Größe an speicher durch die Lizenz limitiert ist. (Siehe \cite{sap:hana:performance_guide}[Seite 9])
+
+\section{Slow System-wide Performance}
+Runtime Dump ausführen um zu analysieren.
+\verb+\var\log\messages+ überprüfen um OS level Probleme zu erkennen.
+\cite{sap:hana:performance_guide}[Seite 10]
+
+
+\section{Hauptspeicher informationen}
+
+\verb+Administration > Overview+
+\verb+Configuration and Monitoring > Open Memory Overview+
+Siehe \cite{sap:hana:performance_guide}[Seite 21]
+
+
+%TODO Parallel Query execution
+\cite{sap:hana:performance_guide}[Seite 40] $\rightarrow$ Parallele SQL Statement
+
+%TODO IO
+
+%TODO Delta Storage
+
+%TODO Blocked Transaktionen
+
+%TODO SQL Plan Cache Analysis
