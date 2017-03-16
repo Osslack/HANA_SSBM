@@ -1,8 +1,11 @@
 # General
 https://www.sap.com/developer/how-tos/2016/09/hxe-howto-tutorialprep.html
 
-# Ports
+## Ports
 https://wiki.scn.sap.com/wiki/display/TCPIP/SAP+HANA+Platform
+
+## Loading CSV files
+https://blogs.sap.com/2013/04/08/best-practices-for-sap-hana-data-loads/
 
 # hdbsql
 ## starten
