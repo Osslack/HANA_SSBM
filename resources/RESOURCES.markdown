@@ -5,7 +5,12 @@ https://www.sap.com/developer/how-tos/2016/09/hxe-howto-tutorialprep.html
 https://wiki.scn.sap.com/wiki/display/TCPIP/SAP+HANA+Platform
 
 ## Loading CSV files
+
+Best Practices for loading large CSV files
 https://blogs.sap.com/2013/04/08/best-practices-for-sap-hana-data-loads/
+
+Import export statement
+http://help-legacy.sap.com/saphelp_hanaplatform/helpdata/en/20/a5342e75191014bb95e83cbbe772fa/content.htm?frameset=/en/20/f712e175191014907393741fadcb97/frameset.htm&current_toc=/en/2e/1ef8b4f4554739959886e55d4c127b/plain.htm&node_id=329&show_children=false
 
 # hdbsql
 ## starten
