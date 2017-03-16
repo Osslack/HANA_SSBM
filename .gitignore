@@ -224,3 +224,11 @@ TSWLatexianTemp*
 # Documents
 SAP_HANA_Administration_Guide_en.pdf
 SAP_HANA_Troubleshooting_and_Performance_Analysis_Guide_en.pdf
+
+
+
+# Local files
+import_tbl
+ssbm
+ssbm.tar
+

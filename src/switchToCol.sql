@@ -29,8 +29,10 @@ CREATE COLUMN TABLE  lineorder
     LO_ShipMode varchar(10)
 );
 
-IMPORT FROM CSV FILE '/usr/sap/HXE/HDB90/work/lineorder.csv' INTO "SYSTEM"."LINEORDER" 
+IMPORT FROM CSV FILE '/usr/sap/HXE/HDB90/work/lineorder.tbl' INTO "SYSTEM"."LINEORDER" 
 WITH
 
+threads 2
+batch 10000
 record delimited by '\n' 
-field delimited by ':';
+field delimited by '|';
