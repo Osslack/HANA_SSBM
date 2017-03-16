@@ -166,7 +166,7 @@ ln -s /media/<your_folder_name> /usr/sap/HXE/HDB90/work
 
 You can do the same with this repository in order to use it in the VM.
 
-## <a name="import_data"></a> Importing the CSV files into HANA
+### <a name="import_data"></a> Importing the CSV files into HANA
 
 In order to import the data you need to copy this repository into the VM
 and navigate into it.
