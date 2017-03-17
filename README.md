@@ -186,6 +186,13 @@ the VM via:
 ln -s /media/<your_folder_name> /usr/sap/HXE/HDB90/work
 ```
 
+Last but not least you must give the hxeadm the authorization to
+read the shared folder:
+
+```
+sudo usermod -a -G vboxsf hxeadm
+```
+
 You can do the same with this repository in order to use it in the VM.
 
 ### <a name="import_data"></a> Importing the CSV files into HANA
