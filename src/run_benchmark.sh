@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#./to_csv.sh /usr/sap/HXE/HDB90/work
-
 read -p "Please enter your username(default=SYSTEM): " username
 username=${name:-SYSTEM}
 read -p "Please enter your password: " -s password
@@ -35,11 +33,16 @@ if $generate ; then
 	./to_csv.sh /usr/sap/HXE/HDB90/work
 fi
 
+read "Do you want to import the SSBM data?(default=yes, no)" import
+import=${import:-yes}
+printf "\n"
 
-printf "Creating Schema\n"
-hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./schema.sql
+if [[ $import =~ ^[Yy]$ ]]; then
+	printf "Creating Schema\n"
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./schema.sql
 
-printf "Importing data\n"
-hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
+	printf "Importing data\n"
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
+fi
 
 #TODO run benchmark
