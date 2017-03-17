@@ -42,4 +42,7 @@ hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./schema.sql
 printf "Importing data\n"
 hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
 
+
+printf "Running benchmark\n"
+hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./benchAll.sql -O log.log
 #TODO run benchmark
