@@ -93,7 +93,14 @@ Now you can log into your VM without using a password.
 
 SSH into your as hxeadm VM.
 
-TODO
+Run the following command:
+
+```
+hdbsql -i 90 -d SystemDB -u SYSTEM -p HXEHana1
+```
+
+You will be asked to change provide a new password.
+**Do not throw this away!**
 
 ### <a name="config_boot"></a> Increasing the boot time of the VM
 
