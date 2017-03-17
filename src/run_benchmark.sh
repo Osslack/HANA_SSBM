@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#./to_csv.sh /usr/sap/HXE/HDB90/work
-
 read -p "Please enter your username(default=SYSTEM): " username
 username=${name:-SYSTEM}
 read -p "Please enter your password: " -s password
@@ -13,36 +11,26 @@ if [[ $? != 0 ]]; then
 	exit 1
 fi
 
-printf "Checking for CSV data\n"
+read -p "Do you want to import the SSBM data?(default=yes, no)" import
+import=${import:-yes}
+printf "\n"
 
-csv_exist=$(ls /usr/sap/HXE/HDB90/work/ | grep '\.csv$' | wc -l)
-generate=false
+if [[ $import =~ ^[Yy]([eE][sS])?$ ]]; then
+	printf "Creating Schema\n"
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./schema.sql
 
-if [ csv_exist = 5 ]; then
-
-	generate=true
-else
-	printf "Found CSV data.\n"
-	read -p "Do you want to regenerate the CSV data.(default=no, yes)" regenerate
-	printf "\n"
-	if [[ $regenerate =~ ^[Yy]$ ]]; then
-		generate=true
-	fi
+	printf "Importing data\n"
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
 fi
 
-if $generate ; then
-	printf "Generating CSV data ..."
-	./to_csv.sh /usr/sap/HXE/HDB90/work
-fi
+for COUNTER in 1 2 3 4 5 6 7 8 9 10
+do
+	printf "Running benchmark number $COUNTER\n"
+	echo "Benchmark number $COUNTER\n" >> log.log
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I benchAll.sql -O log.log
+done
 
+printf "Cleaning up the log\n"
+awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' log.log
 
-printf "Creating Schema\n"
-hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./schema.sql
-
-printf "Importing data\n"
-hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
-
-
-printf "Running benchmark\n"
-hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./benchAll.sql -O log.log
 #TODO run benchmark
