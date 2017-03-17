@@ -8,6 +8,7 @@
 4. Set up a password for the hxeadm (You will be asked at the first start.)
 5. [Set up SSH](#config_ssh)
 6. [Set up the HANA database](#config_hana)
+7. [Increasing the boot time of the VM (optional)](#config_boot)
 
 ### <a name="config_vm"></a> Configuring the VM
 
@@ -94,6 +95,26 @@ SSH into your as hxeadm VM.
 
 TODO
 
+### <a name="config_boot"></a> Increasing the boot time of the VM
+
+You need to ssh into your VM and edit the ```/etc/default/grub``` file:
+
+```
+sudo nano /etc/default/grub
+```
+
+Change GRUB_TIMEOUT to 0:
+
+```
+GRUB_TIMEOUT=0
+```
+
+Save and exit nano.
+Afterwards run and reboot:
+
+```
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+```
 
 ## Import the SSBM benachmark data into SAP HANA
 
