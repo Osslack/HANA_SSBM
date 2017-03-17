@@ -45,5 +45,4 @@ if [[ $import =~ ^[Yy]([eE][sS])?$ ]]; then
 fi
 
 printf "Running benchmark\n"
-hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./benchAll.sql -O log.log
-#TODO run benchmark
+hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./benchAll.sql -O /usr/sap/HXE/HDB90/log.log
