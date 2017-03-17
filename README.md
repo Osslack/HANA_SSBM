@@ -215,3 +215,20 @@ hdbsql -i 90 -d SystemDB -u SYSTEM -p <your_password> -I ./src/import.sql
 ```
 
 This should import all data.
+
+## Troubleshooting
+
+### Restarting
+
+```
+HDB restart
+```
+
+### Resetting your password
+
+See [http://dbsnix.com/?page_id=22/sap-hana/10-authentication-failed-sqlstate-28000](http://dbsnix.com/?page_id=22/sap-hana/10-authentication-failed-sqlstate-28000)
+```
+HDB stop
+hdbnameserver -resetUserSystem # This will ask for a new password
+HDB start
+```
