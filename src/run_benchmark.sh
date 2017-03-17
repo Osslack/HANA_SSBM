@@ -30,9 +30,9 @@ for COUNTER in 1 2 3 4 5 6 7 8 9 10
 do
 	printf "Running benchmark number $COUNTER\n"
 	echo "Benchmark number $COUNTER\n" >> "$log_path"
-	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I benchAll.sql -O "$log_path"
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I benchAll.sql -T "$log_path" -O /dev/null
 done
 
 printf "Cleaning up the log\n"
-awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' log.log
+awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' "$log_path"
 
