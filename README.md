@@ -143,9 +143,10 @@ sudo yast
 Select ```Software > Software Repositories```
 There you need to add the following repositories:
 ```
-http://download.opensuse.org/tumbleweed/repo/oss/
-http://download.opensuse.org/tumbleweed/repo/non-oss/
-http://download.opensuse.org/update/tumbleweed/
+http://download.opensuse.org/distribution/leap/42.2/repo/oss/
+http://download.opensuse.org/distribution/leap/42.2/repo/non-oss/
+http://download.opensuse.org/update/leap/42.2/oss/
+http://download.opensuse.org/update/leap/42.2/non-oss/
 ```
 
 Then you can install the guest additions via:
