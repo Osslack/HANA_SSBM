@@ -190,6 +190,7 @@ Afterwards you need to create a symbolic link to the shared folders in
 the VM via:
 
 ```
+rm -rf /usr/sap/HXE/HDB90/work
 ln -s /media/<your_folder_name> /usr/sap/HXE/HDB90/work
 ```
 
