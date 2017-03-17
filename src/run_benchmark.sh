@@ -11,27 +11,6 @@ if [[ $? != 0 ]]; then
 	exit 1
 fi
 
-printf "Checking for CSV data\n"
-
-csv_exist=$(ls /usr/sap/HXE/HDB90/work/ | grep '\.csv$' | wc -l)
-generate=false
-
-if [ csv_exist = 5 ]; then
-	generate=true
-else
-	printf "Found CSV data.\n"
-	read -p "Do you want to regenerate the CSV data.(default=no, yes)" regenerate
-	printf "\n"
-	if [[ $regenerate =~ ^[Yy]([eE][sS])?$ ]]; then
-		generate=true
-	fi
-fi
-
-if $generate ; then
-	printf "Generating CSV data ..."
-	./to_csv.sh /usr/sap/HXE/HDB90/work
-fi
-
 read -p "Do you want to import the SSBM data?(default=yes, no)" import
 import=${import:-yes}
 printf "\n"
@@ -47,5 +26,13 @@ fi
 read -p "Where do you want to save your log file?(default=/usr/sap/HXE/HDB90/work/log.log)" log_path
 log_path=${log_path:-/usr/sap/HXE/HDB90/work/log.log}
 
-printf "Running benchmark\n"
-hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./benchAll.sql -O "$log_path"
+for COUNTER in 1 2 3 4 5 6 7 8 9 10
+do
+	printf "Running benchmark number $COUNTER\n"
+	echo "Benchmark number $COUNTER\n" >> "$log_path"
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I benchAll.sql -O "$log_path"
+done
+
+printf "Cleaning up the log\n"
+awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' log.log
+
