@@ -15,7 +15,6 @@ read -p "Do you want to import the SSBM data?(default=yes, no)" import
 import=${import:-yes}
 printf "\n"
 
-
 if [[ $import =~ ^[Yy]([eE][sS])?$ ]]; then
 	printf "Creating Schema\n"
 	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./schema.sql
@@ -35,4 +34,3 @@ printf "Cleaning up the log\n"
 awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' log.log
 
 #TODO run benchmark
-
