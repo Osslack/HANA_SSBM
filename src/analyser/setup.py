@@ -10,6 +10,9 @@ setup(
         install_requires=[
             "numpy",
             "terminaltables",
+            "jupyter",
+            "matplotlib",
+            "entrypoints"
         ],
         author="Arwed Mett"
 )
