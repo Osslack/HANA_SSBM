@@ -44,5 +44,8 @@ if [[ $import =~ ^[Yy]([eE][sS])?$ ]]; then
 	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
 fi
 
+read -p "Where do you want to save your log file?(default=/usr/sap/HXE/HDB90/work/log.log)" log_path
+log_path=${log_path:-/usr/sap/HXE/HDB90/work/log.log}
+
 printf "Running benchmark\n"
-hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./benchAll.sql -O /usr/sap/HXE/HDB90/log.log
+hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./benchAll.sql -O "$log_path"
