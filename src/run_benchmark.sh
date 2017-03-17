@@ -23,14 +23,17 @@ if [[ $import =~ ^[Yy]([eE][sS])?$ ]]; then
 	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
 fi
 
+read -p "Where do you want to save your log file?(default=/usr/sap/HXE/HDB90/work/log.log)" log_path
+log_path=${log_path:-/usr/sap/HXE/HDB90/work/log.log}
+
+cleanLog=/usr/sap/HXE/HDB90/work/cleanLog.log
 
 for COUNTER in `seq 1 10000`
 do
 	printf "Running benchmark number $COUNTER\n"
-	echo "Benchmark number $COUNTER" >> cleanLog.log
-	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I benchAll.sql -T log.log -O /dev/null
+	echo "Benchmark number $COUNTER" >> "$cleanLog"
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I benchAll.sql -T "$log_path" -O /dev/null
 	printf "Cleaning up the log\n"
-	awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' log.log >> cleanLog.log
+	awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' "$log_path" >> "$cleanLog"
 done
 
-#TODO run benchmark
