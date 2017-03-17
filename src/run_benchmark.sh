@@ -23,14 +23,14 @@ if [[ $import =~ ^[Yy]([eE][sS])?$ ]]; then
 	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
 fi
 
-for COUNTER in 1 2 3 4 5 6 7 8 9 10
+
+for COUNTER in `seq 1 10000`
 do
 	printf "Running benchmark number $COUNTER\n"
-	echo "Benchmark number $COUNTER\n" >> log.log
-	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I benchAll.sql -O log.log
+	echo "Benchmark number $COUNTER" >> cleanLog.log
+	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I benchAll.sql -T log.log -O /dev/null
+	printf "Cleaning up the log\n"
+	awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' log.log >> cleanLog.log
 done
-
-printf "Cleaning up the log\n"
-awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' log.log
 
 #TODO run benchmark
