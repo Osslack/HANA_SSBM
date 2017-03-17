@@ -45,4 +45,7 @@ if [[ $import =~ ^[Yy]$ ]]; then
 	hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./import.sql
 fi
 
+
+printf "Running benchmark\n"
+hdbsql -i 90 -d SystemDB -u "$username" -p "$password" -I ./benchAll.sql -O log.log
 #TODO run benchmark
