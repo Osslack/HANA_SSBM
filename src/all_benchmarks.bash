@@ -42,16 +42,9 @@ function switch_to {
 }
 
 function run_all_benchmarks {
-	hdb_init_log
-
 	for i in `seq 1 ${2:-1}`; do
 		printf "Running benchmark number $i"
-		switch_to "column"
-		benchmark $1
-		switch_to "row"
 		benchmark $1
 		printf "\n"
 	done
-
-	hdb_finish_log
 }
