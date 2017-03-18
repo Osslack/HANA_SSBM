@@ -11,8 +11,7 @@ setup(
             "numpy",
             "terminaltables",
             "jupyter",
-            "matplotlib",
-            "entrypoints"
+            "matplotlib"
         ],
         author="Arwed Mett"
 )

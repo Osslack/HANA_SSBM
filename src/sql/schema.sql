@@ -1,6 +1,6 @@
-DROP TABLE  customer;
+DROP TABLE  CUSTOMER;
 
-CREATE COLUMN TABLE  customer (
+CREATE COLUMN TABLE  CUSTOMER (
 	C_CUSTOMERKEY INTEGER,
 	C_Name varchar(25),
 	C_Address varchar(25),
@@ -64,9 +64,9 @@ CREATE COLUMN TABLE  dim_date
 	D_WeekDayFl tinyint,
 	PRIMARY KEY(D_DateKey)
 );
-DROP TABLE  lineorder;
+DROP TABLE  LINEORDER;
 
-CREATE COLUMN TABLE  lineorder
+CREATE COLUMN TABLE  LINEORDER
 (
 	LO_OrderKey bigint not null,
 	LO_LineNumber tinyint not null,
