@@ -1,0 +1,192 @@
+<?Version 21?>
+<Plan ID="ID_58CDB75A673106AFE10000007F000002_1" xmlns="http://www.sap.com/ndb/planviz" Type="Executed" PlanType="QoExec">
+<SystemVersion><![CDATA[{"Version":"2.00.000.00.1479874437","CompileType":"rel"}]]></SystemVersion>
+<SQL><![CDATA[select c_city, s_city, d_year, sum(lo_revenue)
+as revenue
+from customer
+join lineorder
+  on lo_custkey = c_customerkey
+join supplier
+  on lo_suppkey = s_suppkey
+join dim_date
+  on lo_orderdatekey = d_datekey
+where
+(c_city='UNITED KI1' or c_city='UNITED KI5')
+and (s_city='UNITED KI1' or s_city='UNITED KI5')
+and d_yearmonth = 'Dec1997'
+group by c_city, s_city, d_year
+order by d_year asc, revenue desc]]></SQL>
+<CompileTime>
+	<Start Unit="us">1489857503380682</Start>
+	<End Unit="us">1489857542267310</End>
+</CompileTime>
+<StmtStats><![CDATA[]]></StmtStats>
+<StmtMemStats><![CDATA[[{"Allocated Count":989,"Allocated Size":520720,"Allocator Name":"Connection/100236/Statement/430512561594310","Count in Use":986,"Deallocated Count":972,"Deallocated Size":497184,"Depth":3,"Max Allocation Size (estimate)":187768,"Max Single Allocation Size":49152,"Size in Use":23312},{"Allocated Count":10,"Allocated Size":18512,"Allocator Name":"Connection/100236/Statement/430512561594310/Pool/RowEngine/QueryExecution","Count in Use":10,"Deallocated Count":1,"Deallocated Size":288,"Depth":4,"Max Allocation Size (estimate)":18224,"Max Single Allocation Size":12288,"Size in Use":18224},{"Allocated Count":1000,"Allocated Size":462976,"Allocator Name":"Connection/100236/Statement/430512561594310/IMPLICIT","Count in Use":997,"Deallocated Count":967,"Deallocated Size":455152,"Depth":4,"Max Allocation Size (estimate)":127528,"Max Single Allocation Size":49152,"Size in Use":7600},{"Allocated Count":5,"Allocated Size":41760,"Allocator Name":"Connection/100236/Statement/430512561594310/Pool/JoinEvaluator","Count in Use":5,"Deallocated Count":5,"Deallocated Size":41760,"Depth":4,"Max Allocation Size (estimate)":41760,"Max Single Allocation Size":32768,"Size in Use":0}]]]></StmtMemStats>
+<CompileSummary><![CDATA[{"Compilation Time Breakdown":{"parsing time":"0.373 ms","checking time":"1.438 ms","QP to QC conversion time":"0.351 ms","rewriting time":"38877.967 ms","query compilation time":"38885.802 ms"},"Cost Based Optimization Details":{"# of operators normalized":"10","memory pool size normalized":"1.000 MB","cost based optimization time":"2.264 ms","limit of alternative enumeration":"100","limit of joinThruJoin enumeration":"50","# of alternative enumerations":"8","# of duplicate detections":"1","# of expansions":"28","# of prunings":"0","# of index enumerations":"0","# of column search enumerations":"28","# of column Join estimator calls":"8","# of operator groups":"26","# of operators":"52","# of possible combinations of plan":"248","memory pool size of physical enumerations":"1.000 MB","default expression segment size":"16384","# of expression segment blocks":"2","estimated expression pre-eval memory size":"0.004 MB"},"Plan Properties":{"Non-Deterministic Functions":{}}}]]></CompileSummary>
+	<RootRelation ID="ID_58CDB75A673106AFE10000007F000002_1" TypeName="PROJECT" InternalBufferId="2" Status="Finished">
+		<Name>COLUMN SEARCH</Name>
+		<ExecutionType>COLUMN</ExecutionType>
+		<Summary><![CDATA[CUSTOMER.C_CITY, SUPPLIER.S_CITY, DIM_DATE.D_YEAR, SUM(LINEORDER.LO_REVENUE)]]></Summary>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">1730.33</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>1</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489857542276901</Start>
+			<End Unit="us">1489857560059256</End>
+			<Exclusive Unit="us">32</Exclusive>
+			<Inclusive Unit="us">17782355</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489857542276901,"end":1489857542276927,"thread":1727}]},{"Close": [{"start":1489857560059176,"end":1489857560059181,"thread":1727},{"start":1489857560059255,"end":1489857560059256,"thread":1727}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">0.023</UserCPUTime>
+		<Details><![CDATA[{"Projected Cols":"CUSTOMER.C_CITY, SUPPLIER.S_CITY, DIM_DATE.D_YEAR, SUM(LINEORDER.LO_REVENUE)"}]]></Details>
+		<Child ID="ID_58CDB75A673106AFE10000007F000002_2" >
+			<ExecutedOutputCardinality>0</ExecutedOutputCardinality>
+			<FetchCallCount>0</FetchCallCount>
+		</Child>
+	</RootRelation>
+	<Relation ID="ID_58CDB75A673106AFE10000007F000002_2" TypeName="TREX_SEARCH" InternalBufferId="1" Status="Finished">
+		<Name>COLUMN SEARCH</Name>
+		<ExecutionType>COLUMN</ExecutionType>
+		<Summary><![CDATA[CUSTOMER.C_CITY, SUPPLIER.S_CITY, DIM_DATE.D_YEAR, SUM(LINEORDER.LO_REVENUE)]]></Summary>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">1727.05</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>1</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489857542276929</Start>
+			<End Unit="us">1489857560059248</End>
+			<Exclusive Unit="us">95</Exclusive>
+			<Inclusive Unit="us">17782319</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489857542276929,"end":1489857542276962,"thread":1727}]},{"Close": [{"start":1489857560059185,"end":1489857560059186,"thread":1727},{"start":1489857560059187,"end":1489857560059248,"thread":1727}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">0.092</UserCPUTime>
+		<Details><![CDATA[{"Projected Cols":"CUSTOMER.C_CITY, SUPPLIER.S_CITY, DIM_DATE.D_YEAR, SUM(LINEORDER.LO_REVENUE)"}]]></Details>
+		<InnerPlans>
+			<Plan ID="ID_58CDB75A673106AFE10000007F000002_2_0" Type="Estimated" PlanType="Logical">
+				<RootRelation ID="ID_58CDB75A673106AFE10000007F000002_2_0" TypeName="PROJECT">
+					<Name>COLUMN SEARCH</Name>
+					<Summary><![CDATA[CUSTOMER.C_CITY, SUPPLIER.S_CITY, DIM_DATE.D_YEAR, SUM(LINEORDER.LO_REVENUE)]]></Summary>
+					<Location>hxehost:39001</Location>
+					<EstimatedCost>
+						<Exclusive Unit="us">-1e+06</Exclusive>
+						<Inclusive Unit="us">1727.05</Inclusive>
+					</EstimatedCost>
+					<EstimatedOutputCardinality>1</EstimatedOutputCardinality>
+					<Details><![CDATA[{"Projected Cols":"CUSTOMER.C_CITY, SUPPLIER.S_CITY, DIM_DATE.D_YEAR, SUM(LINEORDER.LO_REVENUE)"}]]></Details>
+					<Child ID="ID_58CDB75A673106AFE10000007F000002_2_1">
+					</Child>
+				</RootRelation>
+				<Relation ID="ID_58CDB75A673106AFE10000007F000002_2_1" TypeName="ORDER_BY">
+					<Name>ORDER BY</Name>
+					<Summary><![CDATA[DIM_DATE.D_YEAR ASC, SUM(LINEORDER.LO_REVENUE) DESC]]></Summary>
+					<EstimatedCost>
+						<Exclusive Unit="us">-1e+06</Exclusive>
+						<Inclusive Unit="us">1716.77</Inclusive>
+					</EstimatedCost>
+					<EstimatedOutputCardinality>1</EstimatedOutputCardinality>
+					<Details><![CDATA[{"Sort Cols":"DIM_DATE.D_YEAR ASC, SUM(LINEORDER.LO_REVENUE) DESC"}]]></Details>
+					<Child ID="ID_58CDB75A673106AFE10000007F000002_2_2">
+					</Child>
+				</Relation>
+				<Relation ID="ID_58CDB75A673106AFE10000007F000002_2_2" TypeName="GROUP_BY">
+					<Name>AGGREGATION</Name>
+					<Summary><![CDATA[GROUPING: CUSTOMER.C_CITY, SUPPLIER.S_CITY, DIM_DATE.D_YEAR, AGGREGATION: SUM(LINEORDER.LO_REVENUE)]]></Summary>
+					<EstimatedCost>
+						<Exclusive Unit="us">-1e+06</Exclusive>
+						<Inclusive Unit="us">1716.77</Inclusive>
+					</EstimatedCost>
+					<EstimatedOutputCardinality>1</EstimatedOutputCardinality>
+					<Details><![CDATA[{"Grouping Cols":"CUSTOMER.C_CITY, SUPPLIER.S_CITY, DIM_DATE.D_YEAR, ","Aggregation Cols":"SUM(LINEORDER.LO_REVENUE)"}]]></Details>
+					<Child ID="ID_58CDB75A673106AFE10000007F000002_2_3">
+					</Child>
+				</Relation>
+				<Relation ID="ID_58CDB75A673106AFE10000007F000002_2_3" TypeName="SELECT">
+					<Name>FILTER</Name>
+					<Summary><![CDATA[(ITAB_IN (SYSTEM.CUSTOMER.C_CITY)(SYSTEM.SUPPLIER.S_CITY)) ]]></Summary>
+					<EstimatedCost>
+						<Exclusive Unit="us">-1e+06</Exclusive>
+						<Inclusive Unit="us">1716.58</Inclusive>
+					</EstimatedCost>
+					<EstimatedOutputCardinality>1</EstimatedOutputCardinality>
+					<Details><![CDATA[{"Filter":"(ITAB_IN (SYSTEM.CUSTOMER.C_CITY)(SYSTEM.SUPPLIER.S_CITY)) "}]]></Details>
+					<Child ID="ID_58CDB75A673106AFE10000007F000002_2_4">
+					</Child>
+				</Relation>
+				<Relation ID="ID_58CDB75A673106AFE10000007F000002_2_4" TypeName="JOIN">
+					<Name>JOIN</Name>
+					<Summary><![CDATA[JOIN CONDITION: (INNER) LINEORDER.LO_SUPPKEY = SUPPLIER.S_SUPPKEY, (INNER) LINEORDER.LO_ORDERDATEKEY = DIM_DATE.D_DATEKEY, (INNER) CUSTOMER.C_CUSTOMERKEY = LINEORDER.LO_CUSTKEY]]></Summary>
+					<EstimatedCost>
+						<Exclusive Unit="us">-1e+06</Exclusive>
+						<Inclusive Unit="us">1716.58</Inclusive>
+					</EstimatedCost>
+					<EstimatedOutputCardinality>1</EstimatedOutputCardinality>
+					<Details><![CDATA[{"Join Condition":"(INNER) LINEORDER.LO_SUPPKEY = SUPPLIER.S_SUPPKEY, (INNER) LINEORDER.LO_ORDERDATEKEY = DIM_DATE.D_DATEKEY, (INNER) CUSTOMER.C_CUSTOMERKEY = LINEORDER.LO_CUSTKEY"}]]></Details>
+					<Child ID="ID_58CDB75A673106AFE10000007F000002_2_5">
+					</Child>
+					<Child ID="ID_58CDB75A673106AFE10000007F000002_2_6">
+					</Child>
+					<Child ID="ID_58CDB75A673106AFE10000007F000002_2_7">
+					</Child>
+					<Child ID="ID_58CDB75A673106AFE10000007F000002_2_8">
+					</Child>
+				</Relation>
+				<Relation ID="ID_58CDB75A673106AFE10000007F000002_2_8" TypeName="TABLE">
+					<Name>COLUMN TABLE</Name>
+					<Summary><![CDATA[FILTER CONDITION: DIM_DATE.D_YEARMONTH = 'Dec1997']]></Summary>
+					<Schema><![CDATA[SYSTEM]]></Schema>
+					<TableType><![CDATA[COLUMN TABLE]]></TableType>
+					<ObjectName><![CDATA[DIM_DATE]]></ObjectName>
+					<Location>hxehost:39001</Location>
+					<EstimatedOutputCardinality>1</EstimatedOutputCardinality>
+					<Details><![CDATA[{"Filter":"DIM_DATE.D_YEARMONTH = 'Dec1997'"}]]></Details>
+				</Relation>
+				<Relation ID="ID_58CDB75A673106AFE10000007F000002_2_7" TypeName="TABLE">
+					<Name>COLUMN TABLE</Name>
+					<Summary><![CDATA[FILTER CONDITION: (SUPPLIER.S_CITY = 'UNITED KI1') OR (SUPPLIER.S_CITY = 'UNITED KI5')]]></Summary>
+					<Schema><![CDATA[SYSTEM]]></Schema>
+					<TableType><![CDATA[COLUMN TABLE]]></TableType>
+					<ObjectName><![CDATA[SUPPLIER]]></ObjectName>
+					<Location>hxehost:39001</Location>
+					<EstimatedOutputCardinality>4</EstimatedOutputCardinality>
+					<Details><![CDATA[{"Filter":"(SUPPLIER.S_CITY = 'UNITED KI1') OR (SUPPLIER.S_CITY = 'UNITED KI5')"}]]></Details>
+				</Relation>
+				<Relation ID="ID_58CDB75A673106AFE10000007F000002_2_6" TypeName="TABLE">
+					<Name>COLUMN TABLE</Name>
+					<Schema><![CDATA[SYSTEM]]></Schema>
+					<TableType><![CDATA[COLUMN TABLE]]></TableType>
+					<ObjectName><![CDATA[LINEORDER]]></ObjectName>
+					<Location>hxehost:39001</Location>
+					<EstimatedOutputCardinality>10000</EstimatedOutputCardinality>
+				</Relation>
+				<Relation ID="ID_58CDB75A673106AFE10000007F000002_2_5" TypeName="TABLE">
+					<Name>COLUMN TABLE</Name>
+					<Summary><![CDATA[FILTER CONDITION: (CUSTOMER.C_CITY = 'UNITED KI1') OR (CUSTOMER.C_CITY = 'UNITED KI5')]]></Summary>
+					<Schema><![CDATA[SYSTEM]]></Schema>
+					<TableType><![CDATA[COLUMN TABLE]]></TableType>
+					<ObjectName><![CDATA[CUSTOMER]]></ObjectName>
+					<Location>hxehost:39001</Location>
+					<EstimatedOutputCardinality>390</EstimatedOutputCardinality>
+					<Details><![CDATA[{"Filter":"(CUSTOMER.C_CITY = 'UNITED KI1') OR (CUSTOMER.C_CITY = 'UNITED KI5')"}]]></Details>
+				</Relation>
+			</Plan>
+			<Plan ID="cs_plan52_hxehost_39001" Type="Executed" PlanType="Column">
+				<RootRelation ID="cs_plan52_hxehost_39001_plan_is_empty" TypeID="0">
+					<Name>Error</Name>
+					<Summary>Column Plan has no nodes</Summary>
+					<Details><![CDATA[{"error message":"visualized column plan has no nodes, maybe query execution failed"}]]></Details>
+				</RootRelation>
+			</Plan>
+		</InnerPlans>
+	</Relation>
+</Plan>
