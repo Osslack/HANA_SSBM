@@ -1,17 +1,11 @@
 #!/bin/bash
 
-instance=${instance:-90}
-database=${database:-SystemDB}
-username=${username:-username}
-log_path=${log_path:-/usr/sap/HXE/HDB90/work/log.log}
-tmp_path="/tmp/benchmark.log"
-
+source hdbsql.bash
 
 function test {
+	hdb_run_file $1
+	hdb_flush_tmp
 	printf "."
-	echo "Running test $1" >> "$log_path"
-	hdbsql -i "$instance" -d "$database" -u "$username" -p "$password" -T "$tmp_path" -O /dev/null -I "$1"
-	awk '/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/' "$tmp_path" >> "$log_path"
 }
 
 function benchmark {
@@ -32,17 +26,32 @@ function benchmark {
 	test "./sql/benchmark/q4_bench/q4.1.sql"
 	test "./sql/benchmark/q4_bench/q4.2.sql"
 	test "./sql/benchmark/q4_bench/q4.3.sql"
+	printf "\n"
+}
+
+function switch_to {
+	printf "Switching to $1.\n"
+	if [[ $1 = "column" ]]; then
+		hdb_run_file ./sql/switch_to_col.sql
+	elif [[ $1 = "row" ]]; then
+		hdb_run_file ./sql/switch_to_row.sql
+	else
+		printf "Cannot switch to $1."
+	fi
+	hdb_flush_tmp
 }
 
 function run_all_benchmarks {
-	rm "$log_path"
-	tmp_path=$(mktemp "$tmp_path.XXX")
+	hdb_init_log
 
 	for i in `seq 1 ${2:-1}`; do
 		printf "Running benchmark number $i"
+		switch_to "column"
+		benchmark $1
+		switch_to "row"
 		benchmark $1
 		printf "\n"
 	done
 
-	rm "$tmp_path"
+	hdb_finish_log
 }
