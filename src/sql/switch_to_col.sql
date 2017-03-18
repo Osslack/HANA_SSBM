@@ -6,6 +6,9 @@ ALTER TABLE  supplier COLUMN;
 
 ALTER TABLE  dim_date COLUMN;
 
+ALTER TABLE lineorder COLUMN;
+
+/*
 DROP TABLE  lineorder;
 
 CREATE COLUMN TABLE  lineorder
@@ -32,7 +35,6 @@ CREATE COLUMN TABLE  lineorder
 IMPORT FROM CSV FILE '/usr/sap/HXE/HDB90/work/lineorder.tbl' INTO "SYSTEM"."LINEORDER" 
 WITH
 
-threads 2
-batch 10000
 record delimited by '\n' 
 field delimited by '|';
+*/
