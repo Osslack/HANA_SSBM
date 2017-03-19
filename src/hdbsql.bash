@@ -106,29 +106,83 @@ function hdb_check_connection {
 }
 
 
+function hdb_log {
+	echo "$1" >> "$hdb_log_path"
+}
+
+
+function hdb_log_string {
+	hdb_log "'$1'"
+}
+
+function hdb_log_number {
+	hdb_log "$1"
+}
+
+function hdb_log_start_array {
+	hdb_log "["
+}
+
+function hdb_log_end_array {
+	hdb_log "]"
+}
+
+function hdb_log_start_map {
+	hdb_log "{"
+}
+
+function hdb_log_end_map {
+	hdb_log "}"
+}
+
+function hdb_log_start_attribute {
+	hdb_log "'$1':"
+}
+
+function hdb_log_end_attribute {
+	hdb_log ","
+}
+
+function hdb_log_set_attribute {
+	hdb_log_start_attribute "$1"
+	hdb_log_string "$2"
+	hdb_log_end_attribute
+}
 
 function hdb_init_log {
 	rm "$hdb_log_path"
 	hdb_tmp_path=$(mktemp "$hdb_tmp_path_root.XXX")
+	hdb_log_start_map
 }
 
 function hdb_finish_log {
 	rm "$hdb_tmp_path"
+	hdb_log_end_map
 }
 
-function hdb_log {
-	echo "LOG START" >> "$hdb_log_path"
-	echo "$1" >> "$hdb_log_path"
-	echo "LOG_END" >> "$hdb_log_path"
+function hdb_start_benchmark {
+	hdb_log_start_attribute "$1"
+	hdb_log_start_array
+}
+
+function hdb_end_benchmark {
+	hdb_log_end_array
+	hdb_log_end_attribute
 }
 
 function hdb_flush_tmp {
+	hdb_log_start_attribute "$1"
+	hdb_log "'"
 	filter='/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/'
 	awk "$filter" "$hdb_tmp_path" >> "$hdb_log_path"
+	hdb_log "'"
+	hdb_log_end_attribute
 }
 
 function hdb_run_file {
-	hdb_log "Running $1"
+	hdb_log_start_map 
+	hdb_log_set_attribute "Type" "exec_file"
+	hdb_log_set_attribute "Filename" "$1"
 
 	hdbsql \
 		-i "$hdb_instance" \
@@ -141,12 +195,18 @@ function hdb_run_file {
 
 	if [[ $? != 0 ]]; then
 		printf "Could not execute:\n$1\n"
-		exit 1
+		hdb_log_set_attribute "Error" "$?"
 	fi
+	if [[ $2 ]]; then
+		hdb_flush_tmp "Result"
+	fi
+	hdb_log_end_map
 }
 
 function hdb_run {
-	hdb_log "$1"
+	hdb_log_start_map
+	hdb_log_set_attribute "Type" "inline_command"
+	hdb_log_set_attribute "Query" "$1"
 
 	hdbsql \
 		-i "$hdb_instance" \
@@ -159,6 +219,10 @@ function hdb_run {
 
 	if [[ $? != 0 ]]; then
 		printf "Could not execute:\n$1\n"
-		exit 1
+		hdb_log_set_attribute "Error" "$?"
 	fi
+	if [[ $2 ]]; then
+		hdb_flush_tmp "Result"
+	fi
+	hdb_log_end_map
 }

@@ -11,7 +11,8 @@ setup(
             "numpy",
             "terminaltables",
             "jupyter",
-            "matplotlib"
+            "matplotlib",
+            "nbconvert"
         ],
         author="Arwed Mett"
 )
