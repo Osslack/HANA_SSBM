@@ -1,0 +1,220 @@
+<?Version 21?>
+<Plan ID="ID_58CEAF4D4B9A063AE10000007F000002_1" xmlns="http://www.sap.com/ndb/planviz" Type="Executed" PlanType="QoExec">
+<SystemVersion><![CDATA[{"Version":"2.00.000.00.1479874437","CompileType":"rel"}]]></SystemVersion>
+<SQL><![CDATA[select sum(lo_revenue), d_year, p_brand
+from lineorder
+join dim_date
+on lo_orderdatekey = d_datekey
+join part
+on lo_partkey = p_partkey
+join supplier
+on lo_suppkey = s_suppkey
+where  p_brand= 'MFGR#2239'
+and s_region = 'EUROPE'
+group by d_year, p_brand
+order by d_year, p_brand]]></SQL>
+<CompileTime>
+	<Start Unit="us">1489920787367613</Start>
+	<End Unit="us">1489920787401970</End>
+</CompileTime>
+<StmtStats><![CDATA[]]></StmtStats>
+<StmtMemStats><![CDATA[[{"Allocated Count":599,"Allocated Size":262712,"Allocator Name":"Connection/100326/Statement/430897750061841","Count in Use":596,"Deallocated Count":556,"Deallocated Size":102888,"Depth":3,"Max Allocation Size (estimate)":160384,"Max Single Allocation Size":65584,"Size in Use":159600},{"Allocated Count":42,"Allocated Size":246704,"Allocator Name":"Connection/100326/Statement/430897750061841/Pool/RowEngine/QueryExecution","Count in Use":42,"Deallocated Count":14,"Deallocated Size":91216,"Depth":4,"Max Allocation Size (estimate)":155488,"Max Single Allocation Size":65584,"Size in Use":155488},{"Allocated Count":584,"Allocated Size":18664,"Allocator Name":"Connection/100326/Statement/430897750061841/IMPLICIT","Count in Use":581,"Deallocated Count":543,"Deallocated Size":11688,"Depth":4,"Max Allocation Size (estimate)":7536,"Max Single Allocation Size":5120,"Size in Use":6752}]]]></StmtMemStats>
+<CompileSummary><![CDATA[{"Compilation Time Breakdown":{"parsing time":"0.278 ms","checking time":"1.000 ms","QP to QC conversion time":"0.366 ms","rewriting time":"23.304 ms","query compilation time":"28.757 ms"},"Cost Based Optimization Details":{"# of operators normalized":"10","memory pool size normalized":"1.000 MB","cost based optimization time":"0.879 ms","limit of alternative enumeration":"100","limit of joinThruJoin enumeration":"50","# of alternative enumerations":"8","# of duplicate detections":"1","# of expansions":"25","# of prunings":"9","# of index enumerations":"1","# of column search enumerations":"0","# of column Join estimator calls":"0","# of operator groups":"20","# of operators":"28","# of possible combinations of plan":"12","memory pool size of physical enumerations":"1.000 MB","default expression segment size":"16384","# of expression segment blocks":"1","estimated expression pre-eval memory size":"0.002 MB"},"Plan Properties":{"Non-Deterministic Functions":{}}}]]></CompileSummary>
+	<RootRelation ID="ID_58CEAF4D4B9A063AE10000007F000002_1" TypeName="PROJECT" InternalBufferId="10" Status="Finished">
+		<Name>ROW SEARCH</Name>
+		<ExecutionType>ROW</ExecutionType>
+		<Summary><![CDATA[SUM(LINEORDER.LO_REVENUE), DIM_DATE.D_YEAR, 'MFGR#2239']]></Summary>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">7592.29</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>791.725</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489920787405842</Start>
+			<End Unit="us">1489920787409487</End>
+			<Exclusive Unit="us">29</Exclusive>
+			<Inclusive Unit="us">3645</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489920787405842,"end":1489920787405865,"thread":1705},{"start":1489920787409399,"end":1489920787409399,"thread":1705}]},{"Fetch": [{"start":1489920787409440,"end":1489920787409443,"thread":1705},{"start":1489920787409445,"end":1489920787409446,"thread":1705}]},{"Close": [{"start":1489920787409455,"end":1489920787409456,"thread":1705},{"start":1489920787409486,"end":1489920787409487,"thread":1705}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">0.019</UserCPUTime>
+		<Details><![CDATA[{"Projected Cols":"SUM(LINEORDER.LO_REVENUE), DIM_DATE.D_YEAR, 'MFGR#2239'"}]]></Details>
+		<Child ID="ID_58CEAF4D4B9A063AE10000007F000002_2" >
+			<ExecutedOutputCardinality>0</ExecutedOutputCardinality>
+			<FetchCallCount>0</FetchCallCount>
+		</Child>
+	</RootRelation>
+	<Relation ID="ID_58CEAF4D4B9A063AE10000007F000002_2" TypeName="ORDER_BY" InternalBufferId="9" Status="Finished">
+		<Name>ORDER BY</Name>
+		<ExecutionType>ROW</ExecutionType>
+		<Summary><![CDATA[DIM_DATE.D_YEAR ASC]]></Summary>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">5642.22</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>791.725</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489920787405866</Start>
+			<End Unit="us">1489920787409483</End>
+			<Exclusive Unit="us">10</Exclusive>
+			<Inclusive Unit="us">3617</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489920787405866,"end":1489920787405869,"thread":1705},{"start":1489920787409390,"end":1489920787409393,"thread":1705},{"start":1489920787409395,"end":1489920787409398,"thread":1705}]},{"Close": [{"start":1489920787409457,"end":1489920787409458,"thread":1705},{"start":1489920787409483,"end":1489920787409483,"thread":1705}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">0.005</UserCPUTime>
+		<Details><![CDATA[{"Execution time detail":[{"child fetch time (real)":"0 ms"}],"Runtime information":[{"#fetch thread":"1 "}],"Sort Cols":"DIM_DATE.D_YEAR ASC"}]]></Details>
+		<Child ID="ID_58CEAF4D4B9A063AE10000007F000002_3" >
+			<ExecutedOutputCardinality>0</ExecutedOutputCardinality>
+			<FetchCallCount>0</FetchCallCount>
+		</Child>
+	</Relation>
+	<Relation ID="ID_58CEAF4D4B9A063AE10000007F000002_3" TypeName="GROUP_BY" InternalBufferId="7" Status="Finished">
+		<Name>AGGREGATION</Name>
+		<ExecutionType>ROW</ExecutionType>
+		<Summary><![CDATA[SUM(LINEORDER.LO_REVENUE)]]></Summary>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">4560.41</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>791.725</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489920787405869</Start>
+			<End Unit="us">1489920787409480</End>
+			<Exclusive Unit="us">55</Exclusive>
+			<Inclusive Unit="us">3611</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489920787405869,"end":1489920787405871,"thread":1705},{"start":1489920787405902,"end":1489920787405908,"thread":1705},{"start":1489920787409341,"end":1489920787409370,"thread":1705},{"start":1489920787409372,"end":1489920787409389,"thread":1705}]},{"Close": [{"start":1489920787409458,"end":1489920787409459,"thread":1705},{"start":1489920787409480,"end":1489920787409480,"thread":1705}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">0.051</UserCPUTime>
+		<Details><![CDATA[{"Execution time detail":[{"grouping time (real)":"3 ms"},{"merge time (real)":"0 ms"}],"Runtime information":[{"#grouping threads":"1 "},{"#merge threads":"1 "}],"Grouping Cols":"DIM_DATE.D_YEAR, ","Aggregation Cols":"SUM(LINEORDER.LO_REVENUE)"}]]></Details>
+		<Child ID="ID_58CEAF4D4B9A063AE10000007F000002_4" >
+			<ExecutedOutputCardinality>0</ExecutedOutputCardinality>
+			<FetchCallCount>1</FetchCallCount>
+		</Child>
+	</Relation>
+	<Relation ID="ID_58CEAF4D4B9A063AE10000007F000002_4" TypeName="INDEX_JOIN" InternalBufferId="5" Status="Finished">
+		<Name>BTREE INDEX JOIN</Name>
+		<ExecutionType>ROW</ExecutionType>
+		<Summary><![CDATA[_SYS_TREE_RS_#157617_#0_#P0, INDEX CONDITION: LINEORDER.LO_ORDERDATEKEY = DIM_DATE.D_DATEKEY]]></Summary>
+		<Schema><![CDATA[SYSTEM]]></Schema>
+		<ObjectName><![CDATA[DIM_DATE]]></ObjectName>
+		<TableType><![CDATA[ROW TABLE]]></TableType>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">2602.33</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>791.725</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489920787405871</Start>
+			<End Unit="us">1489920787409478</End>
+			<Exclusive Unit="us">134</Exclusive>
+			<Inclusive Unit="us">3607</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489920787405871,"end":1489920787405873,"thread":1705},{"start":1489920787405900,"end":1489920787405901,"thread":1705}]},{"Fetch": [{"start":1489920787405914,"end":1489920787405916,"thread":1705},{"start":1489920787409215,"end":1489920787409339,"thread":1705},{"start":1489920787409339,"end":1489920787409340,"thread":1705}]},{"Close": [{"start":1489920787409460,"end":1489920787409464,"thread":1705},{"start":1489920787409478,"end":1489920787409478,"thread":1705}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">0.128</UserCPUTime>
+		<Details><![CDATA[{"Index Name":"_SYS_TREE_RS_#157617_#0_#P0","Index Condition":"LINEORDER.LO_ORDERDATEKEY = DIM_DATE.D_DATEKEY"}]]></Details>
+		<Child ID="ID_58CEAF4D4B9A063AE10000007F000002_5" >
+			<ExecutedOutputCardinality>525</ExecutedOutputCardinality>
+			<FetchCallCount>1</FetchCallCount>
+		</Child>
+	</Relation>
+	<Relation ID="ID_58CEAF4D4B9A063AE10000007F000002_5" TypeName="INDEX_JOIN" InternalBufferId="3" Status="Finished">
+		<Name>BTREE INDEX JOIN</Name>
+		<ExecutionType>ROW</ExecutionType>
+		<Summary><![CDATA[_SYS_TREE_RS_#157602_#0_#P0, INDEX CONDITION: LINEORDER.LO_SUPPKEY = SUPPLIER.S_SUPPKEY, INDEX FILTER: SUPPLIER.S_REGION = 'EUROPE']]></Summary>
+		<Schema><![CDATA[SYSTEM]]></Schema>
+		<ObjectName><![CDATA[SUPPLIER]]></ObjectName>
+		<TableType><![CDATA[ROW TABLE]]></TableType>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">2221.73</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>791.725</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489920787405873</Start>
+			<End Unit="us">1489920787409476</End>
+			<Exclusive Unit="us">2268</Exclusive>
+			<Inclusive Unit="us">3603</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489920787405873,"end":1489920787405874,"thread":1705},{"start":1489920787405898,"end":1489920787405899,"thread":1705}]},{"Fetch": [{"start":1489920787405917,"end":1489920787405918,"thread":1705},{"start":1489920787406947,"end":1489920787409208,"thread":1705},{"start":1489920787409210,"end":1489920787409213,"thread":1705}]},{"Close": [{"start":1489920787409464,"end":1489920787409465,"thread":1705},{"start":1489920787409476,"end":1489920787409476,"thread":1705}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">2.260</UserCPUTime>
+		<Details><![CDATA[{"Index Name":"_SYS_TREE_RS_#157602_#0_#P0","Index Condition":"LINEORDER.LO_SUPPKEY = SUPPLIER.S_SUPPKEY","Right Filter":"SUPPLIER.S_REGION = 'EUROPE'"}]]></Details>
+		<Child ID="ID_58CEAF4D4B9A063AE10000007F000002_6" >
+			<ExecutedOutputCardinality>2762</ExecutedOutputCardinality>
+			<FetchCallCount>1</FetchCallCount>
+		</Child>
+	</Relation>
+	<Relation ID="ID_58CEAF4D4B9A063AE10000007F000002_6" TypeName="INDEX_JOIN" InternalBufferId="2" Status="Finished">
+		<Name>CPBTREE INDEX JOIN</Name>
+		<ExecutionType>ROW</ExecutionType>
+		<Summary><![CDATA[IDX_LO_PARTKEY, INDEX CONDITION: PART.P_PARTKEY = LINEORDER.LO_PARTKEY]]></Summary>
+		<Schema><![CDATA[SYSTEM]]></Schema>
+		<ObjectName><![CDATA[LINEORDER]]></ObjectName>
+		<TableType><![CDATA[ROW TABLE]]></TableType>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">297.745</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>1887.16</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489920787405875</Start>
+			<End Unit="us">1489920787409474</End>
+			<Exclusive Unit="us">1005</Exclusive>
+			<Inclusive Unit="us">3599</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489920787405875,"end":1489920787405875,"thread":1705},{"start":1489920787405894,"end":1489920787405897,"thread":1705}]},{"Fetch": [{"start":1489920787405919,"end":1489920787405920,"thread":1705},{"start":1489920787405945,"end":1489920787406941,"thread":1705},{"start":1489920787406942,"end":1489920787406945,"thread":1705}]},{"Close": [{"start":1489920787409465,"end":1489920787409466,"thread":1705},{"start":1489920787409473,"end":1489920787409474,"thread":1705}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">0.996</UserCPUTime>
+		<Details><![CDATA[{"Index Name":"IDX_LO_PARTKEY","Index Condition":"PART.P_PARTKEY = LINEORDER.LO_PARTKEY"}]]></Details>
+		<Child ID="ID_58CEAF4D4B9A063AE10000007F000002_7" >
+			<ExecutedOutputCardinality>216</ExecutedOutputCardinality>
+			<FetchCallCount>1</FetchCallCount>
+		</Child>
+	</Relation>
+	<Relation ID="ID_58CEAF4D4B9A063AE10000007F000002_7" TypeName="INDEX" InternalBufferId="1" Status="Finished">
+		<Name>CPBTREE INDEX SEARCH</Name>
+		<ExecutionType>ROW</ExecutionType>
+		<Summary><![CDATA[IDX_P_BRAND, INDEX CONDITION: PART.P_BRAND = 'MFGR#2239']]></Summary>
+		<Schema><![CDATA[SYSTEM]]></Schema>
+		<ObjectName><![CDATA[PART]]></ObjectName>
+		<TableType><![CDATA[ROW TABLE]]></TableType>
+		<Location>hxehost:39001</Location>
+		<EstimatedCost>
+			<Inclusive Unit="us">10.3159</Inclusive>
+		</EstimatedCost>
+		<EstimatedOutputCardinality>151.518</EstimatedOutputCardinality>
+		<ExecutionTime>
+			<Start Unit="us">1489920787405876</Start>
+			<End Unit="us">1489920787409469</End>
+			<Exclusive Unit="us">43</Exclusive>
+			<Inclusive Unit="us">3593</Inclusive>
+			<Timestamps>[{"Open": [{"start":1489920787405876,"end":1489920787405893,"thread":1705}]},{"Fetch": [{"start":1489920787405921,"end":1489920787405944,"thread":1705}]},{"Close": [{"start":1489920787409466,"end":1489920787409469,"thread":1705}]}]</Timestamps>
+		</ExecutionTime>
+		<MemoryUsage>
+			<Max>0</Max>
+		</MemoryUsage>
+		<KernelCPUTime Unit="ms">0.000</KernelCPUTime>
+		<UserCPUTime Unit="ms">0.041</UserCPUTime>
+		<Details><![CDATA[{"Index Name":"IDX_P_BRAND","Index Condition":"PART.P_BRAND = 'MFGR#2239'"}]]></Details>
+	</Relation>
+</Plan>
