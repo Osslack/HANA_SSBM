@@ -1,0 +1,18 @@
+\chapter{Setup}
+Diese Kapitel beschreibt das grundlegende Setup, um mit der SAP HANA Datenbank, in Form einer virtuellen Maschine, arbeiten zu können.
+
+\section{Virtuelle Machine}
+\textbf{ToDo - Setup von Arwed beachten}
+
+\section{\enquote{Eclipse}}
+Damit verschiedene Operationen auf der SAP HANA Datenbank ausgeführt werden können, ist es ratsam die Entwicklungsumgebung \enquote{Eclipse} zum Ausführen von SQL Statements zu nutzen. \\Unter dem folgenden Link (\url{https://www.sap.com/developer/how-tos/2016/09/hxe-howto-eclipse.html}) ist beschrieben, welche Erweiterungen und Einstellungen in \enquote{Eclipse} vorgenommen werden müssen, um eine Verbindung zur Datenbank herzustellen.
+
+\subsection{Query Execution Plan}
+Um nachvollziehen zu können, in welcher Abfolge die SQL Statements von der HANA Datenbank verarbeitet werden, lassen sich Query Execution Pläne erstellen.
+Dafür sind folgende Schritte notwendig:
+\begin{enumerate}
+	\item SQL Console öffnen \& Statement eingeben
+	\item \enquote{Rechtsklick} im Context Fenster der SQL Console
+	\item Wähle den Menüpunkt \enquote{Visualize Plan} $\rightarrow$ \enquote{Execute} aus.
+	\item Der Query Execution Plan wird nun angezeigt.
+\end{enumerate} 
