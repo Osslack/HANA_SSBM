@@ -1,0 +1,8 @@
+\chapter{Performance Verbesserung durch Indizes}
+
+Indizes können die Suche nach bestimmten Feldern beschleunigen, indem eine seperate Struktur angelegt wird, die schneller, in der Regel sogar logarithmisch, durchsucht werden kann.
+%https://de.wikipedia.org/wiki/Datenbankindex
+Im Rahmen des SSBM-Benchmarks sind einige Indizes bereits fester Bestandteil des Datenbankschemas. Die Auswirkung dieser Indizes im Vergleich zu einem Schema ohne Indizes soll im Folgenden betrachtet werden. Außerdem soll Optimierungspotenzial durch weitere Indizes untersucht werden.
+Hierzu werden die Query Execution Pläne näher betrachtet und auf weitere Indexkandidaten untersucht. Diese werden anschließend angelegt und ihre Auswirkung auf die Laufzeit untersucht.
+
+\section{Grundlegender Aufbau des SSBM-Schemas}
