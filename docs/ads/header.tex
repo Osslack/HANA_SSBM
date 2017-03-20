@@ -45,7 +45,7 @@
 
 % Einstellung der Sprache des Paketes Babel und der Verzeichnisüberschriften
 \iflang{de}{\usepackage[english, ngerman]{babel}}
-\iflang{en}{\usepackage[ngerman, english]{babel}} 
+\iflang{en}{\usepackage[ngerman, english]{babel}}
 
 
 %%%%%%% Package Includes %%%%%%%
@@ -70,7 +70,9 @@
 \usepackage[printonlyused]{acronym} % falls gewünscht kann die Option footnote eingefügt werden, dann wird die Erklärung nicht inline sondern in einer Fußnote dargestellt
 \usepackage{listings}
 
-% Notizen. Einsatz mit \todo{Notiz} oder \todo[inline]{Notiz}. 
+\usepackage{csvsimple}
+
+% Notizen. Einsatz mit \todo{Notiz} oder \todo[inline]{Notiz}.
 \usepackage[obeyFinal,backgroundcolor=yellow,linecolor=black]{todonotes}
 % Alle Notizen ausblenden mit der Option "final" in \documentclass[...] oder durch das auskommentieren folgender Zeile
 % \usepackage[disable]{todonotes}
