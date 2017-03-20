@@ -112,7 +112,7 @@ function hdb_log {
 
 
 function hdb_log_string {
-	hdb_log "'$1'"
+	hdb_log "\"$1\""
 }
 
 function hdb_log_number {
@@ -136,7 +136,7 @@ function hdb_log_end_map {
 }
 
 function hdb_log_start_attribute {
-	hdb_log "'$1':"
+	hdb_log "\"$1\":"
 }
 
 function hdb_log_end_attribute {
@@ -150,14 +150,33 @@ function hdb_log_set_attribute {
 }
 
 function hdb_init_log {
+	# clear old log
 	rm "$hdb_log_path"
+	# create temporary file
 	hdb_tmp_path=$(mktemp "$hdb_tmp_path_root.XXX")
+	# start main map
 	hdb_log_start_map
 }
 
 function hdb_finish_log {
-	rm "$hdb_tmp_path"
+	# finish maim map
 	hdb_log_end_map
+
+	# create new temp file
+	rm "$hdb_tmp_path"
+	hdb_tmp_path=$(mktemp "$hdb_tmp_path_root.XXX")
+
+	# remove trailing commas
+	# e.g.
+	#     { "x": "y", } -> { "x": "y" }
+	cat "$hdb_log_path" \
+		| tr "\n" " " | sed "s/,[ \n\r\t][ \n\r\t]*\\}/\\}/g" \
+		| sed "s/,[ \n\r\t][ \n\r\t]*\\]/\\]/g" \
+		> "$hdb_tmp_path"
+	cat "$hdb_tmp_path" > "$hdb_log_path"
+
+	# clean up empty files
+	rm "$hdb_tmp_path"
 }
 
 function hdb_start_benchmark {
@@ -171,18 +190,26 @@ function hdb_end_benchmark {
 }
 
 function hdb_flush_tmp {
+	# Copy the content of the temporary file into the log
+	# and remove all temporary data
 	hdb_log_start_attribute "$1"
-	hdb_log "'"
-	filter='/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/'
-	awk "$filter" "$hdb_tmp_path" >> "$hdb_log_path"
-	hdb_log "'"
+	hdb_log "\""
+	filter="/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/"
+	awk "$filter" "$hdb_tmp_path" | tr "\n" ";" >> "$hdb_log_path"
+	hdb_log "\""
 	hdb_log_end_attribute
+	# Create new temporary file
+	rm "$hdb_tmp_path"
+	hdb_tmp_path=$(mktemp "$hdb_tmp_path_root.XXX")
 }
 
 function hdb_run_file {
-	hdb_log_start_map 
-	hdb_log_set_attribute "Type" "exec_file"
-	hdb_log_set_attribute "Filename" "$1"
+	# Only log if second argument is provided
+	if [[ $2 ]]; then
+		hdb_log_start_map 
+		hdb_log_set_attribute "Type" "exec_file"
+		hdb_log_set_attribute "Filename" "$1"
+	fi
 
 	hdbsql \
 		-i "$hdb_instance" \
@@ -193,20 +220,26 @@ function hdb_run_file {
 		-O "$hdb_output_path" \
 		-I "$1"
 
+	# Check for error
 	if [[ $? != 0 ]]; then
 		printf "Could not execute:\n$1\n"
 		hdb_log_set_attribute "Error" "$?"
 	fi
+
+	# Only log if second argument is provided
 	if [[ $2 ]]; then
 		hdb_flush_tmp "Result"
+		hdb_log_end_map
 	fi
-	hdb_log_end_map
 }
 
 function hdb_run {
-	hdb_log_start_map
-	hdb_log_set_attribute "Type" "inline_command"
-	hdb_log_set_attribute "Query" "$1"
+	# Only log if second argument is provided
+	if [[ $2 ]]; then
+		hdb_log_start_map
+		hdb_log_set_attribute "Type" "inline_command"
+		hdb_log_set_attribute "Query" "$1"
+	fi
 
 	hdbsql \
 		-i "$hdb_instance" \
@@ -217,12 +250,14 @@ function hdb_run {
 		-O "$hdb_output_path" \
 		"$1"
 
+	# Check for error
 	if [[ $? != 0 ]]; then
 		printf "Could not execute:\n$1\n"
 		hdb_log_set_attribute "Error" "$?"
 	fi
+	# Only log if second argument is provided
 	if [[ $2 ]]; then
 		hdb_flush_tmp "Result"
+		hdb_log_end_map
 	fi
-	hdb_log_end_map
 }

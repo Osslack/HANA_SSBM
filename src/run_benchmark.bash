@@ -3,7 +3,7 @@ source ./hdbsql.bash
 source ./all_benchmarks.bash
 
 # Settings
-repetitions=1
+repetitions=250
 
 hdb_ask $1
 

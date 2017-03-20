@@ -46,6 +46,7 @@ function run_all_benchmarks {
 		hdb_log_start_array
 		benchmark $1
 		hdb_log_end_array
+		hdb_log ","
 		printf "\n"
 	done
 }
