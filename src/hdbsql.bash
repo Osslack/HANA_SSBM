@@ -194,8 +194,12 @@ function hdb_flush_tmp {
 	# and remove all temporary data
 	hdb_log_start_attribute "$1"
 	hdb_log "\""
-	filter="/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/"
-	awk "$filter" "$hdb_tmp_path" | tr "\n" ";" >> "$hdb_log_path"
+	awk "/::GET SERVER PROCESSING TIME.*/,/TIME:\s*([0-9]*)\susec/" "$hdb_tmp_path" \
+		| grep -o "TIME:\s*[0-9]*\s*usec" \
+		| grep -o "[1-9][0-9]*" \
+		| tr "\n" ";" \
+		| tr -d " " \
+		>> "$hdb_log_path"
 	hdb_log "\""
 	hdb_log_end_attribute
 	# Create new temporary file
@@ -228,7 +232,7 @@ function hdb_run_file {
 
 	# Only log if second argument is provided
 	if [[ $2 ]]; then
-		hdb_flush_tmp "Result"
+		hdb_flush_tmp "times"
 		hdb_log_end_map
 	fi
 }
@@ -257,7 +261,7 @@ function hdb_run {
 	fi
 	# Only log if second argument is provided
 	if [[ $2 ]]; then
-		hdb_flush_tmp "Result"
+		hdb_flush_tmp "times"
 		hdb_log_end_map
 	fi
 }
