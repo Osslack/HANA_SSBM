@@ -32,9 +32,9 @@ function benchmark {
 function switch_to {
 	printf "Switching to $1.\n"
 	if [[ $1 = "column" ]]; then
-		hdb_run_file ./sql/switch_to_col.sql
+		hdb_run_file_lite ./sql/switch_to_col.sql
 	elif [[ $1 = "row" ]]; then
-		hdb_run_file ./sql/switch_to_row.sql
+		hdb_run_file_lite ./sql/switch_to_row.sql
 	else
 		printf "Cannot switch to $1."
 	fi
