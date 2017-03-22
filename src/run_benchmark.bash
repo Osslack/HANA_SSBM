@@ -19,7 +19,7 @@ hdb_log_end_attribute
 # Run column benchmark
 switch_to "column"
 
-hdb_start_benchmark "column_benchmark_no_Index"
+hdb_start_benchmark "column_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
@@ -34,7 +34,7 @@ hdb_end_benchmark
 hdb_run_file_lite ./sql/schemaRow.sql
 hdb_run_file_lite ./sql/import.sql
 
-hdb_start_benchmark "row_benchmark_no_Index"
+hdb_start_benchmark "row_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
@@ -43,6 +43,8 @@ hdb_run_file_lite ./sql/addBasicIndizes
 hdb_start_benchmark "row_benchmark_Index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
+
+
 # TODO
 # Once up on a time, a little script
 # executed sql files. It was happy and satisfied that
