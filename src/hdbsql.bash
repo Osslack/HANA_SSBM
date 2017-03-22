@@ -74,10 +74,10 @@ function hdb_ask_import {
 
 	if [[ $import =~ ^[Yy]([eE][sS])?$ ]]; then
 		printf "Creating Schema\n"
-		hdb_run_file ./sql/schema.sql
+		hdb_run_file_lite ./sql/schema.sql
 
 		printf "Importing data\n"
-		hdb_run_file ./sql/import.sql
+		hdb_run_file_lite ./sql/import.sql
 	fi
 }
 
@@ -222,6 +222,34 @@ function hdb_run_file {
 		-p "$hdb_password" \
 		-T "$hdb_tmp_path" \
 		-O "$hdb_output_path" \
+		-I "$1"
+
+	# Check for error
+	if [[ $? != 0 ]]; then
+		printf "Could not execute:\n$1\n"
+		hdb_log_set_attribute "Error" "$?"
+	fi
+
+	# Only log if second argument is provided
+	if [[ $2 ]]; then
+		hdb_flush_tmp "times"
+		hdb_log_end_map
+	fi
+}
+
+function hdb_run_file_lite {
+	# Only log if second argument is provided
+	if [[ $2 ]]; then
+		hdb_log_start_map 
+		hdb_log_set_attribute "Type" "exec_file"
+		hdb_log_set_attribute "Filename" "$1"
+	fi
+
+	hdbsql \
+		-i "$hdb_instance" \
+		-d "$hdb_database" \
+		-u "$hdb_username" \
+		-p "$hdb_password" \
 		-I "$1"
 
 	# Check for error
