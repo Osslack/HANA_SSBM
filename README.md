@@ -183,7 +183,9 @@ sudo zypper ar -f http://download.opensuse.org/distribution/leap/42.2/repo/oss/ 
 sudo zypper ar -f http://download.opensuse.org/distribution/leap/42.2/repo/non-oss/ repo2
 sudo zypper ar -f http://download.opensuse.org/update/leap/42.2/oss/ repo3
 sudo zypper ar -f http://download.opensuse.org/update/leap/42.2/non-oss/ repo4
+sudo zypper ref
 ```
+
 Then you can install the guest additions via:
 ```
 sudo zypper install virtualbox-guest-tools
