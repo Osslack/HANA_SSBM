@@ -3,8 +3,8 @@
 source hdbsql.bash
 
 function test {
-	hdb_run_file $1
-	hdb_flush_tmp
+	hdb_run_file $1 log
+	hdb_log ','
 	printf "."
 }
 
@@ -32,19 +32,21 @@ function benchmark {
 function switch_to {
 	printf "Switching to $1.\n"
 	if [[ $1 = "column" ]]; then
-		hdb_run_file ./sql/switch_to_col.sql
+		hdb_run_file_lite ./sql/switch_to_col.sql
 	elif [[ $1 = "row" ]]; then
-		hdb_run_file ./sql/switch_to_row.sql
+		hdb_run_file_lite ./sql/switch_to_row.sql
 	else
 		printf "Cannot switch to $1."
 	fi
-	hdb_flush_tmp
 }
 
 function run_all_benchmarks {
 	for i in `seq 1 ${2:-1}`; do
 		printf "Running benchmark number $i"
+		hdb_log_start_array
 		benchmark $1
+		hdb_log_end_array
+		hdb_log ","
 		printf "\n"
 	done
 }

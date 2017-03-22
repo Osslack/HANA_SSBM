@@ -1,0 +1,64 @@
+Statement 'select sum(lo_extendedprice*lo_discount) as revenue from lineorder join dim_date on lo_orderdatekey ...' 
+successfully executed in 266 ms 34 탎  (server processing time: 265 ms 646 탎)
+Fetched 1 row(s) in 0 ms 21 탎 (server processing time: 0 ms 0 탎)
+
+
+Statement 'select sum(lo_extendedprice*lo_discount) as revenue from lineorder join dim_date on lo_orderdatekey ...' 
+successfully executed in 19 ms 498 탎  (server processing time: 19 ms 66 탎)
+Fetched 1 row(s) in 0 ms 5 탎 (server processing time: 0 ms 0 탎)
+
+
+Statement 'select sum(lo_extendedprice*lo_discount) as revenue from lineorder join dim_date on lo_orderdatekey ...' 
+successfully executed in 4 ms 493 탎  (server processing time: 4 ms 79 탎)
+Fetched 1 row(s) in 0 ms 7 탎 (server processing time: 0 ms 0 탎)
+
+
+Statement 'select sum(lo_revenue), d_year, p_brand from lineorder join dim_date on lo_orderdatekey = d_datekey ...' 
+successfully executed in 97 ms 280 탎  (server processing time: 96 ms 877 탎)
+Fetched 280 row(s) in 1 ms 120 탎 (server processing time: 0 ms 246 탎)
+
+
+Statement 'select sum(lo_revenue), d_year, p_brand from lineorder join dim_date on lo_orderdatekey = d_datekey ...' 
+successfully executed in 19 ms 659 탎  (server processing time: 19 ms 238 탎)
+Fetched 56 row(s) in 0 ms 602 탎 (server processing time: 0 ms 138 탎)
+
+
+Statement 'select sum(lo_revenue), d_year, p_brand from lineorder join dim_date on lo_orderdatekey = d_datekey ...' 
+successfully executed in 3 ms 40 탎  (server processing time: 2 ms 615 탎)
+Fetched 7 row(s) in 0 ms 20 탎 (server processing time: 0 ms 0 탎)
+
+
+Statement 'select c_nation, s_nation, d_year, sum(lo_revenue) as revenue from customer join lineorder on ...' 
+successfully executed in 502 ms 502 탎  (server processing time: 502 ms 94 탎)
+Fetched 150 row(s) in 0 ms 753 탎 (server processing time: 0 ms 177 탎)
+
+
+Statement 'select c_city, s_city, d_year, sum(lo_revenue) as revenue from customer join lineorder on ...' 
+successfully executed in 77 ms 347 탎  (server processing time: 76 ms 895 탎)
+Fetched 599 row(s) in 5 ms 259 탎 (server processing time: 0 ms 331 탎)
+
+
+Statement 'select c_city, s_city, d_year, sum(lo_revenue) as revenue from customer join lineorder on ...' 
+successfully executed in 7 ms 214 탎  (server processing time: 6 ms 747 탎)
+Fetched 24 row(s) in 0 ms 38 탎 (server processing time: 0 ms 0 탎)
+
+
+Statement 'select c_city, s_city, d_year, sum(lo_revenue) as revenue from customer join lineorder on ...' 
+successfully executed in 7 ms 371 탎  (server processing time: 7 ms 21 탎)
+Fetched 3 row(s) in 0 ms 12 탎 (server processing time: 0 ms 0 탎)
+
+
+Statement 'select d_year, c_nation, sum(lo_revenue - lo_supplycost) as profit from lineorder join dim_date on ...' 
+successfully executed in 577 ms 922 탎  (server processing time: 577 ms 434 탎)
+Fetched 35 row(s) in 0 ms 503 탎 (server processing time: 0 ms 121 탎)
+
+
+Statement 'select d_year, s_nation, p_category, sum(lo_revenue - lo_supplycost) as profit from lineorder join ...' 
+successfully executed in 352 ms 636 탎  (server processing time: 352 ms 217 탎)
+Fetched 100 row(s) in 0 ms 719 탎 (server processing time: 0 ms 191 탎)
+
+
+Statement 'select d_year, s_city, p_brand, sum(lo_revenue - lo_supplycost) as profit from lineorder join ...' 
+successfully executed in 67 ms 3 탎  (server processing time: 66 ms 600 탎)
+Duration of 13 statements: 2.002 seconds 
+Fetched 694 row(s) in 4 ms 985 탎 (server processing time: 0 ms 401 탎)
