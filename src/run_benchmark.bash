@@ -23,7 +23,7 @@ hdb_start_benchmark "column_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
-hdb_run_file_lite ./sql/addBasicIndizes
+hdb_run_file_lite ./sql/addBasicIndizes.sql
 
 hdb_start_benchmark "column_benchmark_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
@@ -38,7 +38,7 @@ hdb_start_benchmark "row_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
-hdb_run_file_lite ./sql/addBasicIndizes
+hdb_run_file_lite ./sql/addBasicIndizes.sql
 
 hdb_start_benchmark "row_benchmark_Index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
