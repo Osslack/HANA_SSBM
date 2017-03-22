@@ -1,6 +1,8 @@
 #from terminaltables import AsciiTable as Table
 from numpy import median, average, std
+from .table import display_table
 import re
+import json
 
 class Statistical:
     """ Base class for making statistical analysis on a time sequence. """
@@ -8,81 +10,115 @@ class Statistical:
         self.times = times
 
     def min(self):
-        return min(self.times)
+        return min(self.get_times())
 
     def max(self):
-        return max(self.times)
+        return max(self.get_times())
 
     def median(self):
-        return median(self.times)
+        return median(self.get_times())
 
     def average(self):
-        return average(self.times)
+        return average(self.get_times())
 
     def std(self):
-        return std(self.times)
+        return std(self.get_times())
 
     def total(self):
-        return sum(self.times)
+        return sum(self.get_times())
+
+    def samples(self):
+        return len(self.get_times())
 
     def get_times(self):
         return self.times
 
-class Query(Statistical):
+    def get_stats(self):
+        return [
+            ["Samples", self.samples()],
+            ["Average", self.average()],
+            ["Min", self.min()],
+            ["Max", self.max()],
+            ["Median", self.median()],
+            ["Standard Deviation", self.std()],
+            ["Total", self.total()]
+        ]
+
+class Script(Statistical):
     """ A query describes a SQL query which is executed in the benchmark """
 
-    def __init__(self, path_to_query, times):
-        super().__init__(times)
-        self.path_to_query = path_to_query
+    def __init__(self, data):
+        self.data = data
+        super().__init__(self.get_all_times())
 
-    def set_times(self, times):
-        self.times = times
+    def get_data(self):
+        return self.data
 
-    def get_name(self):
-        """ return the name of the query """
-        pass
+    def get_statement(self):
+        with open(self.get_path_to_file()) as statement:
+            return statement.read()
 
-    @staticmethod
-    def from_log(log):
-        """ Parse a Query from a given log. """
-        #search = re.search("TIME:\\s*([0-9]+)\\susec", line)
-            #if search:
-                #time = int(search.group(1))
-                #times.append(time)
-        pass
+    def get_path_to_file(self):
+        return "../" + self.get_data()["Filename"]
 
-class Section:
+    def get_times(self):
+        return list(map(lambda x: int(x),
+            filter(lambda x: x != "",
+                re.split(";", self.get_data()["times"])
+                )
+            )
+        )
 
-    def __init__(self, name):
-        self.name = name
-        self.subsections = []
 
-    def add_subsection(self, subsection):
-        self.subsection.append(subsection)
+class Benchmark(Statistical):
+    def __init__(self, data):
+        self.data = data
+        super().__init__(self.get_all_times())
 
-    def get_subsections(self):
-        return self.subsections
+    def count_repetitions(self):
+        return len(self.get_repetitions())
+
+    def get_repetitions(self):
+        return self.data
+
+    def get_tests(self):
+        return [Test(data)
+                for data in repetition
+                for repetition in self.get_repetitions()]
+
+    def get_all_times(self):
+        times = []
+
+        for repetition in self.data:
+            for query in repetition:
+                times = times + list(map(
+                        lambda x: int(x),
+                        filter(lambda x: x != "",
+                            re.split(";", query["times"]))))
+        return times
 
 class Analyser:
 
     def __init__(self, path_to_log):
-        self.path_to_log = path_to_log
-        print("test")
+        with open(path_to_log, "r") as log:
+            self.log = json.loads(log.read())
 
-    def print_stats_ascii(self):
+    def get_repetitions(self):
+        return int(self.log["General"]["Repetitions:"])
+
+    def get_column_benchmark(self):
+        return Benchmark(self.log["column_benchmark"])
+
+    def get_row_benchmark(self):
+        return Benchmark(self.log["row_benchmark"])
+
+    def print_stats(self, stats):
         """ Print all statistics which can be gathered in ascii art. """
-        pass
-        #table_data = [
-        #    [ "", "Time"],
-        #    [ "average speed", str(self.average()) + " usec" ],
-        #    [ "median speed", str(self.median()) + " usec" ],
-        #    [ "maximum speed", str(self.max()) + " usec" ],
-        #    [ "minimum speed", str(self.min()) + " usec" ],
-        #    [ "standard deviation speed", str(self.std()) + " usec" ],
-        #    [ "total speed", str(self.total()) + " usec" ]
-        #]
-        #table = Table(table_data)
-        #print(table.table)
+        display_table(stats)
+
+    def print_benchmark_stats(self, benchmark):
+        stats = benchmark.get_stats()
+        display_table(stats)
 
     def set_query_filter(self, filter):
         """
