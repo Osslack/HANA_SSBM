@@ -6,9 +6,9 @@ source ./all_benchmarks.bash
 repetitions=250
 
 
-hdb_init_log
-
 hdb_ask $1
+
+hdb_init_log
 
 # General Information
 hdb_log_start_attribute "General"
