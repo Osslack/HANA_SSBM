@@ -30,5 +30,7 @@ SAP HANA Administration Guide
 https://help.sap.com/viewer/6b94445c94ae495c83a19646e7c3fd56/2.0.00/en-US
 
 # SSBM
+http://db.inf.uni-tuebingen.de/staticfiles/teaching/ws1011/relsystems/slides_volodymyr_piven.pdf
+https://www.cs.helsinki.fi/webfm_send/1006/Sezin_final.pdf
 http://people.aifb.kit.edu/bka/ssb-benchmark/
 http://www.cs.umb.edu/~poneil/StarSchemaB.pdf

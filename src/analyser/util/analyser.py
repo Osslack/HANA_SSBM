@@ -5,7 +5,9 @@ import re
 import json
 
 class Statistical:
-    """ Base class for making statistical analysis on a time sequence. """
+    """
+    Base class for making statistical analysis on a time sequence.
+    """
     def __init__(self, times):
         self.times = times
 
@@ -45,7 +47,9 @@ class Statistical:
         ]
 
 class Script(Statistical):
-    """ A query describes a SQL query which is executed in the benchmark """
+    """
+    A query describes a SQL query which is executed in the benchmark.
+    """
 
     def __init__(self, data):
         self.data = data
@@ -69,10 +73,65 @@ class Script(Statistical):
             )
         )
 
+class Comparison:
+
+    def __init__(self, *benchmarks):
+        self.benchmarks = benchmarks
+
+    def get_keys(self, stats):
+        return set([row[0] for stat in stats for row in stat])
+
+    def get_stats(self):
+        return [benchmark.get_stats() for benchmark in self.benchmarks]
+
+    def _get_stat_value(self, key, stat):
+        for row in stat:
+            if row[0] == key:
+                return row[1]
+        return "-"
+
+    def get_data(self):
+        data = [ self._create_headings(*self.benchmarks) ]
+        data += self.join_stats(self.get_stats())
+        return data
+
+    def join_stats(self, stats):
+        data = []
+        for key in self.get_keys(stats):
+            row = [key]
+            for stat in stats:
+                row.append(self._get_stat_value(key, stat))
+            data.append(row)
+        return data
+
+    def get_benchmark(self, name):
+        for benchmark in self.benchmarks:
+            if benchmark.get_name() == name:
+                return benchmark
+
+    def _create_headings(self, *benchmarks):
+        return [""] + [benchmark.get_name() for benchmark in benchmarks]
+
+    def compare(name1, name2):
+        b1 = self.get_benchmark(name1)
+        b2 = self.get_benchmakr(name2)
+        data = [ self._create_headings(b1, b2) + ["Difference"] ]
+        stat = self.join_stats(b1.get_stats(), b2.get_stats())
+        for row in stat:
+            row.append(row[1] - row[2])
+            data.append(row)
+        display_table(data)
+
+    def print(self):
+        display_table(self.get_data())
+
+
+
 
 class Benchmark(Statistical):
-    def __init__(self, data):
+    def __init__(self, data, name=""):
         self.data = data
+        self.name = name
         super().__init__(self.get_all_times())
 
     def count_repetitions(self):
@@ -97,6 +156,9 @@ class Benchmark(Statistical):
                             re.split(";", query["times"]))))
         return times
 
+    def get_name(self):
+        return self.name
+
 class Analyser:
 
     def __init__(self, path_to_log):
@@ -107,10 +169,10 @@ class Analyser:
         return int(self.log["General"]["Repetitions:"])
 
     def get_column_benchmark(self):
-        return Benchmark(self.log["column_benchmark"])
+        return Benchmark(self.log["column_benchmark"], "Column Benchmark")
 
     def get_row_benchmark(self):
-        return Benchmark(self.log["row_benchmark"])
+        return Benchmark(self.log["row_benchmark"], "Row Benchmark")
 
     def print_stats(self, stats):
         """ Print all statistics which can be gathered in ascii art. """
