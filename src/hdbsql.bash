@@ -74,7 +74,7 @@ function hdb_ask_import {
 
 	if [[ $import =~ ^[Yy]([eE][sS])?$ ]]; then
 		printf "Creating Schema\n"
-		hdb_run_file_lite ./sql/schema.sql
+		hdb_run_file_lite ./sql/schemaCol.sql
 
 		printf "Importing data\n"
 		hdb_run_file_lite ./sql/import.sql

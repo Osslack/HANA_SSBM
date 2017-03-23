@@ -5,6 +5,7 @@ source ./all_benchmarks.bash
 # Settings
 repetitions=250
 
+
 hdb_ask $1
 
 hdb_init_log
@@ -17,18 +18,44 @@ hdb_log_end_map
 hdb_log_end_attribute
 
 # Run column benchmark
-switch_to "column"
+printf "Importing column data\n"
+hdb_run_file_lite ./sql/schemaCol.sql
+hdb_run_file_lite ./sql/import.sql
+printf "Column data imported\n"
 
-hdb_start_benchmark "column_benchmark"
+#switch_to "column"
+
+hdb_start_benchmark "column_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
+
+printf "Adding Indizes\n"
+hdb_run_file_lite ./sql/addBasicIndizes.sql
+printf "Indizes added\n"
+
+hdb_start_benchmark "column_benchmark_index"
+run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
+hdb_end_benchmark
+
 
 # Run row benchmark
-switch_to "row"
+printf "Importing row data\n"
+hdb_run_file_lite ./sql/schemaRow.sql
+hdb_run_file_lite ./sql/import.sql
+printf "Row data imported\n"
 
-hdb_start_benchmark "row_benchmark"
+hdb_start_benchmark "row_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
+
+printf "Adding Indizes\n"
+hdb_run_file_lite ./sql/addBasicIndizes.sql
+printf "Indizes added\n"
+
+hdb_start_benchmark "row_benchmark_Index"
+run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
+hdb_end_benchmark
+
 
 # TODO
 # Once up on a time, a little script
