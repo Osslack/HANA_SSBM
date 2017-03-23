@@ -81,3 +81,53 @@ function computeAverage(benchmarkdata, repetitions){
 
     return cleaned;
 }
+
+function buildLatexTable(data, tableName, headerData){
+    const tableBegin = "\begin{tabularx}{\linewidth}" + buildColumDefinition(data[Object.keys(data)[0]]) + "\n"
+    const header = tableHeader(headerData);
+    const body = tableBody(data);
+    const tableEnd = "\end{tabularx}\n"
+
+    return tableBegin + header + tableBody + tableEnd;
+}
+
+function tableHeader(headerData){
+    let header = "";
+    headerData.forEach(col => {
+        header += col + "&";
+    })
+
+    return header.slice(-1) + "\\\n";
+}
+
+function tableBody(data){
+    let body = "";
+    Object.keys(data).forEach(key => {
+        let temp = data[key];
+        temp["query"] = key;
+        body += tableRow(temp);
+    })
+
+    return body;
+}
+
+function buildColumDefinition(row){
+    let columnString = "{x";
+
+    Object.keys(row).forEach(key => {
+        columnString += "x";
+    })
+
+    columnString += "}";
+    return columnString;
+}
+
+function tableRow(rowData){
+    let rowString = "";
+
+    Object.keys(rowData).forEach(key => {
+        rowString += rowData[key] + "&";
+    })
+
+    return rowString.slice(-1) + "\\\n";
+}
