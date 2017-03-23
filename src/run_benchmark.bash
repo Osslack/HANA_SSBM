@@ -3,12 +3,12 @@ source ./hdbsql.bash
 source ./all_benchmarks.bash
 
 # Settings
-repetitions=20
+repetitions=250
 
 
 hdb_init_log
 
-#hdb_ask $1
+hdb_ask $1
 
 # General Information
 hdb_log_start_attribute "General"
