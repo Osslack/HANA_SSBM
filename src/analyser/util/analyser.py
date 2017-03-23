@@ -112,10 +112,16 @@ class Analyser:
     def get_column_benchmark_I(self):
         return Benchmark(self.log["column_benchmark_index"])
 
+    def get_column_benchmark(self):
+        return Benchmark(self.log["column_benchmark_index"])
+
     def get_row_benchmark_noI(self):
         return Benchmark(self.log["row_benchmark_no_index"])
 
     def get_row_benchmark_I(self):
+        return Benchmark(self.log["row_benchmark_index"])
+
+    def get_row_benchmark(self):
         return Benchmark(self.log["row_benchmark_index"])
 
     def print_stats(self, stats):
