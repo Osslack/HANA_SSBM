@@ -29,7 +29,7 @@ hdb_start_benchmark "column_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
-printf "Adding Indizes\n"
+printf "Adding Basic Indizes\n"
 hdb_run_file_lite ./sql/addBasicIndizes.sql
 printf "Indizes added\n"
 
@@ -37,6 +37,21 @@ hdb_start_benchmark "column_benchmark_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
+#printf "Adding Advanced Indizes\n"
+#hdb_run_file_lite ./sql/advancedIndizes.sql
+#printf "Indizes added\n"
+
+#hdb_start_benchmark "column_benchmark_index_adv"
+#run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
+#hdb_end_benchmark
+
+#printf "Adding Further Indizes\n"
+#hdb_run_file_lite ./sql/furtherIndizes.sql
+#printf "Indizes added\n"
+
+#hdb_start_benchmark "column_benchmark_index_further"
+#run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
+#hdb_end_benchmark
 
 # Run row benchmark
 printf "Importing row data\n"
@@ -52,55 +67,25 @@ printf "Adding Indizes\n"
 hdb_run_file_lite ./sql/addBasicIndizes.sql
 printf "Indizes added\n"
 
-hdb_start_benchmark "row_benchmark_Index"
+hdb_start_benchmark "row_benchmark_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
+#printf "Adding Advanced Indizes\n"
+#hdb_run_file_lite ./sql/advancedIndizes.sql
+#printf "Indizes added\n"
 
-# TODO
-# Once up on a time, a little script
-# executed sql files. It was happy and satisfied that
-# it was working so well running on bash and leaving
-# everybody in the dust.
-#
-# Hurry, Hurry said the novice programmer to git.
-# This needs to go out, the world must know this little script!!!
-# And git did its job, knowing how lazy the programmer was,
-# but unable to speak. Git pushed the script into the
-# digital universe and threw the baby out with the bathwater
-# lead by the terror of its master.
-#
-# On the other side of universe a wise programmer
-# stumbles up on the little script.
-# In fear of maleware cautiously but curious reading it before running it.
-# Horrified by some lines of code and naming conventions
-# he realizes how stubborn the novice programmer was,
-# leaving a note for him:
-#
-# "Voices without mouths, throats or lungs; they know no language, but answers all tongues."
-#
-# Please think about this riddle it will lead you the path.
-#
+#hdb_start_benchmark "row_benchmark_index_adv"
+#run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
+#hdb_end_benchmark
 
-#Run with indizes
-# Run column benchmark
-# switch_to "column"
-# 
-# printf "Building indizes"
-# hdb_run_file "./sql/addBasicIndizes.sql"
-# 
-# hdb_start_benchmark "column_indizes_benchmark"
-# run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
-# hdb_end_benchmark
-# 
-# # Run row benchmark
-# switch_to "row"
-# 
-# printf "Rebuilding lineorder index"
-# hdb_run_file "./sql/lineOrderIndex.sql"
-# 
-# hdb_start_benchmark "row_indizes_benchmark"
-# run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
-# hdb_end_benchmark
+#printf "Adding Further Indizes\n"
+#hdb_run_file_lite ./sql/furtherIndizes.sql
+#printf "Indizes added\n"
+
+#hdb_start_benchmark "row_benchmark_index_further"
+#run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
+#hdb_end_benchmark
+
 
 hdb_finish_log
