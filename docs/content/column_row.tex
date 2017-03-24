@@ -22,12 +22,12 @@ Im Columnstore liegt eine Spalten-basierte Ordnung vor, d.h. alle Einträge eine
     \end{tabular}
 \end{center}
 
-Der Einsatz von eines Columnstores bringt folgende Vorteile: 
+Der Einsatz eines Columnstores bringt folgende Vorteile: 
 
 \begin{itemize}
-	\item \textbf{Kompression}: Durch sich oft wiederholende Werte innerhalb einer Spalte können diese effizient zusammengefasst werden. Das Ergebnis ist eine Organisation, die die selben Vorteile wie bei einer Indexierung bringt. 
-    \item \textbf{Große Datenmengen}: Updates die wenige Spalten aber dafür viel Daten umfassen, sind im Columnstore effizient. 
-	\item \textbf{Aggregation}: Die Kompression ermöglicht auch das  logische Zusammenfassen der Werte. Damit werden Suchoperationen, sowie das Zusammenfassen von Werten und vergleichbare Operationen auf Spaltenebene effizient. 
+	\item \textbf{Kompression}: Durch sich oft wiederholende Werte innerhalb einer Spalte können diese effizient zusammengefasst werden. Das Ergebnis ist eine Organisation, die die selben Vorteile wie eine Indexierung bringt. 
+    \item \textbf{Große Datenmengen}: Updates, die wenige Spalten, aber dafür viel Daten umfassen, sind im Columnstore effizienter. 
+	\item \textbf{Aggregation}: Die Kompression ermöglicht auch das  logische Zusammenfassen der Werte. Damit werden Suchoperationen, sowie das Zusammenfassen von Werten und vergleichbare Operationen auf Spaltenebene effizienter. 
     \item \textbf{Parallelisierung}: Durch die Spalten-orientierte Speicherung können Datenoperationen spaltenweise parallelisiert werden. 
 \end{itemize}
 
@@ -41,7 +41,7 @@ Im Rowstore liegt eine Zeilen-basierte Ordnung vor, d.h. alle Einträge zu einem
     \end{tabular}
 \end{center}
 
-Der Einsatz von eines Rowstores bringt folgende Vorteile: 
+Der Einsatz eines Rowstores bringt folgende Vorteile: 
 
 \begin{itemize}
     \item \textbf{Neue Datensätze}: Durch die serielle Abbildung im Speicher können Datensätze problemlos angefügt werden. Ausserdem ist es so möglich Datensätze einzufügen, ohne sich um deren exakte Länge kümmern zu müssen.
@@ -53,6 +53,6 @@ Der Einsatz von eines Rowstores bringt folgende Vorteile:
 Allein vom Aufbau der Datenbank-Tabelle lassen sich Empfehlungen ableiten. Viele Spalten sprechen für den Columnstore, da meist nur eine kleine Menge an Spalten angesprochen wird. 
 Auschlaggebend für die Entscheidung zu Row- oder Columnstore ist aber vorallem die Weise, in der mit der Tabelle interagiert wird. Bei vielen kleinen Updates und regelmäßiger Erweiterung um neue Datensätze ist der Rowstore zu präferieren. Von Nachteil ist allerdigs die Notwendigkeit stets den kompletten Datensatz lesen zu müssen, obwohl möglicherweise nur bestimmte Spalten benötigt werden. 
 
-Sind Anfragen vorallem abhängig von Werten einzelner Spalten, sollte der Columnstore verwendet werden. Soll der Zugriff im Rowstore trotzdem abhängig von Spaltenwerten erfolgen, so werden Indizes notwendig, welche im Columnstore durch die Kompression ebenfalls meist nicht notwendig sind. Nichtsdestotrotz werden Indizes im Columnstore jedoch ebenfalls verwendet. Kritisch werden Einfügeoperationen, die Werte einer Große einfügen sollen, welche nicht vorgesehen war. Das festlegen fester Wert-Größen wird notwendig für die impliziete Indexierung der Datensätze. Beim Überschreiten des vorab festgelegten Wertes müssen die Daten neu organisiert werden. 
+Sind Anfragen vorallem abhängig von Werten einzelner Spalten, sollte der Columnstore verwendet werden. Soll der Zugriff im Rowstore trotzdem abhängig von Spaltenwerten erfolgen, so werden Indizes notwendig, welche im Columnstore durch die Kompression ebenfalls meist nicht notwendig sind. Nichtsdestotrotz werden Indizes im Columnstore ebenfalls verwendet. Kritisch werden Einfügeoperationen, die Werte einer Große einfügen sollen, welche nicht vorgesehen war. Das festlegen fester Wert-Größen wird notwendig für die implizite Indexierung der Datensätze. Beim Überschreiten des vorab festgelegten Wertes müssen die Daten neu organisiert werden. 
 
-SAP HANA ist für den Columnstore optimiert. Es existieren einige Features, wie das Partitionieren, welche nur unter Einsatz des Columnstores verwendet werden können. Für die bestmögliche Performance pro Datenbank-Tabelle, können diese im jeweils passenden Store abgelegt werden und später gejoint werden, was dank SAP HANA auch zwischen Row- und Columnstore funktioniert. Allerdings sind Join-Operationen innerhalb des gleichen Stores empfehlenswert für die Performance. Daher kann es sinnvoll sein oft-gejointe Daten trotz genannter Punkte im anderen Store abzulegen. 
+SAP HANA ist für den Columnstore optimiert. Es existieren einige Features, wie das Partitionieren, welche nur unter Einsatz des Columnstores verwendet werden können. Für die bestmögliche Performance pro Datenbank-Tabelle, können diese im jeweils passenden Store abgelegt werden und später gejoint werden, was dank SAP HANA auch zwischen Row- und Columnstore funktioniert. Allerdings sind Join-Operationen innerhalb des gleichen Stores empfehlenswert für die Performance. Daher kann es sinnvoll sein oft-gejointe Daten trotz genannter Punkte im anderen Store abzulegen.
