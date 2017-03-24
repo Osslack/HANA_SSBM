@@ -2,7 +2,24 @@
 
 Indizes können die Suche nach bestimmten Feldern beschleunigen, indem eine seperate Struktur angelegt wird, die schneller, in der Regel sogar logarithmisch, durchsucht werden kann.
 %https://de.wikipedia.org/wiki/Datenbankindex
-Im Rahmen des SSBM-Benchmarks sind einige Indizes bereits fester Bestandteil des Datenbankschemas. Die Auswirkung dieser Indizes im Vergleich zu einem Schema ohne Indizes soll im Folgenden betrachtet werden. Außerdem soll Optimierungspotenzial durch weitere Indizes untersucht werden.
-Hierzu werden die Query Execution Pläne näher betrachtet und auf weitere Indexkandidaten untersucht. Diese werden anschließend angelegt und ihre Auswirkung auf die Laufzeit untersucht.
+Die Auswirkung der grundlegenden Indizes, die bereits teil des SSBM-Schemas sind, wurde bereits in \ref{sec:basic_indizes} untersucht. 
+Im folgenden sollen mögliche Indexkandidaten anhand der Query-Execution-Pläne identifiziert werden und deren Auswirkung auf die Laufzeit untersucht werden.
 
-\section{Grundlegender Aufbau des SSBM-Schemas}
+Alle Laufzeiten in diesem Kapitel wurden auf folgender Hardware getestet:
+\begin{itemize}
+    \item Host: Intel Xeon 1230 V3, 16 GB DDR3 1600MHz, 
+    \item VM: 4 Kerne, 8 GB
+\end{itemize}
+
+Indexkandidaten:
+
+D_YEAR bzw. alle Sachen aus DIM_DATE -> Q1er und Q4.2/3 2.500 auf 660 bis 7
+S_Region -> q2.1/2, q (3.1),q4.1/2 In der Regel weniger als 25\% Treffermenge.
+S_Nation -> q3.2, q4.3 -> 2000 auf 74 Einträge
+C_Nation -> q3.2 30.000 auf 1.200
+
+Mit Ausnahme von C_Nation handelt es sich nur um sehr kleine Tabellen.
+
+
+
+

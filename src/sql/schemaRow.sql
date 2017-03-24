@@ -1,6 +1,6 @@
 DROP TABLE  customer;
 
-CREATE COLUMN TABLE  customer (
+CREATE ROW TABLE  customer (
 	C_CUSTOMERKEY INTEGER,
 	C_Name varchar(25),
 	C_Address varchar(25),
@@ -12,15 +12,9 @@ CREATE COLUMN TABLE  customer (
 	PRIMARY KEY ("C_CUSTOMERKEY")
 );
 
-CREATE INDEX idx_c_name ON customer(C_Name);
-CREATE INDEX idx_c_city ON customer(C_City);
-CREATE INDEX idx_c_region ON customer(C_Region);
-CREATE INDEX idx_c_phone ON customer(C_Phone);
-CREATE INDEX idx_c_mktsegment ON customer(C_MktSegment);
-
 DROP TABLE  part;
 
-CREATE COLUMN TABLE  part
+CREATE ROW TABLE  part
 (
 	P_PartKey integer,
 	P_Name varchar(25),
@@ -34,15 +28,11 @@ CREATE COLUMN TABLE  part
 	PRIMARY KEY (P_PartKey)
 );
 
-CREATE INDEX idx_p_name ON part(P_Name);
-CREATE INDEX idx_p_mfgr ON part(P_MFGR);
-CREATE INDEX idx_p_category ON part(P_Category);
-CREATE INDEX idx_p_brand ON part(P_Brand);
 
 
 DROP TABLE  supplier;
 
-CREATE COLUMN TABLE  supplier (
+CREATE ROW TABLE  supplier (
 	S_SuppKey integer,
 	S_Name char(25),
 	S_Address varchar(25),
@@ -53,15 +43,11 @@ CREATE COLUMN TABLE  supplier (
 	PRIMARY KEY(S_SuppKey)
 );
 
-CREATE INDEX idx_s_city ON supplier(S_City);
-CREATE INDEX idx_s_name ON supplier(S_Name);
-CREATE INDEX idx_s_phone ON supplier(S_Phone);
-
 
 
 DROP TABLE  dim_date;
 
-CREATE COLUMN TABLE  dim_date
+CREATE ROW TABLE  dim_date
 (
 	D_DateKey integer,
 	D_Date char(18),
@@ -85,7 +71,7 @@ CREATE COLUMN TABLE  dim_date
 
 DROP TABLE lineorder;
 
-CREATE COLUMN TABLE  lineorder
+CREATE ROW TABLE  lineorder
 (
 	LO_OrderKey bigint not null,
 	LO_LineNumber tinyint not null,
@@ -106,9 +92,3 @@ CREATE COLUMN TABLE  lineorder
 	LO_ShipMode varchar(10)
 );
 
-CREATE INDEX idx_lo_orderkey_lo_linenumber ON lineorder(LO_OrderKey, LO_LineNumber);
-CREATE INDEX idx_lo_custkey ON lineorder(LO_CustKey);
-CREATE INDEX idx_lo_suppkey ON lineorder(LO_SuppKey);
-CREATE INDEX idx_lo_partkey ON lineorder(LO_PartKey);
-CREATE INDEX idx_lo_orderdatekey ON lineorder(LO_OrderDateKey);
-CREATE INDEX idx_lo_commitdatekey ON lineorder(LO_CommitDateKey);

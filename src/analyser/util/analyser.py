@@ -200,10 +200,16 @@ class Analyser:
         return int(self.log["General"]["Repetitions:"])
 
     def get_column_benchmark(self):
-        return Benchmark(self.log["column_benchmark"], "Column Benchmark")
+        return Benchmark(self.log["column_benchmark_no_index"], "Column Benchmark")
 
     def get_row_benchmark(self):
-        return Benchmark(self.log["row_benchmark"], "Row Benchmark")
+        return Benchmark(self.log["row_benchmark_no_index"], "Row Benchmark")
+
+    def get_column_benchmark_I(self):
+        return Benchmark(self.log["column_benchmark_index"], "Column Benchmark with Index")
+
+    def get_row_benchmark_I(self):
+        return Benchmark(self.log["row_benchmark_index"], "Row Benchmark with Index")
 
     def print_stats(self, stats):
         """ Print all statistics which can be gathered in ascii art. """
