@@ -3,9 +3,12 @@ from numpy import median, average, std
 from .table import display_table
 import re
 import json
+from functools import reduce
 
 class Statistical:
-    """ Base class for making statistical analysis on a time sequence. """
+    """
+    Base class for making statistical analysis on a time sequence.
+    """
     def __init__(self, times):
         self.times = times
 
@@ -35,17 +38,19 @@ class Statistical:
 
     def get_stats(self):
         return [
-            ["Samples", self.samples()],
-            ["Average", self.average()],
-            ["Min", self.min()],
-            ["Max", self.max()],
-            ["Median", self.median()],
-            ["Standard Deviation", self.std()],
-            ["Total", self.total()]
+            ["Samples", round(self.samples(), 0)],
+            ["Average", round(self.average(), 0)],
+            ["Min", round(self.min(), 0)],
+            ["Max", round(self.max(), 0)],
+            ["Median", round(self.median(), 0)],
+            ["Standard Deviation", round(self.std(), 0)],
+            ["Total", round(self.total(), 0)]
         ]
 
 class Script(Statistical):
-    """ A query describes a SQL query which is executed in the benchmark """
+    """
+    A query describes a SQL query which is executed in the benchmark.
+    """
 
     def __init__(self, data):
         self.data = data
@@ -69,11 +74,66 @@ class Script(Statistical):
             )
         )
 
+class Comparison:
+
+    def __init__(self, *benchmarks):
+        self.benchmarks = benchmarks
+
+    def get_keys(self, stats):
+        return set([row[0] for stat in stats for row in stat])
+
+    def get_stats(self):
+        return [benchmark.get_stats() for benchmark in self.benchmarks]
+
+    def _get_stat_value(self, key, stat):
+        for row in stat:
+            if row[0] == key:
+                return row[1]
+        return "-"
+
+    def get_data(self):
+        data = [ self._create_headings(*self.benchmarks) ]
+        data += self.join_stats(self.get_stats())
+        return data
+
+    def join_stats(self, stats):
+        data = []
+        for key in self.get_keys(stats):
+            row = [key]
+            for stat in stats:
+                row.append(self._get_stat_value(key, stat))
+            data.append(row)
+        return data
+
+    def get_benchmark(self, name):
+        for benchmark in self.benchmarks:
+            if benchmark.get_name() == name:
+                return benchmark
+
+    def _create_headings(self, *benchmarks):
+        return [""] + [benchmark.get_name() for benchmark in benchmarks]
+
+    def compare(name1, name2):
+        b1 = self.get_benchmark(name1)
+        b2 = self.get_benchmakr(name2)
+        data = [ self._create_headings(b1, b2) + ["Difference"] ]
+        stat = self.join_stats(b1.get_stats(), b2.get_stats())
+        for row in stat:
+            row.append(row[1] - row[2])
+            data.append(row)
+        display_table(data)
+
+    def print(self):
+        display_table(self.get_data())
+
+
+
 
 class Benchmark(Statistical):
-    def __init__(self, data):
+    def __init__(self, data, name=""):
         self.data = data
-        super().__init__(self.get_all_times())
+        self.name = name
+        super().__init__(list(self.get_all_times()))
 
     def count_repetitions(self):
         return len(self.get_repetitions())
@@ -86,16 +146,49 @@ class Benchmark(Statistical):
                 for data in repetition
                 for repetition in self.get_repetitions()]
 
-    def get_all_times(self):
-        times = []
+    def get_all_filenames(self):
+        return set([
+            result["Filename"]
+            for benchmark in self.data
+            for result in benchmark
+        ])
 
-        for repetition in self.data:
-            for query in repetition:
-                times = times + list(map(
-                        lambda x: int(x),
-                        filter(lambda x: x != "",
-                            re.split(";", query["times"]))))
-        return times
+    def get_all_querynames(self):
+        return map(lambda x: x, self.get_all_filenames())
+
+    def get_query(self, name):
+        return [
+            result
+            for benchmark in self.data
+            for result in benchmark
+            if result["Filename"] == name
+        ]
+
+    def get_all_queries(self):
+        filenames = self.get_all_filenames()
+        return [self.get_query(name) for name in filenames]
+
+    def get_benchmarks(self):
+        for benchmark in self.data:
+            yield benchmark
+
+    def get_all_times(self):
+        for benchmark in self.get_benchmarks():
+            time = 0
+            for test in benchmark:
+                time_string = test["times"]
+                times = list(map(
+                    lambda x: int(x),
+                    filter(
+                        lambda y: y != "",
+                        re.split(";", time_string)
+                    )
+                ))
+                time += reduce(lambda x, y: x + y or 0, times)
+            yield time
+
+    def get_name(self):
+        return self.name
 
 class Analyser:
 
@@ -106,23 +199,17 @@ class Analyser:
     def get_repetitions(self):
         return int(self.log["General"]["Repetitions:"])
 
-    def get_column_benchmark_noI(self):
-        return Benchmark(self.log["column_benchmark_no_index"])
-
-    def get_column_benchmark_I(self):
-        return Benchmark(self.log["column_benchmark_index"])
-
     def get_column_benchmark(self):
-        return Benchmark(self.log["column_benchmark_index"])
-
-    def get_row_benchmark_noI(self):
-        return Benchmark(self.log["row_benchmark_no_index"])
-
-    def get_row_benchmark_I(self):
-        return Benchmark(self.log["row_benchmark_index"])
+        return Benchmark(self.log["column_benchmark_no_index"], "Column Benchmark")
 
     def get_row_benchmark(self):
-        return Benchmark(self.log["row_benchmark_index"])
+        return Benchmark(self.log["row_benchmark_no_index"], "Row Benchmark")
+
+    def get_column_benchmark_I(self):
+        return Benchmark(self.log["column_benchmark_index"], "Column Benchmark with Index")
+
+    def get_row_benchmark_I(self):
+        return Benchmark(self.log["row_benchmark_index"], "Row Benchmark with Index")
 
     def print_stats(self, stats):
         """ Print all statistics which can be gathered in ascii art. """
