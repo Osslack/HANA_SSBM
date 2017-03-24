@@ -12,6 +12,8 @@ Damit verschiedene Operationen auf der SAP HANA Datenbank ausgeführt werden kö
 
 \section{HDB SQL}
 
+
+
 \section{Datenbankschema}
 Zu Beginn muss das Datenbankschema des SSBM-Benchmarks definiert werden. Die Tabellen werden entweder als Column Store (vgl. \autoref{schemaCol})  oder in einem ROW Store gespeichert (vgl.\autoref{schemaRow}). Die in den Listings enthaltenen \enquote{Create Table} Statements unterscheiden sich nur anhand des Schlüsselworts \enquote{COLUMN} bzw. \enquote{ROW} voneinander. 
 \\Damit die Auswirkungen der Indizes ebenfalls festgestellt werden können, wird der Benchmark sowohl für den ROW als auch den COLUMN Store zuerst ohne Indizes ausgeführt. Diese lassen sich anschließend über das Statement \enquote{CREATE Index <index\_name> ON <tabellen\_name>} hinzufügen (vgl. \autoref{indizes}).
