@@ -3,6 +3,7 @@ from numpy import median, average, std
 from .table import display_table
 import re
 import json
+from functools import reduce
 
 class Statistical:
     """
@@ -37,13 +38,13 @@ class Statistical:
 
     def get_stats(self):
         return [
-            ["Samples", self.samples()],
-            ["Average", self.average()],
-            ["Min", self.min()],
-            ["Max", self.max()],
-            ["Median", self.median()],
-            ["Standard Deviation", self.std()],
-            ["Total", self.total()]
+            ["Samples", round(self.samples(), 0)],
+            ["Average", round(self.average(), 0)],
+            ["Min", round(self.min(), 0)],
+            ["Max", round(self.max(), 0)],
+            ["Median", round(self.median(), 0)],
+            ["Standard Deviation", round(self.std(), 0)],
+            ["Total", round(self.total(), 0)]
         ]
 
 class Script(Statistical):
@@ -132,7 +133,7 @@ class Benchmark(Statistical):
     def __init__(self, data, name=""):
         self.data = data
         self.name = name
-        super().__init__(self.get_all_times())
+        super().__init__(list(self.get_all_times()))
 
     def count_repetitions(self):
         return len(self.get_repetitions())
@@ -145,16 +146,46 @@ class Benchmark(Statistical):
                 for data in repetition
                 for repetition in self.get_repetitions()]
 
-    def get_all_times(self):
-        times = []
+    def get_all_filenames(self):
+        return set([
+            result["Filename"]
+            for benchmark in self.data
+            for result in benchmark
+        ])
 
-        for repetition in self.data:
-            for query in repetition:
-                times = times + list(map(
-                        lambda x: int(x),
-                        filter(lambda x: x != "",
-                            re.split(";", query["times"]))))
-        return times
+    def get_all_querynames(self):
+        return map(lambda x: x, self.get_all_filenames())
+
+    def get_query(self, name):
+        return [
+            result
+            for benchmark in self.data
+            for result in benchmark
+            if result["Filename"] == name
+        ]
+
+    def get_all_queries(self):
+        filenames = self.get_all_filenames()
+        return [self.get_query(name) for name in filenames]
+
+    def get_benchmarks(self):
+        for benchmark in self.data:
+            yield benchmark
+
+    def get_all_times(self):
+        for benchmark in self.get_benchmarks():
+            time = 0
+            for test in benchmark:
+                time_string = test["times"]
+                times = list(map(
+                    lambda x: int(x),
+                    filter(
+                        lambda y: y != "",
+                        re.split(";", time_string)
+                    )
+                ))
+                time += reduce(lambda x, y: x + y or 0, times)
+            yield time
 
     def get_name(self):
         return self.name
