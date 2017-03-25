@@ -92,7 +92,7 @@ class Comparison:
 
 
     def get_statisticals(self):
-        return self.statisticals
+        return list(sorted(self.statisticals, key=lambda x: x.get_name()))
 
     def get_data(self):
         data = [ self._create_headings(*self.benchmarks) ]
@@ -100,6 +100,7 @@ class Comparison:
         return data
 
     def join_stats(self, stats):
+        stats = list(map(lambda x: x.get_stats(), stats))
         data = []
         for key in self.get_keys(stats):
             row = [key]
@@ -108,23 +109,13 @@ class Comparison:
             data.append(row)
         return data
 
-    def get_benchmark(self, name):
-        #TODO
-        #for benchmark in self.benchmarks:
-        #    if benchmark.get_name() == name:
-        #        return benchmark
-        pass
+    def compare_raw(self):
+        data = [self._create_headings(*self.get_statisticals())]
+        data += self.join_stats(self.get_statisticals())
+        display_table(data)
 
     def compare(name1, name2):
         #TODO
-        #b1 = self.get_benchmark(name1)
-        #b2 = self.get_benchmakr(name2)
-        #data = [ self._create_headings(b1, b2) + ["Difference"] ]
-        #stat = self.join_stats(b1.get_stats(), b2.get_stats())
-        #for row in stat:
-        #    row.append(row[1] - row[2])
-        #    data.append(row)
-        #display_table(data)
         pass
 
     def compare_visually(self):
@@ -134,7 +125,6 @@ class Comparison:
         plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
         plt.show()
 
-    # Helper functions
     def _create_headings(self, *benchmarks):
         return [""] + [benchmark.get_name() for benchmark in benchmarks]
 
