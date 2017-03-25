@@ -61,12 +61,132 @@ Im folgenden werden die einzelnen Queries des SSBM Benchmarks separat betrachtet
 % Welche ist die schnellste und warum?
 % Stabilität einzelner Queries
 
-
+\newpage
 \section{Einfluss der grundlegenden Indizes}\label{auswertung:basic_indizes}
-
+Die Benchmarkergebnisse in diesem Abschnitt wurden auf folgender Hardware erzielt:
+\begin{itemize}
+    \item Host: i7 7700k, 16GB DDR4 RAM
+    \item VM: 6 Kerne @90\%, 8GB RAM
+\end{itemize}
 %TODO
 % Row with or without indices
 % Column with or without indices
+
+\subsection{Grundlegende Untersuchung für Column-Store}
+
+\begin{table}[H]
+\centering
+    \begin{tabularx}{10cm}{lrrr}
+        \toprule
+        Merkmal             &   Col[ms]    &    Col Index[ms] & Abweichung (Index zu kein Index)[\%]\\
+        \toprule
+        Samples             &   250        &   250      &        \\
+        \midrule    
+        Max                 &   859        &   697      & -18.8\%\\
+        Min                 &   726        &   546      & -24.7\%\\
+        Median              &   752        &   574      & -23.6\%\\
+        Average             &   755        &   578      & -23.4\%\\
+        Standard Deviation  &   18         &   19       & +5.5\%\\
+        Total               &   188672     &   144605   & -23.3\%\\
+        \bottomrule
+    \end{tabularx}
+\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Column-Store.}
+\label{tab:basic_index_col}
+\end{table}
+
+Durch hinzufügen der grundlegenden Indizes wurde der Benchmark für Colum-Stores sowohl im Schnitt als auch im Median deutlich schneller.
+Im Schnitt wurde er 23.4\%, im Median um 23,6\% schneller. Die Standardabweichung hat sich jedoch nur geringfügig verändert, die Werte streuen relativ gesehen also gleich stark wie zuvor. Folglich konnten Mindest- und Maximallaufzeit auch deutlich reduziert werden. 
+
+
+Diese Ergebnisse sind in sofern interessant, als dass Column-Stores eigentlich bereits einen quasi-Index für die Spalten haben und deshalb nicht so deutlich von Indizes profitieren sollten, siehe \ref{sec:col_store}.
+Um herauszufinden, warum trotzdem so eine deutliche Verbesserung merkbar ist, wird der Query-Execution Plan des Subqueries mit der deutlichsten Verbesserung untersucht.
+
+\subsubsection{Untersuchung der Laufzeit für einzelne Query(gruppen)}
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabularx}{14cm}{lrrr}
+        \toprule
+        Benchmarkgruppe & Col[ms]   & Col Index[ms] & Laufzeitreduzierung[ms|\%]\\
+        \toprule
+        Q1              & 104.7       & 68.5            & 36.2 | 34.5\%\\
+        Q2              & 62.1        & 59.7            & 2.4 |  03.8\%\\
+        Q3              & 96.2        & 54.8            & 41.4 | 40.8\%\\
+        Q4              & 112.4       & 106.3           & 6.1 |  05.4\%\\
+        \bottomrule
+    \end{tabularx}
+\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
+\end{table}
+
+Die deutlichste Verbesserung ist bei den Queries in der Gruppe 3 festzustellen. Hier hat sich die Laufzeit um 40\% reduziert. Die Queries dieser Gruppe werden im Detail untersucht, um einen geeigneten Kandidaten für die Analyse des Execution-Plans zu finden.
+Hier ist besonders bei Query 3.3 und 3.4 eine extreme Verbesserung ersichtlich. Die Laufzeit wurde hier um knapp mehr als 90\% reduziert. Woher diese immense Verbesserung kommt, soll im Folgenden durch die Analyse des Execution-Plans von Query 3.4 geklärt werden.
+
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabularx}{13cm}{lrrr}
+        \toprule
+        Benchmark           & Col[ms]       & Col Index[ms] & Laufzeitreduzierung[ms|\%]   \\
+        \toprule
+        Q3.1                & 31.3          & 31.6          & -0.3 | -0.9\%                \\
+        Q3.2                & 24.0          & 18.9          & 5.1 | 21.2\%                 \\
+        Q3.3                & 21.3          & 2.1           & 19.2 | 90.1\%                \\
+        Q3.4                & 20.5          & 1.6           & 18.9 | 92.1\%                \\
+        \bottomrule
+    \end{tabularx}
+\caption{Durchschnittslaufzeit für Benchmarkgruppe 3 für Column-Store.}
+\end{table}
+
+\subsubsection{Analyse des Query-Execution-Plans für Query 3.4}
+
+Bei der Analyse des Query-Execution Plans zeigt sich schnell, woher die große Verbesserung kommt. In Query 3.4 wird ein JOIN von Lineorder auf Customer, Supplier und Dim\_Date gemacht. 
+Dieser JOIN erfolgt jeweils über den Foreign Key in Lineorder. Ohne Indizes ist dieser JOIN hauptverantwortlich für die Laufzeit des Querys.
+Durch die grundlegenden Indizes wird auf jeden dieser Foreign Keys ein Index angelegt, weshalb der JOIN deutlich beschleunigt wird. Am meisten Einfluss hat hier der Index auf LO\_Suppkey.
+
+Beide Execution-Pläne sind im Anhang zu finden, mit Index \hyperlink{q34I.1}{hier}, ohne Index \hyperlink{q34noI.1}{hier}. 
+
+Query 3.1 nutzt zwar auch diese Foreign Keys, um die Tabellen zu JOINEN, allerdings sind hier viele Felder in der WHERE-Klausel und im GROUP BY, die nicht indiziert sind, nämlich S\_Region, D\_Year, C\_Nation und S\_Nation.
+
+Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
+
+\subsubsection{Analyse des Query-Execution-Plans für Query 1.1}
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabularx}{13cm}{lrrr}
+        \toprule
+        Benchmark           & Col[ms]       & Col Index[ms] & Laufzeitreduzierung[ms|\%]   \\
+        \toprule
+        Q1.1                & 36.1          & 36.4          & -0.3 | -0.9\%                \\
+        Q1.2                & 47.8          & 16.8          & 31.0 | 21.2\%                 \\
+        Q1.3                & 21.3          & 14.1          & 7.2 | 33.8\%                \\
+        \bottomrule
+    \end{tabularx}
+\caption{Durchschnittslaufzeit für Benchmarkgruppe 3 für Column-Store.}
+\end{table}
+
+
+
+\subsection{Grundlegende Untersuchung für Row-Store}
+
+\begin{table}[!ht]
+    \begin{tabularx}{10cm}{l|rr}
+        \toprule
+        Wert                & Row[ms] & Row Index[ms]\\
+        \toprule
+        Samples             & 250      & 250\\
+        Min                 & 3353     & 2839\\
+        Median              & 3519     & 3006\\
+        Average             & 3539     & 3048\\
+        Max                 & 4283     & 3394\\
+        Standard Deviation  & 110      & 124\\
+        Total               & 884960   & 762128\\ 
+    \end{tabularx}
+\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
+\label{tab:basic_index_row}
+\end{table}
+
+
 
 \section{Auswirkung unterschiedlicher Hardwarekonfiguration}\label{auswertung:hardware}
 
