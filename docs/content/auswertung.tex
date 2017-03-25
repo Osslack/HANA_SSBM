@@ -36,7 +36,16 @@ Unterschied in der Laufzeit zwischen Row- und Columnstore.
 Da der SSBM Benchmark als Maß für Abfragen im Bereich des Datawarehouse
 eingesetzt wird, kann also allgemein gesagt werden,  dass der Columnstore
 dem Rowstore im Datawarehouse Umfeld vorzuziehen ist.
-Anhand der Standardabweichung ist auch zu sehen, dass der Columnstore
+Jedoch sollte bedacht werden, dass es sich bei dem SSBM Benchmark um
+reine Abfragen von Daten handelt. Wie in \autoref{row_col:rowstore} beschrieben
+kann ein Rowstore von Vorteil sein, wenn Daten gespeichert werden.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/performanceentwicklung.png}
+	\caption{Gesamtlaufzeit von Row- und Columnstore}\label{auswertung:gesamtlaufzeit:graph}
+\end{figure}
+Anhand der Standardabweichung und \autoref{auswertung:gesamtlaufzeit:graph} ist auch zu sehen, dass der Columnstore
 eine konstantere Zeit pro Abfrage aufweist.
 Allerdings da der Rowstore im allgemeinen langsamer ist als der Columnstore
 kann dies vernachlässigt werden, da die Standardabweichung relativ zur

@@ -134,6 +134,8 @@ class Comparison:
 
     def compare_visually(self):
         plt.subplot()
+        plt.xlabel("Repetition")
+        plt.ylabel("Time in usec")
         for statistical in self.get_statisticals():
             plt.plot(statistical.get_times(), label=statistical.get_name())
         plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
