@@ -94,16 +94,26 @@ Die Benchmarkergebnisse in diesem Abschnitt wurden auf folgender Hardware erziel
 \label{tab:basic_index_col}
 \end{table}
 
-Durch hinzufügen der grundlegenden Indizes wurde der Benchmark für Colum-Stores sowohl im Schnitt als auch im Median deutlich schneller.
-Im Schnitt wurde er 23.4\%, im Median um 23,6\% schneller. Die Standardabweichung hat sich jedoch nur geringfügig verändert, die Werte streuen relativ gesehen also gleich stark wie zuvor. Folglich konnten Mindest- und Maximallaufzeit auch deutlich reduziert werden. 
+Durch hinzufügen der grundlegenden Indizes wurde der Benchmark
+für Columstores sowohl im Schnitt als auch im Median schneller.
+Im Schnitt wurde er 23,4\%, im Median um 23,6\% schneller.
+Die Standardabweichung hat sich jedoch nur geringfügig verändert.
+Die Werte streuen relativ gesehen also gleich stark wie zuvor.
+Folglich konnten Mindest- und Maximallaufzeit auch deutlich reduziert werden. 
 
 
-Diese Ergebnisse sind in sofern interessant, als dass Column-Stores eigentlich bereits einen quasi-Index für die Spalten haben und deshalb nicht so deutlich von Indizes profitieren sollten, siehe \ref{sec:col_store}.
-Um herauszufinden, warum trotzdem so eine deutliche Verbesserung merkbar ist, wird der Query-Execution Plan des Subqueries mit der deutlichsten Verbesserung untersucht.
+Diese Ergebnisse sind interessant,
+da Columnstores bereits einen natürlichen Index
+durch speichern der Daten in Spalten haben,
+wie in \autoref{sec:col_store} beschrieben.
+Deshalb profitieren Columnstore meist nicht von zusätzlichen Indizes.
+Um herauszufinden, warum trotzdem eine deutliche Verbesserung merkbar ist,
+wird der Query-Execution Plan des Subqueries mit der deutlichsten Verbesserung
+im folgenden untersucht.
 
-\subsubsection{Untersuchung der Laufzeit für einzelne Query(gruppen)}
+\subsubsection{Untersuchung der Laufzeit für einzelne Query-Gruppen}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \begin{tabularx}{14cm}{lrrr}
         \toprule
@@ -115,11 +125,18 @@ Um herauszufinden, warum trotzdem so eine deutliche Verbesserung merkbar ist, wi
         Q4              & 112.4       & 106.3           & 6.1 |  05.4\%\\
         \bottomrule
     \end{tabularx}
-\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
+	\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
 \end{table}
 
-Die deutlichste Verbesserung ist bei den Queries in der Gruppe 3 festzustellen. Hier hat sich die Laufzeit um 40\% reduziert. Die Queries dieser Gruppe werden im Detail untersucht, um einen geeigneten Kandidaten für die Analyse des Execution-Plans zu finden.
-Hier ist besonders bei Query 3.3 und 3.4 eine extreme Verbesserung ersichtlich. Die Laufzeit wurde hier um knapp mehr als 90\% reduziert. Woher diese immense Verbesserung kommt, soll im Folgenden durch die Analyse des Execution-Plans von Query 3.4 geklärt werden.
+Die deutlichste Verbesserung ist bei den Queries in der Gruppe 3 festzustellen.
+Hier hat sich die Laufzeit um 40\% reduziert.
+Um zu verstehen weshalb wie der allgemeine Geschwindigkeitszuwachs
+entsteht wird im folgenden Gruppe 3 exemplarisch analysiert.
+Hier ist besonders bei Query 3.3 und 3.4 eine extreme Verbesserung ersichtlich.
+Die Laufzeit wurde hier um etwa 90\% reduziert.
+Woher diese extreme Verbesserung kommt,
+kann durch die Analyse des Execution-Plans
+von Query 3.4 erklärt werden.
 
 
 \begin{table}[!ht]
@@ -139,13 +156,23 @@ Hier ist besonders bei Query 3.3 und 3.4 eine extreme Verbesserung ersichtlich. 
 
 \subsubsection{Analyse des Query-Execution-Plans für Query 3.4}
 
-Bei der Analyse des Query-Execution Plans zeigt sich schnell, woher die große Verbesserung kommt. In Query 3.4 wird ein JOIN von Lineorder auf Customer, Supplier und Dim\_Date gemacht. 
-Dieser JOIN erfolgt jeweils über den Foreign Key in Lineorder. Ohne Indizes ist dieser JOIN hauptverantwortlich für die Laufzeit des Querys.
-Durch die grundlegenden Indizes wird auf jeden dieser Foreign Keys ein Index angelegt, weshalb der JOIN deutlich beschleunigt wird. Am meisten Einfluss hat hier der Index auf LO\_Suppkey.
+Bei der Analyse des Query-Execution Plans zeigt sich schnell,
+woher die große Geschwindigkeitssteigerung kommt.
+In Query 3.4 bildet einen Join von Lineorder auf Customer,
+Supplier und Dim\_Date. 
+Dieser Join erfolgt jeweils über den Fremdschlüssel in Lineorder.
+Ohne Indizes ist dieser Join ausschlaggebend für die Laufzeit des Querys.
+Durch anlegen von Indizes auf alle Fremdschlüssel,
+kann der Join deutlich schneller ausgeführt werden.
+Den größten Vorteil hat hier der Index auf LO\_Suppkey.
 
-Beide Execution-Pläne sind im Anhang zu finden, mit Index \hyperlink{q34I.1}{hier}, ohne Index \hyperlink{q34noI.1}{hier}. 
+Der Execution Plan ohne Indizes ist in \autoref{execution-plan:before-index}
+zu finden und der Execution Plan mit Indizes ist in \autoref{execution-plan:after-index} zu finden.
 
-Query 3.1 nutzt zwar auch diese Foreign Keys, um die Tabellen zu JOINEN, allerdings sind hier viele Felder in der WHERE-Klausel und im GROUP BY, die nicht indiziert sind, nämlich S\_Region, D\_Year, C\_Nation und S\_Nation.
+Query 3.1 im Vergleich nutzt zwar auch Fremdschlüssel, um einen Join zu bilden,
+allerdings sind hier die nicht indizierten Felder \verb+S_Region+, \verb+D_Year+,
+\verb+C_Nation+ und \verb+S_Nation+ in der Where- und der Group by-Klausel gelistet,
+wodurch eine Geschwindigkeitsverbesserung nicht möglich ist.
 
 Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
 
