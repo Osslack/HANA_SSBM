@@ -12,7 +12,8 @@ setup(
             "terminaltables",
             "jupyter",
             "matplotlib",
-            "nbconvert"
+            "nbconvert",
+            "pandas"
         ],
         author="Arwed Mett"
 )

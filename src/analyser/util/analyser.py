@@ -134,6 +134,8 @@ class Comparison:
 
     def compare_visually(self):
         plt.subplot()
+        plt.xlabel("Repetition")
+        plt.ylabel("Time in usec")
         for statistical in self.get_statisticals():
             plt.plot(statistical.get_times(), label=statistical.get_name())
         plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
@@ -284,4 +286,4 @@ class Analyser:
         return Benchmark(self.log["column_benchmark_index"], "Column Benchmark with Index")
 
     def get_row_benchmark_I(self):
-        return Benchmark(self.log["row_benchmark_Index"], "Row Benchmark with Index")
+        return Benchmark(self.log["row_benchmark_index"], "Row Benchmark with Index")
