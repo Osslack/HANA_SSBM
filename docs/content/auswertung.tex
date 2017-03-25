@@ -103,7 +103,7 @@ Um herauszufinden, warum trotzdem so eine deutliche Verbesserung merkbar ist, wi
 
 \subsubsection{Untersuchung der Laufzeit für einzelne Query(gruppen)}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \begin{tabularx}{14cm}{lrrr}
         \toprule
@@ -118,16 +118,18 @@ Um herauszufinden, warum trotzdem so eine deutliche Verbesserung merkbar ist, wi
 \caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
 \end{table}
 
-Die deutlichste Verbesserung ist bei den Queries in der Gruppe 3 festzustellen. Hier hat sich die Laufzeit um 40\% reduziert. Die Queries dieser Gruppe werden im Detail untersucht, um einen geeigneten Kandidaten für die Analyse des Execution-Plans zu finden.
-Hier ist besonders bei Query 3.3 und 3.4 eine extreme Verbesserung ersichtlich. Die Laufzeit wurde hier um knapp mehr als 90\% reduziert. Woher diese immense Verbesserung kommt, soll im Folgenden durch die Analyse des Execution-Plans von Query 3.4 geklärt werden.
+Deutliche Verbesserungungen sind bei den Queries der Gruppen 1 und 3 festzustellen. Hier hat sich die Laufzeit um 35\% bzw. sogar 41\% reduziert. Die Queries dieser Gruppe werden im Detail untersucht, um geeignete Kandidaten für die Analyse des Execution-Plans zu finden.
+Hier sind besonders bei Query 1.2 und 3.4 interessant, da diese die größte Verbesserung in ihrer Gruppe vorweisen können. Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 reduziert. Woher diese Verbesserung kommen, soll im Folgenden durch die Analyse der Execution-Pläne von Query 1.1 und 3.4 geklärt werden.
 
-
-\begin{table}[!ht]
+\begin{table}[H]
     \centering
     \begin{tabularx}{13cm}{lrrr}
         \toprule
         Benchmark           & Col[ms]       & Col Index[ms] & Laufzeitreduzierung[ms|\%]   \\
         \toprule
+        Q1.1                & 36.1          & 36.4          & -0.3 | -0.8\%                \\
+        Q1.2                & 47.8          & 16.8          & 31.0 | 64.8\%                 \\
+        Q1.3                & 21.3          & 14.1          & 7.2 | 33.8\%                \\
         Q3.1                & 31.3          & 31.6          & -0.3 | -0.9\%                \\
         Q3.2                & 24.0          & 18.9          & 5.1 | 21.2\%                 \\
         Q3.3                & 21.3          & 2.1           & 19.2 | 90.1\%                \\
@@ -149,27 +151,24 @@ Query 3.1 nutzt zwar auch diese Foreign Keys, um die Tabellen zu JOINEN, allerdi
 
 Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
 
-\subsubsection{Analyse des Query-Execution-Plans für Query 1.1}
+\subsubsection{Analyse des Query-Execution-Plans für Query 1.2}
+#https://archive.sap.com/discussions/thread/3429357
+Bei Query 1.2 trat gibt es eine Besonderheit: Manchmal wird der Query über die OLAP-Engine ausgeführt. 
+Hierbei ist der Laufzeitunterschied zwischen Index und kein Index fast nicht mehr vorhanden, der Query mit Index braucht allerdings weniger Zeit zur Kompilation. Eigentlich ist die OLAP-Engine für \enquote{Analytical Views}, die im Snowflake Schema vorliegen gedacht. 
+Das ist hier ja auch definitiv der Fall. Allerdings ist nicht klar, warum die OLAP-Engine manchmal verwendet wird und manchmal nicht. Um zu sehen, welche Engine verwendet wird, muss anstatt \enquote{Visualize Plan} die Option \enquote{Explain Plan} gewählt werden.
 
-\begin{table}[!ht]
-    \centering
-    \begin{tabularx}{13cm}{lrrr}
-        \toprule
-        Benchmark           & Col[ms]       & Col Index[ms] & Laufzeitreduzierung[ms|\%]   \\
-        \toprule
-        Q1.1                & 36.1          & 36.4          & -0.3 | -0.9\%                \\
-        Q1.2                & 47.8          & 16.8          & 31.0 | 21.2\%                 \\
-        Q1.3                & 21.3          & 14.1          & 7.2 | 33.8\%                \\
-        \bottomrule
-    \end{tabularx}
-\caption{Durchschnittslaufzeit für Benchmarkgruppe 3 für Column-Store.}
-\end{table}
+Zunächst trat die OLAP-Engine nur auf, wenn Indizes hinzugefügt wurden, weshalb zunächst angenommen wurde, dass HANA an Hand der Indizes erkennt, dass es sich im Grunde um einen Analytical View handelt und dementsprechend optimiert.
+Allerdings gab es auch Fälle, wo die OLAP-Engine auch ohne Indizes verwendet wurde.
+
+
+Bei Query 1.2 ist auf den ersten Blick nicht erkenntlich, warum dieser von den Indizes profitiert. Die grundlegende Berechnungszeit ist näm
+
 
 
 
 \subsection{Grundlegende Untersuchung für Row-Store}
 
-\begin{table}[!ht]
+\begin{table}[H]
     \begin{tabularx}{10cm}{l|rr}
         \toprule
         Wert                & Row[ms] & Row Index[ms]\\
