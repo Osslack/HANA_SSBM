@@ -78,7 +78,7 @@ Die Benchmarkergebnisse in diesem Abschnitt wurden auf folgender Hardware erziel
 \centering
     \begin{tabularx}{10cm}{lrrr}
         \toprule
-        Merkmal             &   Col[ms]    &    Col Index[ms] & Abweichung\footnote{Abweichung von \enquote{mit Index} in Relation zu \enquote{ohne Index}.}[\%]\\
+        Merkmal             &   Col[ms]    &    Col Index[ms] & Abweichung (Index zu kein Index)[\%]\\
         \toprule
         Samples             &   250        &   250      &        \\
         \midrule    
@@ -101,7 +101,7 @@ Im Schnitt wurde er 23.4\%, im Median um 23,6\% schneller. Die Standardabweichun
 Diese Ergebnisse sind in sofern interessant, als dass Column-Stores eigentlich bereits einen quasi-Index für die Spalten haben und deshalb nicht so deutlich von Indizes profitieren sollten, siehe \ref{sec:col_store}.
 Um herauszufinden, warum trotzdem so eine deutliche Verbesserung merkbar ist, wird der Query-Execution Plan des Subqueries mit der deutlichsten Verbesserung untersucht.
 
-\subsubsection{Verbesserung der Laufzeit für einzelne Query(gruppen)}
+\subsubsection{Untersuchung der Laufzeit für einzelne Query(gruppen)}
 
 \begin{table}[!ht]
     \centering
@@ -110,9 +110,9 @@ Um herauszufinden, warum trotzdem so eine deutliche Verbesserung merkbar ist, wi
         Benchmarkgruppe & Col[ms]   & Col Index[ms] & Laufzeitreduzierung[ms|\%]\\
         \toprule
         Q1              & 104.7       & 68.5            & 36.2 | 34.5\%\\
-        Q2              & 62.1        & 59.7            & 2.4  | 3.8\%\\
+        Q2              & 62.1        & 59.7            & 2.4 |  03.8\%\\
         Q3              & 96.2        & 54.8            & 41.4 | 40.8\%\\
-        Q4              & 112.4       & 106.3           & 6.1  | 5.4\%\\
+        Q4              & 112.4       & 106.3           & 6.1 |  05.4\%\\
         \bottomrule
     \end{tabularx}
 \caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
@@ -147,7 +147,24 @@ Beide Execution-Pläne sind im Anhang zu finden, mit Index \hyperlink{q34I.1}{hi
 
 Query 3.1 nutzt zwar auch diese Foreign Keys, um die Tabellen zu JOINEN, allerdings sind hier viele Felder in der WHERE-Klausel und im GROUP BY, die nicht indiziert sind, nämlich S\_Region, D\_Year, C\_Nation und S\_Nation.
 
-Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen. 
+Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
+
+\subsubsection{Analyse des Query-Execution-Plans für Query 1.1}
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabularx}{13cm}{lrrr}
+        \toprule
+        Benchmark           & Col[ms]       & Col Index[ms] & Laufzeitreduzierung[ms|\%]   \\
+        \toprule
+        Q1.1                & 36.1          & 36.4          & -0.3 | -0.9\%                \\
+        Q1.2                & 47.8          & 16.8          & 31.0 | 21.2\%                 \\
+        Q1.3                & 21.3          & 14.1          & 7.2 | 33.8\%                \\
+        \bottomrule
+    \end{tabularx}
+\caption{Durchschnittslaufzeit für Benchmarkgruppe 3 für Column-Store.}
+\end{table}
+
 
 
 \subsection{Grundlegende Untersuchung für Row-Store}
