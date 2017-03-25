@@ -114,9 +114,20 @@ class Comparison:
         data += self.join_stats(self.get_statisticals())
         display_table(data)
 
-    def compare(name1, name2):
-        #TODO
-        pass
+    def compare(self):
+        data = [self._create_headings(*self.get_statisticals())]
+        data += list(map(lambda x: self.normalize_row(x), self.join_stats(self.get_statisticals())))
+        display_table(data)
+
+    def normalize_row(self, row):
+        name = row[0]
+        values = row[1:]
+        result = []
+        if min(values) - max(values) == 0:
+            return row
+        for value in values:
+            result += [round((value - min(values)) / (max(values) - min(values)), 2)]
+        return [name] + result
 
     def compare_visually(self):
         plt.subplot()
