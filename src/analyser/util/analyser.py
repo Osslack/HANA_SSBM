@@ -41,6 +41,9 @@ class Statistical:
     def get_name(self):
         return self.name
 
+    def set_name(self, name):
+        self.name = name
+
     def get_stats(self):
         return [
             ["Samples", int(round(self.samples(), 0))],
