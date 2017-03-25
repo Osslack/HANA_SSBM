@@ -332,3 +332,6 @@ ENV/
 .ropeproject
 
 # End of https://www.gitignore.io/api/python
+resources/StarSchemaB.PDF
+resources/tpc-h_v2.17.1.pdf
+docs/ssbm_basic.pdf
