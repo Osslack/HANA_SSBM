@@ -284,4 +284,4 @@ class Analyser:
         return Benchmark(self.log["column_benchmark_index"], "Column Benchmark with Index")
 
     def get_row_benchmark_I(self):
-        return Benchmark(self.log["row_benchmark_Index"], "Row Benchmark with Index")
+        return Benchmark(self.log["row_benchmark_index"], "Row Benchmark with Index")
