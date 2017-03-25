@@ -4,6 +4,7 @@ from .table import display_table
 import re
 import json
 from functools import reduce
+import matplotlib.pyplot as plt
 
 class Statistical:
     """
@@ -83,20 +84,15 @@ class Comparison:
     Compare multiple benchmarks.
     """
 
-    def __init__(self, *benchmarks):
-        self.benchmarks = benchmarks
+    def __init__(self, *statisticals):
+        self.statisticals = statisticals
 
     def get_keys(self, stats):
         return set([row[0] for stat in stats for row in stat])
 
-    def get_stats(self):
-        return [benchmark.get_stats() for benchmark in self.benchmarks]
 
-    def _get_stat_value(self, key, stat):
-        for row in stat:
-            if row[0] == key:
-                return row[1]
-        return "-"
+    def get_statisticals(self):
+        return self.statisticals
 
     def get_data(self):
         data = [ self._create_headings(*self.benchmarks) ]
@@ -113,28 +109,42 @@ class Comparison:
         return data
 
     def get_benchmark(self, name):
-        for benchmark in self.benchmarks:
-            if benchmark.get_name() == name:
-                return benchmark
+        #TODO
+        #for benchmark in self.benchmarks:
+        #    if benchmark.get_name() == name:
+        #        return benchmark
+        pass
 
+    def compare(name1, name2):
+        #TODO
+        #b1 = self.get_benchmark(name1)
+        #b2 = self.get_benchmakr(name2)
+        #data = [ self._create_headings(b1, b2) + ["Difference"] ]
+        #stat = self.join_stats(b1.get_stats(), b2.get_stats())
+        #for row in stat:
+        #    row.append(row[1] - row[2])
+        #    data.append(row)
+        #display_table(data)
+        pass
+
+    def compare_visually(self):
+        plt.subplot()
+        for statistical in self.get_statisticals():
+            plt.plot(statistical.get_times(), label=statistical.get_name())
+        plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+        plt.show()
+
+    # Helper functions
     def _create_headings(self, *benchmarks):
         return [""] + [benchmark.get_name() for benchmark in benchmarks]
 
-    def compare(name1, name2):
-        b1 = self.get_benchmark(name1)
-        b2 = self.get_benchmakr(name2)
-        data = [ self._create_headings(b1, b2) + ["Difference"] ]
-        stat = self.join_stats(b1.get_stats(), b2.get_stats())
+    def _get_stat_value(self, key, stat):
         for row in stat:
-            row.append(row[1] - row[2])
-            data.append(row)
-        display_table(data)
-
-    def print(self):
-        display_table(self.get_data())
-
-
-
+            if row[0] == key:
+                return row[1]
+        return "-"
+    def _statisticals_to_stat(self):
+        return [statistical.get_stats() for statistical in self.get_statisticals()]
 
 class Benchmark(Statistical):
 
@@ -205,13 +215,15 @@ class Benchmark(Statistical):
 
         return result
 
-    def get_query_stats(self):
+    def get_query_stats(self, name_condition=lambda x: re.search("\\.", x)):
         """
         Returns a statistical object for every query
         which is executed by this benchmark.
         """
-        for name, query in self.get_all_queries().items():
-            yield self._query_to_stat(name, query)
+        result = []
+        for name, query in self._filter_grouped_sqls(self.get_all_queries(), name_condition).items():
+            result.append(self._query_to_stat(name, query))
+        return result
 
     def print_stats(self):
         display_table(self.get_stats())
@@ -242,6 +254,8 @@ class Benchmark(Statistical):
         times = list(map(lambda test: self._extract_time(test), query))
         return Statistical(times, name)
 
+    def _filter_grouped_sqls(self, queries, name_condition):
+        return dict({k: v for k, v in queries.items() if name_condition(k)})
 
 class Analyser:
     """
@@ -266,4 +280,4 @@ class Analyser:
         return Benchmark(self.log["column_benchmark_index"], "Column Benchmark with Index")
 
     def get_row_benchmark_I(self):
-        return Benchmark(self.log["row_benchmark_index"], "Row Benchmark with Index")
+        return Benchmark(self.log["row_benchmark_Index"], "Row Benchmark with Index")
