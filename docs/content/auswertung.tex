@@ -1,4 +1,13 @@
 \chapter{Auswertung Benchmark}
+Im folgenden werden die Ergebnisse des Benchmarks ausgewertet.
+Dazu wird zu erst die Gesamtlaufzeit des Benchmarks in Abschnitt \ref{auswertung:generell} analysiert. Dabei wird zwischen zeilenbasierten und spatenbasierten
+Tabellen unterschieden.
+Anschließend wird in Abschnitt \ref{auswertung:queries} auf die Laufzeit der
+einzelnen Unterabfragen des Benchmarks eingegangen.
+Dabei soll untersucht werden welche Abfragen besonders schnell sind.
+In Abschnitt \ref{auswertung:basic_indizes} und \ref{auswertung:hardware}
+wird der Einfluss von Indizes bzw. unterschiedlicher Hardwarekonfigurationen
+untersucht.
 
 \section{Gesamtlaufzeit des Benchmarks}\label{auswertung:generell}
 
@@ -7,8 +16,7 @@
 % Performanceentwicklung des benchmarks
 % Mehr dazu in \ref{auswertung:queries}
 
-\section{Vergleich Zeilenbasiert vs. Spaltenbasiert}\label{auswertung:row_vs_col}
-
+\subsection{Vergleich Zeilenbasiert vs. Spaltenbasiert}\label{auswertung:row_vs_col}
 %TODO
 % Hypothese Spaltenbasiert ist schneller
 % Welches is schneller
@@ -22,6 +30,7 @@
 % Diagramm
 % Welche ist die schnellste und warum?
 % Stabilität einzelner Queries
+
 
 \section{Einfluss der grundlegenden Indizes}\label{auswertung:basic_indizes}
 
