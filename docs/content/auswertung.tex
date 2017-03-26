@@ -176,16 +176,47 @@ Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen
 
 \subsubsection{Analyse des Query-Execution-Plans für Query 1.2}
 %https://archive.sap.com/discussions/thread/3429357
-Bei Query 1.2 trat gibt es eine Besonderheit: Manchmal wird der Query über die OLAP-Engine ausgeführt. 
+Bei Query 1.2 gibt es eine Besonderheit: Manchmal wird der Query über die OLAP-Engine ausgeführt\footnote{Um zu sehen, welche Engine verwendet wird, muss anstatt \enquote{Visualize Plan} die Option \enquote{Explain Plan} gewählt werden.}. 
 Hierbei ist der Laufzeitunterschied zwischen Index und kein Index fast nicht mehr vorhanden, der Query mit Index braucht allerdings weniger Zeit zur Kompilation. 
-Eigentlich ist die OLAP-Engine für \enquote{Analytical Views}, die im Snowflake Schema vorliegen gedacht. 
-Das ist hier ja auch definitiv der Fall. Allerdings ist nicht klar, warum die OLAP-Engine manchmal verwendet wird und manchmal nicht. Um zu sehen, welche Engine verwendet wird, muss anstatt \enquote{Visualize Plan} die Option \enquote{Explain Plan} gewählt werden.
+Eigentlich ist die OLAP-Engine für \enquote{Analytical Views}, die im Star-Schema vorliegen gedacht, was beim Star-Schema Benchmark ja definitv der Fall ist.
+Allerdings ist nicht klar, warum die OLAP-Engine manchmal verwendet wird und manchmal nicht. Ein Muster war hier nicht zu erkennen. 
 
+
+%http://saphanatutorial.com/sap-hana-modeling/
+%https://archive.sap.com/discussions/thread/3340726
 Zunächst trat die OLAP-Engine nur auf, wenn Indizes hinzugefügt wurden, weshalb zunächst angenommen wurde, dass HANA an Hand der Indizes erkennt, dass es sich im Grunde um einen Analytical View handelt und dementsprechend optimiert.
-Allerdings gab es auch Fälle, wo die OLAP-Engine auch ohne Indizes verwendet wurde.
+Allerdings gab es auch Fälle, wo die OLAP-Engine auch ohne Indizes verwendet wurde. Kommt die OLAP-Engine zum Einsatz, so ist der Query deutlich schneller. Die folgenden Zahlen sind leider nur Ergebnisse einzelner Durchläufe, 
+da den Benchmark \enquote{repräsentativ} oft auszuführen und paralell festzuhalten, welcher Durchlauf mit welcher Engine durchgeführt wurde, hier leider den Rahmen sprengen würde.
 
+Kommt nicht die OLAP-Engine, sondern die \enquote{normale} Column-Engine zum Einsatz, so gibt es einen deutlichen Unterschied zwischen Index und kein Index. Hierbei kann der Index auf LO\_OrderDateKey für den JOIN genutzt werden und beschleunigt diesen somit.
+Außerdem wird die Berechnung \textbf{sum(lo\_extendedprice*lo\_discount)} deutlich beschleunigt. Warum ist allerdings nicht klar, denn auf diese Felder wurde kein Index angelegt.
 
-Bei Query 1.2 ist auf den ersten Blick nicht erkenntlich, warum dieser von den Indizes profitiert. Die grundlegende Berechnungszeit ist näm
+An dieser Stelle unterscheidet sich der Execution-Plan nur in diesem Wert:
+\begin{description}
+    \item[Kein Index] <executePop(<lockInputs(num=3,)=0.00><calculateOnAttr(<calculateWithAggregation(rows=4301,inputs=2,outputs=1,)=8.04>rows=4301,outputs=1,)=8.15>)=11.61>
+    \item[Index]      <executePop(<lockInputs(num=3,)=0.00><calculateOnAttr(<calculateWithAggregation(rows=4301,inputs=2,outputs=1,)=1.03>rows=4301,outputs=1,)=1.10>)=1.18>
+\end{description}
+
+Die letzte Zahl scheint jeweils die Laufzeit in ms zu sein, aber eine genaue Erklärung dieser Werte war leider nicht zu finden.
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{14cm}{lXX}
+        \toprule
+        Engine              & Col (Comp | Exec)[ms]                 & Col Index (Comp | Exec)[ms]     \\
+        \toprule
+        OLAP                & 7.18 | 10.04          & 0.13  | 10.29         \\
+        Colum               & 7.64 | 40.85          & 11.44 | 17.90          \\   
+        \bottomrule
+    \end{tabularx}
+	\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
+    \label{tab:olap}
+\end{table}
+
+%https://www.stechies.com/important-hints-related-sap-hana/
+Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine sowohl mit, als auch ohne Index deutlich schneller, als die Column-Engine. Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
+
+%Hier dann Tabelle, wenn Benchmark fertig ist. 
 
 
 
@@ -193,22 +224,47 @@ Bei Query 1.2 ist auf den ersten Blick nicht erkenntlich, warum dieser von den I
 \subsection{Grundlegende Untersuchung für Row-Store}
 
 \begin{table}[H]
-    \begin{tabularx}{10cm}{l|rr}
+    \begin{tabularx}{10cm}{lrrr}
         \toprule
-        Wert                & Row[ms] & Row Index[ms]\\
+        Wert                & Row[ms] & Row Index[ms]   & Abweichung [\%]\\
         \toprule
-        Samples             & 250      & 250\\
-        Min                 & 3353     & 2839\\
-        Median              & 3519     & 3006\\
-        Average             & 3539     & 3048\\
-        Max                 & 4283     & 3394\\
-        Standard Deviation  & 110      & 124\\
-        Total               & 884960   & 762128\\ 
+        Samples             & 250      & 250            &       \\
+        Min                 & 3353     & 2839           &  15.3\%     \\
+        Median              & 3519     & 3006           &  14.5\%     \\
+        Average             & 3539     & 3048           &  13.8\%     \\
+        Max                 & 4283     & 3394           &  20.7\%     \\
+        Standard Deviation  & 110      & 124            &       \\
+        Total               & 884960   & 762128         &       \\ 
+        \bottomrule
     \end{tabularx}
 \caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
 \label{tab:basic_index_row}
 \end{table}
 
+
+
+
+
+\begin{table}[H]
+    \begin{tabularx}{10cm}{lrrr}
+        \toprule
+        Wert                & Row[ms] & Row Index[ms]   & Abweichung [\%]\\
+        \toprule
+        Samples             & 250     &  250            &       \\
+        \midrule
+        Min                 & 3309    &  2780           &       \\
+        Max                 & 3783    &  3186           &       \\
+        Standard Deviation  & 67      &  51             &       \\
+        \midrule
+        Median              & 3426    &  2877           &       \\
+        Average             & 3440    &  2881           &       \\
+        \midrule
+        Total               & 860131  &  720329         &       \\
+        \bottomrule
+    \end{tabularx}
+\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
+\label{tab:basic_index_row}
+\end{table}
 
 
 \section{Auswirkung unterschiedlicher Hardwarekonfiguration}\label{auswertung:hardware}
