@@ -76,7 +76,7 @@ function run_all_benchmarks_olap {
 	for i in `seq 1 ${2:-1}`; do
 		printf "Running benchmark number $i"
 		hdb_log_start_array
-		benchmark $1
+		benchmark_olap $1
 		hdb_log_end_array
 		hdb_log ","
 		printf "\n"
