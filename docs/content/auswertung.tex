@@ -11,7 +11,7 @@ untersucht.
 
 \section{Gesamtlaufzeit des Benchmarks}\label{auswertung:generell}
 
-\begin{tabularx}{\textwidth}{|X|r|r|}
+\begin{tabularx}{\textwidth}{Xrr}
 	\toprule
 	 & \textbf{Rowstore} & \textbf{Columnstore}\\
 	\midrule
@@ -53,21 +53,141 @@ Gesamtlaufzeit sehr gering ist.
 
 \section{Vergleich der SSBM Queries}\label{auswertung:queries}
 
-Im folgenden werden die einzelnen Queries des SSBM Benchmarks separat betrachtet.
+Im folgenden wird die Laufzeit einzelner Queries des SSBM Benchmarks separat betrachtet.
+Dazu wird der Benchmark in die Gruppen Q1, Q2, Q3 und Q4 unterteilt.
+Diese Gruppen bestehen aus einzelnen Unterabfragen Q1.1, Q1.2 etc.
+Zuerst wird allgemein die Geschwindigkeit der einzelnen Gruppen verglichen
+und anschließend auf ausgewählte Unterabfragen eingegangen.
 
-%TODO
-% Vergleich von q1, q2, q3, q4 etc.
-% Diagramm
-% Welche ist die schnellste und warum?
-% Stabilität einzelner Queries
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.49\textwidth]{images/Analysis-SSBM-HANA_18_0.png}
+	\includegraphics[width=0.49\textwidth]{images/Analysis-SSBM-HANA_23_0.png}
+	\caption{Query-Gruppen Laufzeit}\label{auswertung:query-group}
+\end{figure}
 
-\newpage
+In \autoref{auswertung:query-group} ist zu erkennen, dass die
+Laufzeit einzelner Queries durch zeilenbasiete bzw.\ spaltenbasierte
+Tabellen beeinflusst wird. Zwar sind allgemein die spaltenorientierten Tabellen
+deutlich schneller, jedoch ist Q3 bei spaltenorientierten
+Tabellen schneller als Q1, wohingegen bei zeilenorientierten Tabellen
+Q1 schneller als Q3 ist.
+Gleich bleibt, dass Q2 die schnellsten und Q4 die langsamsten Queries sind.
+Um zu verstehen wodurch der Unterschied von Q1 und Q3 zustande kommt wird
+im folgenden der jeweils die Unterabfragen von Q1 und Q3 im Row store betrachtet.
+Anschließend werden die selben Queries im Row store betrachtet und
+dann verglichen.
+
+Da der SSBM Benchmark so gestaltet ist dass die Queries
+von Q1 nach Q4 immer komplizierter werden ist es verwunderlich,
+dass Q3 schneller als Q1 ist.
+Dazu werden in \autoref{auswertung:comp:q3} und \autoref{auswertung:comp:q1}
+die Unterabfagen von Q3 betrachtet.
+Ziel ist es die entscheidenden Queries zu identifizieren, welche
+durch den Columnstore bzw.\ den Rowstore bevorzugt werden.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.49\textwidth]{images/q3-col.png}
+	\includegraphics[width=0.49\textwidth]{images/q3-row.png}
+	\caption{Q3 Vergleich Row vs Column}\label{auswertung:comp:q3}
+\end{figure}
+
+Aus \autoref{auswertung:comp:q3} lässt sich erkennen, dass Q3.1 sich relativ
+zu Q3.2, Q3.3 und Q3.4 verbessert hat.
+Um dies zu versehen werden im folgenden der Executionplan zu Q3.1 des Columnstores
+und des Rowstores verglichen, welche in \autoref{auswertung:q3.1:col} und 
+\autoref{auswertung:q3.1:row} im Anhang zu finden sind.
+Beim Vergleich der Executionpläne wird deutlich dass der Columnstore dabei
+einen Filter auf 4 Tabellen durchführt.
+Dies ermöglicht eine Parallelisierung der Abfragen,
+wohingegen beim Rowstore diese Parallelisierung nicht möglich ist.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.49\textwidth]{images/q1-col.png}
+	\includegraphics[width=0.49\textwidth]{images/q1-row.png}
+	\caption{Q1 Vergleich Row vs Column}\label{auswertung:comp:q1}
+\end{figure}
+
+Interessant ist der Vergleich der Unterabfragen von Q1, da Q1.1
+im Rowstore relativ zu Q1.2 langsamer ist, wohingegen im Columnstore
+Q1.1 schneller als Q1.3 ist.
+Vergleicht man die Executionpläne der Queries also Q.1.1 des Columnstores mit Q1.1 des Rowstores ist keine großer Unterschied zu erkennen, welcher diesen Effekt
+erklären kann.
+Analog dazu kann beim Vergleich des Executionplans von Q1.2 des Columnstores
+mit dem Executionplan des Rowstores kein großer Unterschied erkannt werden.
+Die Executionpläne sind im Anhang unter \autoref{exec:q1.1-col},
+\autoref{exec:q1.2-col}, \autoref{exec:q1.1-row} und \autoref{exec:q1.2-row}
+zu sehen.
+Dementsprechend könnte der Effekt durch die interne Speicherverwaltung von HANA
+beeinflusst werden.
+Allerdings ist der Unterschied der Laufzeit beider Queries marginal.
+
+Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
+da eine bessere Parallelisierung möglich ist.
+
+\section{Query Execution Plan}
+In diesem Abschnitt wird der Query Execution Plan für den Row und Column Store zum in \autoref{q42} dargestellten Listing betrachtet. 
+
+\begin{lstlisting}[label=q42, caption={Benchmark Query 4.2}]
+select d_year, s_nation, p_category,
+sum(lo_revenue - lo_supplycost) as profit
+from lineorder
+join dim_date
+on lo_orderdatekey = d_datekey
+join customer
+on lo_custkey = c_customerkey
+join supplier
+on lo_suppkey = s_suppkey
+join part
+on lo_partkey = p_partkey
+where
+c_region = 'AMERICA'
+and s_region = 'AMERICA'
+and (d_year = 1997 or d_year = 1998)
+and (p_mfgr = 'MFGR#1'
+or p_mfgr = 'MFGR#2')
+group by d_year, s_nation, p_category
+order by d_year, s_nation, p_category;
+\end{lstlisting}
+
+\subsection{Query Execution Plan - Column Store}
+\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den angegebenen Kriterien gefiltert wird. Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoint:
+\begin{enumerate}
+	\item Grundlage sind die ermittelten Ergebnisse der Tabelle \textbf{Part}
+	\item Ergebnismenge Lineorders wird mit den Ergebnissen der Tabelle \textbf{Customer} gejoint
+	\item Ergebnisemenge wird mit den Ergebnisse der Tabelle \textbf{Supplier} gejoint
+	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{Lineorder} gejoint
+	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{DIM\_Date} gejoint
+\end{enumerate}
+Danach wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung absteigend sortiert und anschließend ausgeben.
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.35]{images/q42col}
+	\caption{Query Execution Plan für Q4.2 - Column Store \label{qepCol} }
+\end{figure}
+
+\subsection{Query Execution Plan - Row Store}
+\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Hier sieht die Reihenfolge der Abarbeitung des Queries wie folgt aus:
+\begin{enumerate}
+	\item Es wird ein Tablescan auf \textbf{Dim\_Date} ausgeführt
+	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint
+	\item Ergebnismenge wird mit \textbf{Supplier } gejoint
+	\item  Ergebnismenge wird mit \textbf{Customer } gejoint
+	\item  Ergebnismenge wird mit \textbf{Part } gejoint
+\end{enumerate}
+Danach wird wieder eine Aggregation gebildet und die Gruppierung anschließend absteigend sortiert.
+\begin{figure}[H]
+
+	\centering
+	\includegraphics[scale=0.4]{images/q42row}
+	\caption{Query Execution Plan für Q4.2 - Column Store 	\label{qepRow} }
+\end{figure}
+
+
+
 \section{Einfluss der grundlegenden Indizes}\label{auswertung:basic_indizes}
-Die Benchmarkergebnisse in diesem Abschnitt wurden auf folgender Hardware erzielt:
-\begin{itemize}
-    \item Host: i7 7700k, 16GB DDR4 RAM
-    \item VM: 6 Kerne @90\%, 8GB RAM
-\end{itemize}
 %TODO
 % Row with or without indices
 % Column with or without indices
@@ -300,10 +420,49 @@ Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch 
 
 \section{Auswirkung unterschiedlicher Hardwarekonfiguration}\label{auswertung:hardware}
 
-%TODO
-% Beschreibe setup bsp 4GB ram, 2CPU etc.
-% Gibt es einen effekt?
-% Wenn ja isolieren und begründen
+Nicht nur die Betrachtung unterschiedlicher Konfigurationen auf Software-Ebene ist interessant, sondern auch die auf simulierter Hardware-Ebene. Die eingesetzten Hardwarekonstellationen wurden im Kapitel zur Ausführung des Benchmarks beschrieben und werden nun miteinander verglichen. Zum Einsatz kommen die Ergebnisse des Analysers, welche als Visualisierungen sowie Aggregaten-Werten präsentiert werden. In der Analyse werden wird zuerst auf den Columnstore eingegangen und anschließend vergleichend auf den Rowstore. 
+
+\subsection{Columnstore}
+
+\begin{figure}[H]
+    \centering{
+    \includegraphics[scale=0.7]{images/colcpu.png}
+    \caption{Benchmark im Columnstore unter Variation der CPU Kerne}\label{colcpu}}
+\end{figure}
+
+
+\autoref{colcpu} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 8 Gigabyte RAM. Generell bewegt sich die Ausführungsdauer pro Benchmark hauptsächlich im Bereich von ca. 0.7 Sekunden bis 1 Sekunde. Dabei werden die schnelleren Werte, wie erwartet, durch den sechs-Kerner gebildet und die langsameren Werte durch den zwei-Kerner. Werden der sechs-Kerner(0.75 Sekunden) und der zwei-Kerner(0.95 Sekunden) anhand ihren arithmetischen Mitteln miteinander verglichen so ergibt sich eine prozentuale Differenz von 26.7\%. Der vier-Kerner hingegen erreicht eine durchschnittliche Ausführungszeit von 0,8 Sekunden was ihm eine Differenz von 7\% im Vergleich zum sechs-Kerner einbringt. 
+Grundsätzlich gilt, dass im Columnstore im HANA Umfeld dank der begünstigten Parallelisierung eine bessere Ausnutzung der CPU durch mehrere Threads stattfindet. Dadurch wird die Nutzung der Hardware optimiert und eine bestmögliche Performance wird erzielt. Pro zusätzlichem Kern kann die Ausführungszeit halbiert werden, indem die Last gleichmäßig auf die Kerne aufgeteilt wird. Diese Überlegung stimmt mit den Messwerten überein und es lässt sich auf einen quadratischen Zuwachs der Ausführungszeit abhängig zur Anzahl der CPU-Kerne schliessen. 
+
+\begin{figure}[H]
+    \centering{
+    \includegraphics[scale=0.7]{images/colram.png}
+    \caption{Benchmark im Columnstore unter Variation des RAMs}\label{colram}}
+\end{figure}
+
+\autoref{colram} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 6 CPU Kernen. Die Ausführungsdauer pro Benchmark scheint nicht markant zu variieren, auch wenn die genauere Betrachtung der Aggregat-Werte zeigt, dass der Benchmark unter 12 Gigabyte RAM im Schnitt um eine Hunderdstel Sekunde schneller ist, als bei 6 und 8 Gigabyte. Ein besseres Mittel zum Vergleich als die Durchschnittslaufzeit bildet in diesem Falle die Standardabweichung der Laufzeiten, welche ein Maß für die Stabilität des Benchmarks darstellt. Diese beträgt bei 12 Gigabyte RAM gerade einmal 16 Millisekunden, während sich bei 8 Gigabyte ein 4 prozentiger Zuwachs und bei 6 Gigabyte ein 37 prozentiger Zuwachs erkennen lässt. Daraus lässt sich ableiten, dass die Stabilität stark unter der Einschränkung des RAMs leidet, und somit einzelne Anfragen erheblich länger dauern können. Vermutlich liegt die Unregelmäßigkeit vorallem darin begründet, dass bei reduziertem RAM externe Faktoren (Cache-Miss, Zugriffszeit) deutlicher zum tragen kommen. 
+
+\subsection{Rowstore}
+
+\begin{figure}[H]
+    \centering{
+    \includegraphics[scale=0.7]{images/rowcpu.png}
+    \caption{Benchmark im Rowstore unter Variation der CPU Kerne}\label{rowcpu}}
+\end{figure}
+
+\autoref{rowcpu} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 8 Gigabyte RAM. Zu erkennen ist die starke Abweichung der Ausführungszeiten, welcher deutlicher ausfällt als im Columnstore. Der zwei-Kerner liegt mit einer durschnittlichen Ausführungszeit von 8,2 Sekunden 137\% über der Ausführungszeit des acht-Kerners, welcher nur 3,4 Sekunden im Schnitt braucht. Die Abweichung des sechs-Kerners beträgt dagegen nur 26\%. 
+Es scheint als würde die Anzahl der CPU-Kerne einen größeren Einfluss haben im Rowstore als im Columnstore. Eine mögliche Erklärung dafür kann folgendermaßen aussehen: 
+Da die Daten im Columnstore blockweise gelesen werden können, haben die Lesezugriffe eine längere Ausführungszeit, da auch viele Daten in einem Zuge gelesen werden können. Der komplette Satz an Daten wird anschliessend von der CPU ausgewertet, wobei die Auswertung kürzer dauert als der Speicherzugriff. Dadurch wird das RAM zum Bottleneck und die CPU unrelevanter für die Ausführungszeit. 
+Im Rowstore müssen viele einzelne Lesezugriffe durchgeführt werden, wobei die einzelnen Daten direkt verarbeitet werden von der CPU. Die Parallelität ist nicht in dem Maße gegeben wie im Columnstore, wodurch stets das RAM auf die CPU wartet und umgekehrt. Daraus ensteht eine erhöhte Relevanz der CPU für die Ausführungszeit als beim Columnstore. 
+
+\begin{figure}[H]
+    \centering{
+    \includegraphics[scale=0.7]{images/rowram.png}
+    \caption{Benchmark im Rowstore unter Variation des RAMs}\label{rowram}}
+\end{figure}
+
+\autoref{rowram} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 6 CPU Kernen. Die Ausführungszeiten unterscheiden sich ebenfalls deutlicher als beim Columnstore. Unterschieden sich im Columstore die durchschnittlichen Ausführungszeiten von 12 Gigabyte und 6 Gigabyte RAM noch um 1,33\%, so liegt der Unterschied nun bereits bei 7,13\%. Die Standardabweichungen scheinen dasselbe Muster wie im Columnstore aufzuweisen: Je mehr RAM, desto stabiler läuft der Benchmark. Im Falle des 6 Gigabyte Systems sind enorme Ausschläge zu beobachten, obwohl teilweise sogar die Ausführungszeit des 8 Gigabyte Systems unterboten wird. 
+Die erhöhte Relevanz der Menge an verfügbarem RAM scheint im Rowstore ebenfalls von größerer Bedeutung für die Laufzeit zu sein als im Columnstore. Während im Columnstore automatisch Optimierungen, wie Indexierung und Kompression stattfinden, können diese im Rowstore womöglich nur bei ausreichend RAM durchgeführt werden. 
 
 \section{Vergleich zu anderen Datenbanksystemen}\label{auswertung:vergleich}
 
