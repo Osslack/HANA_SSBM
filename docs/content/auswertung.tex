@@ -62,6 +62,67 @@ Im folgenden werden die einzelnen Queries des SSBM Benchmarks separat betrachtet
 % Stabilität einzelner Queries
 
 \newpage
+
+\section{Query Execution Plan}
+In diesem Abschnitt wird der Query Execution Plan für den Row und Column Store zum in \autoref{q42} dargestellten Listing betrachtet. 
+
+\begin{lstlisting}[label=q42, caption={Benchmark Query 4.2}]
+select d_year, s_nation, p_category,
+sum(lo_revenue - lo_supplycost) as profit
+from lineorder
+join dim_date
+on lo_orderdatekey = d_datekey
+join customer
+on lo_custkey = c_customerkey
+join supplier
+on lo_suppkey = s_suppkey
+join part
+on lo_partkey = p_partkey
+where
+c_region = 'AMERICA'
+and s_region = 'AMERICA'
+and (d_year = 1997 or d_year = 1998)
+and (p_mfgr = 'MFGR#1'
+or p_mfgr = 'MFGR#2')
+group by d_year, s_nation, p_category
+order by d_year, s_nation, p_category;
+\end{lstlisting}
+
+\subsection{Query Execution Plan - Column Store}
+\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den angegebenen Kriterien gefiltert wird. Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoint:
+\begin{enumerate}
+	\item Grundlage sind die ermittelten Ergebnisse der Tabelle \textbf{Part}
+	\item Ergebnismenge Lineorders wird mit den Ergebnissen der Tabelle \textbf{Customer} gejoint
+	\item Ergebnisemenge wird mit den Ergebnisse der Tabelle \textbf{Supplier} gejoint
+	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{Lineorder} gejoint
+	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{DIM\_Date} gejoint
+\end{enumerate}
+Danach wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung absteigend sortiert und anschließend ausgeben.
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.35]{images/q42col}
+	\caption{Query Execution Plan für Q4.2 - Column Store \label{qepCol} }
+\end{figure}
+
+\subsection{Query Execution Plan - Row Store}
+\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Hier sieht die Reihenfolge der Abarbeitung des Queries wie folgt aus:
+\begin{enumerate}
+	\item Es wird ein Tablescan auf \textbf{Dim\_Date} ausgeführt
+	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint
+	\item Ergebnismenge wird mit \textbf{Supplier } gejoint
+	\item  Ergebnismenge wird mit \textbf{Customer } gejoint
+	\item  Ergebnismenge wird mit \textbf{Part } gejoint
+\end{enumerate}
+Danach wird wieder eine Aggregation gebildet und die Gruppierung anschließend absteigend sortiert.
+\begin{figure}[H]
+
+	\centering
+	\includegraphics[scale=0.4]{images/q42row}
+	\caption{Query Execution Plan für Q4.2 - Column Store 	\label{qepRow} }
+\end{figure}
+
+
+
 \section{Einfluss der grundlegenden Indizes}\label{auswertung:basic_indizes}
 Die Benchmarkergebnisse in diesem Abschnitt wurden auf folgender Hardware erzielt:
 \begin{itemize}
