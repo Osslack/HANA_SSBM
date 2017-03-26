@@ -1,6 +1,14 @@
 \chapter{Einleitung}
-Im Rahmen der Vorlesung \enquote{Data Warehouse} soll eine Analyse des Star Schema Benchmarks mit der SAP HANA Datenbank durchgeführt werden. 
-\\Heutzutage werden Entscheidungen von Unternehmen oftmals anhand von Kennzahlen getroffen. Da es allerdings noch häufig vorkommt, dass Datenbanken für analytische Zwecke (OLAP) und für Transaktionen (OLAP) getrennt voneinander behandelt werden, ist meist die Systemlandschaft komplex. Um in solchen Systemen Analysen ausführen zu können,  wird in ETL-Prozessen festgelegt, welche Daten für die Analyse in ein OLAP-System importiert werden. Der Nachteil solcher Anwendungen ist, dass der Datenbestand, der der Analyse zugrunde liegt, niemals vollständig ist. 
-\\Durch die In-Memory Datenspeicherung der SAP HANA Datenbank liefert diese in sehr kurzer Zeit die geforderten Ergebnisse zurück. Es ist möglich, Daten innerhalb eines Row- bwz. Column-Stores in der Datenbank zu halten. Außerdem erzielt die SAP HANA Datenbank durch Anwendung verschiedener Algorithmen eine gute Datenkompression. 
-\\Die SAP HANA ermöglicht es die Komplexität der Systemlandschaften zu reduzieren, indem OLAP und OLTP Funktionalität in einer Datenbank integriert werden. Dabei werden Echtzeitanalysen erstellt und als Entscheidungsgrundlage von Unternehmen genutzt.
-\\Im folgenden Dokument sollen die Ausführungs- bzw. Antwortzeiten der SQL-Abfragen des Star Schema Benchmarks in der In-Memory Datenbank zwischen dem Row- bzw. Column-Store verglichen und analysiert werden.
+
+Die SAP HANA Datenbank kann im Umfeld von \enquote{Data Warehouse} als Datenbanklösung eingesetzt werden. Damit verschiedene Datenbanksysteme miteinander verglichen werden können, hilft es den Star Schema Benchmark auszuführen und festgelegte Merkmale zu vergleichen.\\Im folgenden Dokument wird beschrieben, wie der allgemeine Aufbau des Benchmarks, sowie die Ausführung mit der HANA Datenbank realisiert wurde. Dabei werden die zwei Arten der Datenspeicherung (Row-Store vs. Column Store) der SAP HANA Datenbank betrachtet. Dabei sollen die Auswirkungen von Hardware-Regularien, wie z.B. die Größe des Arbeitsspeichers, beleuchtet werden. Neben den Hardware Komponenten wird ebenfalls versucht, softwaretechnische Verbesserungen, z.B. in Form von Indizes, in die Analyse mit einfließen zu lassen.
+
+\section{Ziele}
+Die nachfolgende Ziele dabei betrachtet werden:
+\begin{enumerate}
+	\item Vergleich der Ausführungszeiten des Benchmarks beim Column und Row Store
+	\item Vergleich der Ausführungszeiten des Benchmarks mit bzw. ohne Indizes
+	\item Vergleich der Ausführungszeiten des Benchmarks bei verschiedenen Hardwarevoraussetzungen
+\end{enumerate}
+
+\section{Aufbau}
+Im 2. Kapitel werden die Unterschiede von Column und Row-Store näher erläutert. Danach folgt in Kapitel 3 eine genauere Beschreibung des Star Schema Benchmarks. Das nachfolgende Kapitel 4 beschäftigt sich mit dem Grundlegenden Setup der In-Memory Datenbank, das für die in Kapitel 5 beschriebene Ausführung des Benchmarks als Grundlage benötigt. wird. Das letzte Kapitel, stellt eine Auswertung der gewonnen Erkenntnisse dar.
