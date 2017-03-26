@@ -29,6 +29,27 @@ function benchmark {
 	printf "\n"
 }
 
+function benchmark_olap {
+	test "./sql/benchmark_olap/q1_bench/q1.sql"
+	test "./sql/benchmark_olap/q1_bench/q1.1.sql"
+	test "./sql/benchmark_olap/q1_bench/q1.2.sql"
+	test "./sql/benchmark_olap/q1_bench/q1.3.sql"
+	test "./sql/benchmark_olap/q2_bench/q2.sql"
+	test "./sql/benchmark_olap/q2_bench/q2.1.sql"
+	test "./sql/benchmark_olap/q2_bench/q2.2.sql"
+	test "./sql/benchmark_olap/q2_bench/q2.3.sql"
+	test "./sql/benchmark_olap/q3_bench/q3.sql"
+	test "./sql/benchmark_olap/q3_bench/q3.1.sql"
+	test "./sql/benchmark_olap/q3_bench/q3.2.sql"
+	test "./sql/benchmark_olap/q3_bench/q3.3.sql"
+	test "./sql/benchmark_olap/q3_bench/q3.4.sql"
+	test "./sql/benchmark_olap/q4_bench/q4.sql"
+	test "./sql/benchmark_olap/q4_bench/q4.1.sql"
+	test "./sql/benchmark_olap/q4_bench/q4.2.sql"
+	test "./sql/benchmark_olap/q4_bench/q4.3.sql"
+	printf "\n"
+}
+
 function switch_to {
 	printf "Switching to $1.\n"
 	if [[ $1 = "column" ]]; then
@@ -41,6 +62,17 @@ function switch_to {
 }
 
 function run_all_benchmarks {
+	for i in `seq 1 ${2:-1}`; do
+		printf "Running benchmark number $i"
+		hdb_log_start_array
+		benchmark $1
+		hdb_log_end_array
+		hdb_log ","
+		printf "\n"
+	done
+}
+
+function run_all_benchmarks_olap {
 	for i in `seq 1 ${2:-1}`; do
 		printf "Running benchmark number $i"
 		hdb_log_start_array
