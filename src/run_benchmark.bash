@@ -29,9 +29,9 @@ hdb_start_benchmark "column_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
-hdb_start_benchmark "column_benchmark_no_index_olap"
-run_all_benchmarks_olap "/usr/sap/HXE/HDB90/work" $repetitions
-hdb_end_benchmark
+#hdb_start_benchmark "column_benchmark_no_index_olap"
+#run_all_benchmarks_olap "/usr/sap/HXE/HDB90/work" $repetitions
+#hdb_end_benchmark
 
 printf "Adding Basic Indizes\n"
 hdb_run_file_lite ./sql/addBasicIndizes.sql
@@ -41,9 +41,9 @@ hdb_start_benchmark "column_benchmark_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
-hdb_start_benchmark "column_benchmark_index_olap"
-run_all_benchmarks_olap "/usr/sap/HXE/HDB90/work" $repetitions
-hdb_end_benchmark
+#hdb_start_benchmark "column_benchmark_index_olap"
+#run_all_benchmarks_olap "/usr/sap/HXE/HDB90/work" $repetitions
+#hdb_end_benchmark
 #printf "Adding Advanced Indizes\n"
 #hdb_run_file_lite ./sql/advancedIndizes.sql
 #printf "Indizes added\n"
@@ -70,9 +70,9 @@ hdb_start_benchmark "row_benchmark_no_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
-hdb_start_benchmark "row_benchmark_no_index_olap"
-run_all_benchmarks_olap "/usr/sap/HXE/HDB90/work" $repetitions
-hdb_end_benchmark
+#hdb_start_benchmark "row_benchmark_no_index_olap"
+#run_all_benchmarks_olap "/usr/sap/HXE/HDB90/work" $repetitions
+#hdb_end_benchmark
 
 printf "Adding Indizes\n"
 hdb_run_file_lite ./sql/addBasicIndizes.sql
@@ -82,9 +82,9 @@ hdb_start_benchmark "row_benchmark_index"
 run_all_benchmarks "/usr/sap/HXE/HDB90/work" $repetitions
 hdb_end_benchmark
 
-hdb_start_benchmark "row_benchmark_index_olap"
-run_all_benchmarks_olap "/usr/sap/HXE/HDB90/work" $repetitions
-hdb_end_benchmark
+#hdb_start_benchmark "row_benchmark_index_olap"
+#run_all_benchmarks_olap "/usr/sap/HXE/HDB90/work" $repetitions
+#hdb_end_benchmark
 
 #printf "Adding Advanced Indizes\n"
 #hdb_run_file_lite ./sql/advancedIndizes.sql

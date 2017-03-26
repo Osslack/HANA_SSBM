@@ -287,3 +287,21 @@ class Analyser:
 
     def get_row_benchmark_I(self):
         return Benchmark(self.log["row_benchmark_index"], "Row Benchmark with Index")
+
+    def get_column_benchmark_I_adv(self):
+        return Benchmark(self.log["column_benchmark_index_adv"], "Column Benchmark with Index Advanced")
+
+    def get_row_benchmark_I_adv(self):
+        return Benchmark(self.log["row_benchmark_index_adv"], "Row Benchmark with Index Advanced")
+
+    def get_column_benchmark_olap(self):
+        return Benchmark(self.log["column_benchmark_no_index_olap"], "Column Benchmark OLAP")
+
+    def get_row_benchmark_olap(self):
+        return Benchmark(self.log["row_benchmark_no_index_olap"], "Row Benchmark OLAP")
+
+    def get_column_benchmark_I_olap(self):
+        return Benchmark(self.log["column_benchmark_index_olap"], "Column Benchmark with Index OLAP")
+
+    def get_row_benchmark_I_olap(self):
+        return Benchmark(self.log["row_benchmark_index_olap"], "Row Benchmark with Index OLAP")
