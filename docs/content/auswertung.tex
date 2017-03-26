@@ -67,7 +67,7 @@ und anschließend auf ausgewählte Unterabfragen eingegangen.
 \end{figure}
 
 In \autoref{auswertung:query-group} ist zu erkennen, dass die
-Laufzeit einzelner Queries durch zeilenbasiete bzw. spaltenbasierte
+Laufzeit einzelner Queries durch zeilenbasiete bzw.\ spaltenbasierte
 Tabellen beeinflusst wird. Zwar sind allgemein die spaltenorientierten Tabellen
 deutlich schneller, jedoch ist Q3 bei spaltenorientierten
 Tabellen schneller als Q1, wohingegen bei zeilenorientierten Tabellen
@@ -83,6 +83,8 @@ von Q1 nach Q4 immer komplizierter werden ist es verwunderlich,
 dass Q3 schneller als Q1 ist.
 Dazu werden in \autoref{auswertung:comp:q3} und \autoref{auswertung:comp:q1}
 die Unterabfagen von Q3 betrachtet.
+Ziel ist es die entscheidenden Queries zu identifizieren, welche
+durch den Columnstore bzw.\ den Rowstore bevorzugt werden.
 
 \begin{figure}[H]
 	\centering
@@ -108,13 +110,22 @@ wohingegen beim Rowstore diese Parallelisierung nicht möglich ist.
 	\caption{Q1 Vergleich Row vs Column}\label{auswertung:comp:q1}
 \end{figure}
 
-%TODO
-% Vergleich von q1, q2, q3, q4 etc.
-% Diagramm
-% Welche ist die schnellste und warum?
-% Stabilität einzelner Queries
+Interessant ist der Vergleich der Unterabfragen von Q1, da Q1.1
+im Rowstore relativ zu Q1.2 langsamer ist, wohingegen im Columnstore
+Q1.1 schneller als Q1.3 ist.
+Vergleicht man die Executionpläne der Queries also Q.1.1 des Columnstores mit Q1.1 des Rowstores ist keine großer Unterschied zu erkennen, welcher diesen Effekt
+erklären kann.
+Analog dazu kann beim Vergleich des Executionplans von Q1.2 des Columnstores
+mit dem Executionplan des Rowstores kein großer Unterschied erkannt werden.
+Die Executionpläne sind im Anhang unter \autoref{exec:q1.1-col},
+\autoref{exec:q1.2-col}, \autoref{exec:q1.1-row} und \autoref{exec:q1.2-row}
+zu sehen.
+Dementsprechend könnte der Effekt durch die interne Speicherverwaltung von HANA
+beeinflusst werden.
+Allerdings ist der Unterschied der Laufzeit beider Queries marginal.
 
-\newpage
+Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
+da eine bessere Parallelisierung möglich ist.
 
 \section{Query Execution Plan}
 In diesem Abschnitt wird der Query Execution Plan für den Row und Column Store zum in \autoref{q42} dargestellten Listing betrachtet. 
