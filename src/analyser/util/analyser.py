@@ -89,10 +89,13 @@ class Comparison:
 
     def __init__(self, *statisticals):
         self.statisticals = statisticals
+        self.title = ""
 
     def get_keys(self, stats):
         return set([row[0] for stat in stats for row in stat])
 
+    def set_title(self, title):
+        self.title = title
 
     def get_statisticals(self):
         return list(sorted(self.statisticals, key=lambda x: x.get_name()))
@@ -113,14 +116,14 @@ class Comparison:
         return data
 
     def compare_raw(self):
-        data = [self._create_headings(*self.get_statisticals())]
-        data += self.join_stats(self.get_statisticals())
-        display_table(data)
+        header = self._create_headings(*self.get_statisticals())
+        data = self.join_stats(self.get_statisticals())
+        display_table(data, header, title=self.title)
 
     def compare(self):
-        data = [self._create_headings(*self.get_statisticals())]
-        data += list(map(lambda x: self.normalize_row(x), self.join_stats(self.get_statisticals())))
-        display_table(data)
+        header = self._create_headings(*self.get_statisticals())
+        data = list(map(lambda x: self.normalize_row(x), self.join_stats(self.get_statisticals())))
+        display_table(data, header, title=self.title)
 
     def normalize_row(self, row):
         name = row[0]
@@ -136,6 +139,7 @@ class Comparison:
         plt.subplot()
         plt.xlabel("Repetition")
         plt.ylabel("Time in usec")
+        plt.title(self.title)
         for statistical in self.get_statisticals():
             plt.plot(statistical.get_times(), label=statistical.get_name())
         plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
@@ -154,8 +158,9 @@ class Comparison:
 
 class Benchmark(Statistical):
 
-    def __init__(self, data, name=""):
+    def __init__(self, data, name="", prefix=""):
         self.data = data
+        self.prefix = prefix
         super().__init__(list(self.get_all_times()), name)
 
     # Simple getters
@@ -232,7 +237,13 @@ class Benchmark(Statistical):
         return result
 
     def print_stats(self):
-        display_table(self.get_stats())
+        header = [ "", "Time in usec" ]
+        data = self.get_stats()
+        title = "General Data - " + self.get_name()
+        display_table(self.get_stats(), header, title=title)
+
+    def set_prefix(self, prefix):
+        self.prefix = prefix
 
     # Helper functions
     def _extract_queryname(self, path):
@@ -258,7 +269,7 @@ class Benchmark(Statistical):
 
     def _query_to_stat(self, name, query):
         times = list(map(lambda test: self._extract_time(test), query))
-        return Statistical(times, name)
+        return Statistical(times, self.prefix + " " + name)
 
     def _filter_grouped_sqls(self, queries, name_condition):
         return dict({k: v for k, v in queries.items() if name_condition(k)})

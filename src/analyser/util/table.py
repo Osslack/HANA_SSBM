@@ -16,23 +16,25 @@ def display_table_pandas(rows):
         df.loc[row[0]] = values
     print(df)
 
-def display_table(rows):
+def display_table(rows, header, title=""):
     table_str = "|"
 
-    first_row = rows[0]
-    for col in first_row:
+    for col in header:
         table_str += str(col) + "|"
     table_str += "\n"
 
     table_str += "|"
-    for col in first_row:
+    for col in header:
         table_str += "--|"
     table_str += "\n"
 
-    rows = rows[1:]
     for row in rows:
         table_str += "|"
         for col in row:
             table_str += str(col) + "|"
         table_str += "\n"
+
+    if title:
+        table_str += "\nTable: " + title + "\n"
+
     display(Markdown(table_str))
