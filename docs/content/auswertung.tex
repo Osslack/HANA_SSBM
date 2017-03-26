@@ -11,7 +11,7 @@ untersucht.
 
 \section{Gesamtlaufzeit des Benchmarks}\label{auswertung:generell}
 
-\begin{tabularx}{\textwidth}{|X|r|r|}
+\begin{tabularx}{\textwidth}{Xrr}
 	\toprule
 	 & \textbf{Rowstore} & \textbf{Columnstore}\\
 	\midrule
@@ -53,7 +53,60 @@ Gesamtlaufzeit sehr gering ist.
 
 \section{Vergleich der SSBM Queries}\label{auswertung:queries}
 
-Im folgenden werden die einzelnen Queries des SSBM Benchmarks separat betrachtet.
+Im folgenden wird die Laufzeit einzelner Queries des SSBM Benchmarks separat betrachtet.
+Dazu wird der Benchmark in die Gruppen Q1, Q2, Q3 und Q4 unterteilt.
+Diese Gruppen bestehen aus einzelnen Unterabfragen Q1.1, Q1.2 etc.
+Zuerst wird allgemein die Geschwindigkeit der einzelnen Gruppen verglichen
+und anschließend auf ausgewählte Unterabfragen eingegangen.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.49\textwidth]{images/Analysis-SSBM-HANA_18_0.png}
+	\includegraphics[width=0.49\textwidth]{images/Analysis-SSBM-HANA_23_0.png}
+	\caption{Query-Gruppen Laufzeit}\label{auswertung:query-group}
+\end{figure}
+
+In \autoref{auswertung:query-group} ist zu erkennen, dass die
+Laufzeit einzelner Queries durch zeilenbasiete bzw. spaltenbasierte
+Tabellen beeinflusst wird. Zwar sind allgemein die spaltenorientierten Tabellen
+deutlich schneller, jedoch ist Q3 bei spaltenorientierten
+Tabellen schneller als Q1, wohingegen bei zeilenorientierten Tabellen
+Q1 schneller als Q3 ist.
+Gleich bleibt, dass Q2 die schnellsten und Q4 die langsamsten Queries sind.
+Um zu verstehen wodurch der Unterschied von Q1 und Q3 zustande kommt wird
+im folgenden der jeweils die Unterabfragen von Q1 und Q3 im Row store betrachtet.
+Anschließend werden die selben Queries im Row store betrachtet und
+dann verglichen.
+
+Da der SSBM Benchmark so gestaltet ist dass die Queries
+von Q1 nach Q4 immer komplizierter werden ist es verwunderlich,
+dass Q3 schneller als Q1 ist.
+Dazu werden in \autoref{auswertung:comp:q3} und \autoref{auswertung:comp:q1}
+die Unterabfagen von Q3 betrachtet.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.49\textwidth]{images/q3-col.png}
+	\includegraphics[width=0.49\textwidth]{images/q3-row.png}
+	\caption{Q3 Vergleich Row vs Column}\label{auswertung:comp:q3}
+\end{figure}
+
+Aus \autoref{auswertung:comp:q3} lässt sich erkennen, dass Q3.1 sich relativ
+zu Q3.2, Q3.3 und Q3.4 verbessert hat.
+Um dies zu versehen werden im folgenden der Executionplan zu Q3.1 des Columnstores
+und des Rowstores verglichen, welche in \autoref{auswertung:q3.1:col} und 
+\autoref{auswertung:q3.1:row} im Anhang zu finden sind.
+Beim Vergleich der Executionpläne wird deutlich dass der Columnstore dabei
+einen Filter auf 4 Tabellen durchführt.
+Dies ermöglicht eine Parallelisierung der Abfragen,
+wohingegen beim Rowstore diese Parallelisierung nicht möglich ist.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.49\textwidth]{images/q1-col.png}
+	\includegraphics[width=0.49\textwidth]{images/q1-row.png}
+	\caption{Q1 Vergleich Row vs Column}\label{auswertung:comp:q1}
+\end{figure}
 
 %TODO
 % Vergleich von q1, q2, q3, q4 etc.
@@ -61,13 +114,7 @@ Im folgenden werden die einzelnen Queries des SSBM Benchmarks separat betrachtet
 % Welche ist die schnellste und warum?
 % Stabilität einzelner Queries
 
-\newpage
 \section{Einfluss der grundlegenden Indizes}\label{auswertung:basic_indizes}
-Die Benchmarkergebnisse in diesem Abschnitt wurden auf folgender Hardware erzielt:
-\begin{itemize}
-    \item Host: i7 7700k, 16GB DDR4 RAM
-    \item VM: 6 Kerne @90\%, 8GB RAM
-\end{itemize}
 %TODO
 % Row with or without indices
 % Column with or without indices
