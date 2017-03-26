@@ -273,6 +273,7 @@ Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 re
 \end{table}
 
 \subsubsection{Analyse des Query-Execution-Plans für Query 3.4}
+\textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
 
 Bei der Analyse des Query-Execution Plans zeigt sich schnell,
 woher die große Geschwindigkeitssteigerung kommt.
@@ -295,6 +296,7 @@ wodurch eine Geschwindigkeitsverbesserung nicht möglich ist.
 Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
 
 \subsubsection{Analyse des Query-Execution-Plans für Query 1.2}
+\textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
 %https://archive.sap.com/discussions/thread/3429357
 Bei Query 1.2 gibt es eine Besonderheit: Manchmal wird der Query über die OLAP-Engine ausgeführt\footnote{Um zu sehen, welche Engine verwendet wird, muss anstatt \enquote{Visualize Plan} die Option \enquote{Explain Plan} gewählt werden.}. 
 Hierbei ist der Laufzeitunterschied zwischen Index und kein Index fast nicht mehr vorhanden, der Query mit Index braucht allerdings weniger Zeit zur Kompilation. 
@@ -305,8 +307,7 @@ Allerdings ist nicht klar, warum die OLAP-Engine manchmal verwendet wird und man
 %http://saphanatutorial.com/sap-hana-modeling/
 %https://archive.sap.com/discussions/thread/3340726
 Zunächst trat die OLAP-Engine nur auf, wenn Indizes hinzugefügt wurden, weshalb zunächst angenommen wurde, dass HANA an Hand der Indizes erkennt, dass es sich im Grunde um einen Analytical View handelt und dementsprechend optimiert.
-Allerdings gab es auch Fälle, wo die OLAP-Engine auch ohne Indizes verwendet wurde. Kommt die OLAP-Engine zum Einsatz, so ist der Query deutlich schneller. Die folgenden Zahlen sind leider nur Ergebnisse einzelner Durchläufe, 
-da den Benchmark \enquote{repräsentativ} oft auszuführen und paralell festzuhalten, welcher Durchlauf mit welcher Engine durchgeführt wurde, hier leider den Rahmen sprengen würde.
+Allerdings gab es auch Fälle, wo die OLAP-Engine auch ohne Indizes verwendet wurde. Kommt die OLAP-Engine zum Einsatz, so ist der Query deutlich schneller. Die folgenden Zahlen sind nur Ergebnisse einzelner Durchläufe.
 
 Kommt nicht die OLAP-Engine, sondern die \enquote{normale} Column-Engine zum Einsatz, so gibt es einen deutlichen Unterschied zwischen Index und kein Index. Hierbei kann der Index auf LO\_OrderDateKey für den JOIN genutzt werden und beschleunigt diesen somit.
 Außerdem wird die Berechnung \textbf{sum(lo\_extendedprice*lo\_discount)} deutlich beschleunigt. Warum ist allerdings nicht klar, denn auf diese Felder wurde kein Index angelegt.
@@ -336,10 +337,40 @@ Die letzte Zahl scheint jeweils die Laufzeit in ms zu sein, aber eine genaue Erk
 %https://www.stechies.com/important-hints-related-sap-hana/
 Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine sowohl mit, als auch ohne Index deutlich schneller, als die Column-Engine. Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
 
+\begin{wrapfigure}{r}{\textwidth} 
+    \centering{
+    \includegraphics[scale=0.7]{images/olap_column_overall.png}
+    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}\label{fig:olap_column_overall}}
+\end{wrapfigure}
+
+Wie in Grafik \ref{fig:olap_column_overall} zu sehen, wird durch den OLAP-Hint eine deutliche Beschleunigung erzielt. Ob zusätzlich noch ein Index existiert hat jedoch wenig bis keinen Einfluss.
+
+Bei genauerer Betrachtung der Laufzeit pro Benchmarkgruppe fällt besonders auf, dass die Querys der Gruppe 1 nicht von der OLAP-Engine profitieren, sondern sogar langsamer werden. 
+Warum dies beim Durchführen des Benchmarks, aber nicht bei Analyse der Execution-Pläne der Fall ist, ist nicht klar.
+
+Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe 3 und 4 nur geringfügig, Gruppe 2 jedoch wird nahezu doppelt so schnell.
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\linewidth}{lXrrrr}
+    \toprule
+	Wert        &	OLAP-Hint & Q1 	    &	Q2 	    &	Q3	    &	Q4 \\
+    \toprule
+    Average	    & Nein        &	23.5	&	72.5	&	60.4	&	69.9 \\
+    Average     & Ja	      &	26.3	&	36.4	&	58.3	&	65.6 \\
+    \midrule
+    Median	    & Nein        &	23.4	&	72.1	&	60.2	&	69.3 \\
+    Median	    & Ja          &	26.5	&	36.0	&	59.5	&	66.0 \\
+    \bottomrule
+    \end{tabularx}
+	\caption{Laufzeit jeder Benchmarkgruppe für Column-Store mit Index, testweise mit OLAP-Hint. n=100}
+    \label{tab:olap_bench}
+\end{table}
 %Hier dann Tabelle, wenn Benchmark fertig ist. 
 
-
-
+\subsubsection{Fazit für Column-Stores}
+Auch Column-Stores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Durch Nutzung der OLAP-Engine können diese Beschleunigungen jedoch nochmals teils deutlich überboten werden. 
+Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch nutzen. Dies ist zwar über einen HINT möglich, davon wird jedoch abgeraten.
+%https://archive.sap.com/discussions/thread/3277920
 
 \subsection{Grundlegende Untersuchung für Row-Store}
 
