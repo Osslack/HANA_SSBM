@@ -125,6 +125,30 @@ class Comparison:
         data = list(map(lambda x: self.normalize_row(x), self.join_stats(self.get_statisticals())))
         display_table(data, header, title=self.title)
 
+    def compare_with(self, comparison, feature):
+        keys1 = self.get_keys()
+        keys2 = self.get_keys()
+
+        if not list(set(keys1).intersection(set(keys2))):
+            raise Exception("Wrong queries")
+
+        header = []
+        data = [[self.get_name()], [comparison.get_name()]]
+
+        for key in keys1:
+            header += [q]
+            data[0] += self.get_feature(key, feature)
+            data[1] += comparison.get_feature(q, feature)
+
+        display_table(data, header, title=self.title)
+
+    def get_feature(self, stat_name, feature):
+        stat = self._get_stat(stat_name)
+        for row in stat.get_stats():
+            if row[0] == feature:
+                return row[1]
+        raise Exception("Could not get feature")
+
     def normalize_row(self, row):
         name = row[0]
         values = row[1:]
@@ -153,8 +177,15 @@ class Comparison:
             if row[0] == key:
                 return row[1]
         return "-"
+
     def _statisticals_to_stat(self):
         return [statistical.get_stats() for statistical in self.get_statisticals()]
+
+    def _get_stat(self, name):
+        for stat in self.get_statisticals():
+            if stat.get_name() == name:
+                return stat
+        raise Exception("Stat does not exist")
 
 class Benchmark(Statistical):
 
@@ -265,7 +296,8 @@ class Benchmark(Statistical):
         return reduce(lambda x, y: x + y or 0, times)
 
     def _get_repetition_time(self, repetition):
-        return reduce(lambda x, y: x + y or 0, map(lambda z: self._extract_time(z), repetition))
+        f = list(filter(lambda x: re.search("^\\.?[^.]*\\.[^.]*$", x["Filename"]), repetition))
+        return reduce(lambda x, y: x + y or 0, map(lambda z: self._extract_time(z), f))
 
     def _query_to_stat(self, name, query):
         times = list(map(lambda test: self._extract_time(test), query))
