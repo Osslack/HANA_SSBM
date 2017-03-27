@@ -36,7 +36,7 @@ class Statistical:
         return len(self.get_times())
 
     def get_times(self):
-        return self.times
+        return [x/1000 for x in self.times]
 
     def get_name(self):
         return self.name
@@ -138,7 +138,7 @@ class Comparison:
     def compare_visually(self):
         plt.subplot()
         plt.xlabel("Repetition")
-        plt.ylabel("Time in usec")
+        plt.ylabel("Time in msec")
         plt.title(self.title)
         for statistical in self.get_statisticals():
             plt.plot(statistical.get_times(), label=statistical.get_name())
@@ -237,7 +237,7 @@ class Benchmark(Statistical):
         return result
 
     def print_stats(self):
-        header = [ "", "Time in usec" ]
+        header = [ "", "Time in msec" ]
         data = self.get_stats()
         title = "General Data - " + self.get_name()
         display_table(self.get_stats(), header, title=title)
