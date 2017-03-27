@@ -1,29 +1,78 @@
 \chapter{Setup}
-Diese Kapitel beschreibt das grundlegende Setup, um mit der SAP HANA Datenbank, in Form einer virtuellen Maschine, arbeiten zu können.
+Dieses Kapitel beschreibt das grundlegende Setup, um mit der SAP HANA Datenbank, in Form einer virtuellen Maschine, arbeiten zu können.
 
 \section{Virtuelle Maschine}
-Unter dem folgenden Link\footnote{\url{https://www.sap.com/developer/topics/sap-hana-express.html}}  kann eine SAP HANA Instanz heruntergeladen werden. Für den initialen Setup ist dieser URL\footnote{\url{https://www.sap.com/developer/tutorials/hxe-ua-getting-started-vm.html}}  notwendig und hilfreich.\\
-Das Tutorial beschreibt dabei, wie eine SAP HANA Datenbank mithilfe einer Virtualisierungssoftware (z.B. VMware Player oder VirtualBox) realisiert wird. Um den Datenaustausch zwischen der virtuellen Maschine, und dem Host bequem zu gestalten ist es hilfreich, Daten die die VM benötigt entweder mit einem \enquote{Shared Folder} zu teilen, oder aber mit \enquote{Secure Copy} (SCP) in die VM zu übertragen.
+Unter dem folgenden Link\footnote{\url{https://www.sap.com/developer/topics/sap-hana-express.html}}  kann eine SAP HANA Instanz als virtuelle Maschine heruntergeladen werden. Für den initialen Setup, Benutzername und anlegen eines Passworts, ist dieser Link\footnote{\url{https://www.sap.com/developer/tutorials/hxe-ua-getting-started-vm.html}}  hilfreich.\\
+Das Tutorial beschreibt dabei, wie eine SAP HANA Datenbank mithilfe einer Virtualisierungssoftware (z.B. VMware Player oder VirtualBox) realisiert wird.\\Damit der Benchmark ordnungsgemäß funktioniert, muss der virtuellen Maschine mindestens 6 GB an Arbeitsspeicher zugewiesen werden. \\Um den Datenaustausch zwischen der virtuellen Maschine und dem Host bequem zu gestalten ist es nützlich, Daten, die die VM benötigt, entweder mit einem \enquote{Shared Folder} zu teilen, oder aber mit \enquote{Secure Copy} (SCP) in die VM zu übertragen. Dabei ist darauf zu achten, dass die Ordnerstruktur der VM und des \enquote{src}-Ordners im Github Repositories  übereinstimmen. Außerdem ist es wichtig, dass die Dateien in dem Verzeichnis \enquote{/usr/sap/HXE/HDB90/work/}  abgelegt sind (vgl. \autoref{struktur}).
+
+\begin{lstlisting}[label=struktur, caption={Ordnerstruktur}]
+-work
+	-all_benchmarks.bash
+	-hdbsql.bash
+	-run_benchmark.bash
+	-customer.tbl
+	-date.tbl
+	-lineorder.tbl
+	-part.tbl
+	-supplier.tbl
+	-sql
+		-addBasicIndizes.sql
+		-advancedIndizes.sql
+		-bench_all.sql
+		-furtherIndizes.sql
+		-import.sql
+		-schemaCol.sql
+		-schemaRow.sql
+		-benchmark	
+\end{lstlisting}
+Zum Starten des Benchmarks muss lediglich die Datei \enquote{run\_Benchmark.bash} gestartet werden.
 
 
 \section{\enquote{Eclipse}}
-Damit verschiedene Operationen auf der SAP HANA Datenbank ausgeführt werden können, ist es ratsam die Entwicklungsumgebung \enquote{Eclipse} zum Ausführen von SQL Statements zu nutzen. \\Unter dem folgenden Link\footnote{\url{https://www.sap.com/developer/how-tos/2016/09/hxe-howto-eclipse.html}} ist beschrieben, welche Erweiterungen und Einstellungen in \enquote{Eclipse} vorgenommen werden müssen, um eine Verbindung zur Datenbank herzustellen.
+Eclipse wird in der Regel als Entwicklungsumgebung für die SAP HANA Datenbank verwendet. Außerdem lassen sich in Eclipse Query Exection Pläne grafisch darstellen.
+\\Unter dem folgenden Link\footnote{\url{https://www.sap.com/developer/how-tos/2016/09/hxe-howto-eclipse.html}} ist beschrieben, welche Erweiterungen und Einstellungen in \enquote{Eclipse} vorgenommen werden müssen, um eine Verbindung zur Datenbank herzustellen.\\Zum Ausführen unseres Benchmarks reichen die zur Verfügung stehenden Mittel von HDBSQL vollkommen aus.
 
-\subsection{Query Execution Plan}
-Um nachvollziehen zu können, in welcher Abfolge die SQL Statements von der HANA Datenbank verarbeitet werden, lassen sich Query Execution Pläne erstellen.
-Dafür sind folgende Schritte notwendig:
+\section{SAP HANA HDBSQL}
+SAP HANA HDBSQL ermöglicht das Ausführen von SQL Befehlen in der Kommandozeile\footnote{\url{http://help-legacy.sap.com/saphelp_hanaplatform/helpdata/en/c2/2c67c3bb571014afebeb4a76c3d95d/content.htm?frameset=/en/c2/4d054bbb571014b253ac5d6943b5bd/frameset.htm&current_toc=/en/00/0ca1e3486640ef8b884cdf1a050fbb/plain.htm&node_id=1155&show_children=false}}. Dafür muss beispielsweise der in \autoref{hdbsql} Befehl ausgeführt werden.
+\begin{lstlisting}[label=hdbsql, caption={HDBSQL Befehl}]
+hdbsql -i 90 -d SystemDB -u SYSTEM -p password -T /usr/sap/HXE/HDB90/work/log.log -O /usr/sap/HXE/HDB90/work/log.log -I
+\end{lstlisting}
+\subsection{Übersicht Parameter HDBSQL}
+\begin{itemize}
+	\item \textbf{-i}: Setzt die Instanznummer
+	\item \textbf{-d}: Name der Datenbank
+	\item \textbf{-u}: Name Datenbank-User
+	\item \textbf{-p}: Passwort des Datenbank-Users
+	\item \textbf{-T}: File in dem das Trace gespeichert wird, welches Informationen zur Ausführung des SQL Kommandos speichert.
+	\item \textbf{-o}: Schreibt das Ergebnis der SQL Abfrage in die angegebene Datei
+	\item \textbf{-I}: Importiert Befehle aus einer Batch Datei
+\end{itemize}
+
+
+
+
+\section{Datenbankschema}
+Zu Beginn muss das Datenbankschema des SSBM-Benchmarks definiert werden. Die Tabellen werden entweder als Column Store (vgl. \autoref{schemaCol})  oder in einem ROW Store gespeichert (vgl.\autoref{schemaRow}). Die in den Listings enthaltenen \enquote{Create Table} Statements unterscheiden sich nur anhand des Schlüsselworts \enquote{COLUMN} bzw. \enquote{ROW} voneinander. 
+\\Damit die Auswirkungen der Indizes ebenfalls festgestellt werden können, wird der Benchmark sowohl für den \enquote{ROW} als auch den \enquote{COLUMN} Store zuerst ohne Indizes ausgeführt. Diese lassen sich anschließend über das Statement \enquote{CREATE Index <index\_name> ON <tabellen\_name>} hinzufügen (vgl. \autoref{indizes}).
+
+\section{Daten Import}
+Der Import kann entweder über die SQL Console der Entwicklungsumgebung Eclipse geschehen, oder über die Kommandozeile der virtuellen Maschine, indem mittels \enquote{HDBSQL} die verschiedenen Dateien für das Anlegen des Schemas, den Import, etc. ausgeführt wird.
+\\Nachdem das Schema (ROW oder Column Store spielt keine Rolle) angelegt wurde, können nun die SSBM-Benchmark-Daten importiert werden. Das Importieren der Daten wird in \autoref{importSQL} dargestellt. In diesem Fall werden .tbl-Daten für den Import genutzt. Es ist allerdings auch möglich die Daten über csv-Dateien in die Datenbank zu laden.
+\\Exemplarisch ist in \autoref{importBsp} der SQL-Befehl aufgelistet, der Daten in die Tabelle \enquote{DIM\_DATE} importiert. Es ist ersichtlich, dass die .tbl-Datei aus dem Verzeichnis Work importiert wird. Dabei entspricht eine Zeile einem Datensatz. Die verschiedenen Attribute sind durch einen senkrechten Strich voneinander getrennt. Falls große Anzahl an Daten importiert werden müssen, so kann der Ausdruck \enquote{BATCH 1000} dem SQL-Befehl hinzugefügt werden. Dadurch wird mehr Leistung bereitgestellt (vgl. Zeile 13 \autoref{importSQL} )
+\begin{lstlisting}[label=importBsp, caption={Beispiel SQL-Befehl: Datenimport}]
+IMPORT FROM CSV FILE '/usr/sap/HXE/HDB90/work/date.tbl' INTO "SYSTEM"."DIM_DATE" 
+WITH
+record delimited by '\n' 
+field delimited by '|';
+\end{lstlisting}
+
+
+\section{Query Execution Plan}
+Um nachvollziehen zu können, in welcher Abfolge die SQL Statements von der SAP HANA Datenbank verarbeitet werden, lassen sich mithilfe von Eclipse Query Execution Pläne visualisiren.
+Dafür sind folgende Schritte auszuführen:
 \begin{enumerate}
 	\item SQL Console öffnen \& Statement eingeben
 	\item \enquote{Rechtsklick} im Context Fenster der SQL Console
 	\item Wähle den Menüpunkt \enquote{Visualize Plan} $\rightarrow$ \enquote{Execute} aus.
 	\item Der Query Execution Plan wird nun angezeigt.
 \end{enumerate} 
-
-\section{Daten Import}
-Dieser Abschnitt beschreibt, wie die SSBM-Benchmark-Daten in die SAP HANA Datenbank geladen werden können. Dies kann entweder über die SQL Console der Entwicklungsumgebung Eclipse geschehen, oder über die Kommandozeile der virtuellen Maschine, indem mittels \enquote{HDBSQL} die verschiedenen Dateien für das Anlegen des Schemas, den Import, etc. ausgeführt wird.
-\\Um das Importieren möglichst einfach zu gestalten, ist es hilfreich die Daten als tbl- oder csv-Datei in einem beliebigen Verzeichnis in der virtuellen Maschine abzuspeichern.
-\\Zu Beginn müssen die Tabellenschemata des SSBM-Benchmarks definiert werden. Dies passiert mit dem in \autoref{schema} dargestellten Statements. Begonnen wird der Benchmark, indem die Daten in einem Column Store gespeichert werden.\\
-Um die Unterschiede zwischen Column und Row Store feststellen zu können, wird die Datenspeicherung pro Tabelle mithilfe der in \autoref{switchToRow} aufgezeigten SQL Statements von Column zu Row Store geändert. \\Außerdem ist in dem \autoref{switchToRow} zu erkennen, dass die Tabelle \enquote{Lineorder} zuerst gelöscht und neu erstellt wird. Dies hat als Grund, dass es Probleme gibt, falls die virtuelle Maschine zu wenig (< 8 GB) Arbeitsspeicher zugewiesen bekommt und somit den Befehl nicht erfolgreich abschließen kann. Zudem ist zu berücksichtigen, dass die Tabelle Lineorder mit Abstand am meisten Datensätze enthält.\\
-Nachdem das Schema nun angelegt wurde, können nun die SSBM-Benchmark-Daten importiert werden. Das Importieren der Daten wird in \autoref{importSQL} Listing dargestellt. In diesem aktuellen Fall werden tbl-Daten für den Import genutzt. Es ist allerdings auch möglich die Daten über csv-Dateien in die Datenbank zu laden.
-
-

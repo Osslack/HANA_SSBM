@@ -1,0 +1,43 @@
+\chapter{Ausführung des Benchmarks}
+
+Das HANA Studio Plugin für Eclipse ermöglicht die direkte Ausführung von SQL-Code über die SQL-Console und würde damit ausreichen um die Schemata anzulegen, die Daten zu importieren und den Benchmark auszuführen. Werden nun jedoch Ansprüche wie das mehrfache Ausführen des Benchmarks unter unterschiedlichen Bedingungen gestellt, so ist offensichtlich, dass das händische Ausführen der einzelnen Schritte nachteilig ist. Eine elegantere Lösung ist die des Einsatzes von Skripten, welche Logik implementieren zur automatisierten Ausführung der Benchmarks. Dem Prozess der Ausführung des Benchmarks liegen dabei mehrere Gedanken zugrunde, welche in diesem Kapitel vorgestellt werden. 
+
+\section{Ziele}
+
+Die erwähnten Ansprüche an den kompletten Benchmark beziehen sich unter anderem auf seine \textbf{erleichtete Ausführung}. Wie im Kapitel zum Setup vorgestellt wurde, existiert ein Bash Skript {\glqq}run{\textunderscore}benchmark.bash{\grqq}, welches das zentrale Skript darstellt und dessen alleiniger Aufruf zur Ausführung des kompletten Benchmarks ausreicht. Somit ist die Komplexität der Ausführung für den Anwender reduziert. Nicht nur wird dadurch die Ausführung an sich erleichtert, auch die Installation des HANA Studio Plugins für Eclipse wird überflüssig, da jegliche SQL-Befehle automatisch über das Skript aus SQL-Dateien ausgeführt wird. Es sind also keine SQL-Kenntnisse für den Anwender notwendig, jeglich der Umgang mit Bash-Skripten. 
+
+Dank der erleichterten Ausführung und Einrichtung der Benchmark-Umgebung ist es einfach den Benchmark auf \textbf{unterschiedlichen Test-Systemen} ausführen zu können. Durch die Variation der Test-Systeme können Faktoren wie die Anzahl zur Verfügung gestellter CPU Kerne oder RAM in ihrem Einfluss auf den Benchmark untersucht werden. Auf diese Aspekte wird im Folgekapitel näher eingegangen. 
+
+Da die Evaluierung der Ergebnisse erst durchgeführt werden kann sobald alle Ergebnisse vorhanden sind (also nach Ausführung aller Benchmarks) muss eine Möglichkeit geschaffen werden, die Ergebnisse zwischenzuspeichern. Zu diesem Zwecke werden während der Durchführung der Benchmarks \textbf{Logs} angelegt, welche die Daten halten. 
+
+Ein weiterer Aspekt ist die \textbf{Anzahl an Iterationen} innherhalb des kompletten Benchmarks. Viele Iterationen stellen den Ausschluss von Anomalien sicher und geben dem \textbf{Analyser} in der späteren Evaluierung zuverlässigere Werte. Dieser wird die Ergebnisse vergleichen und in einem einzigen Dokument erfassen. 
+
+Nicht nur werden die Bedingungen für die Benchmarks variiert, sondern auch deren Inhalt. So werden unterschiedliche Konstellationen im Einsatz von \textbf{Row- und Columnstore} sowie \textbf{Indizes} durchgespielt. Genau wie die Variation des Test-Systems lassen sich dadurch essentielle Daten für den Analyser generieren. 
+
+\section{Realisierung der Ziele}
+
+Die eingesetzten Test-Systeme variieren folgendermassen: 
+\begin{itemize}
+	\item \textbf{RAM}: Es werden 6, 8 und 12 Gigabyte von 1.6 Tausend MHz DDR3 bis hin zu 3 Tausend MHz DDR4 RAM zur Verfügung gestellt. 
+	\item \textbf{CPU}: Es werden 2, 4 und 6 virtuelle Kerne von 3.30GHz bis 4.2GHz zur Verfügung gestellt. 
+\end{itemize}
+
+Die Anzahl der Iterationen wird auf den Wert 250 festgelegt.
+
+\newpage
+
+\section{Durchführung}
+
+\begin{wrapfigure}{r}{0.25\textwidth} 
+    \centering{
+    \includegraphics[scale=0.7]{images/Durchfuehrung3.png}
+    \caption{Durchführung}\label{durchfuehrung}}
+\end{wrapfigure}
+
+Wie in \autoref{durchfuehrung} zu erkennen ist, lässt sich die Durchführung des Benchmarks unterteilen in die Schritte Schema Erzeugung, Daten Import, Index Erzeugung, Ausführung des Benchmarks, Speicherung der Daten ins Log und die Analyse durch den Analyser. Zur Übersichtlichkeit wird ein simplifizierter Prozess dargestellt, denn die eigentliche Durchführung involviert mehrere Unterschritte, die die angesprochende inhaltliche Variation des Benchmarks realisieren. 
+
+Nach erfolgreicher Anmeldung über die Zugangsdaten zur HANA Instanz erfolgt zuerst der Benchmark auf Basis eines Columnstores ohne Indizies. Dazu werden zuerst die Daten importiert und das Schema für den Columnstore angelegt. Anschliessend werden über den Aufruf des Skriptes {\glqq}all{\textunderscore}benchmarks.bash{\grqq} die einzelnen Queries ausgeführt. 
+
+Nach der Ausführung des ersten Benchmarks werden in drei Schritten Indizes hinzugefügt und jeweils erneut Benchmarks durchgeführt. Darauf schliesst sich der Wechsel zum Rowstore an, was zuerst das Anlegen des Schemas für den Rowstore und ein erneutes Importieren der Daten involviert. Die Schritte zum Ausführen des Benchmarks bei unterschiedlichen Indizes werden nun wiederholt. 
+
+Eine Iteration des Skriptes resultiert damit in acht einzelnen Benchmarks. Die Daten aus den Logs werden im folgenden Schritt vom Analyser analysiert. Die Auswertung des Benchmarks bezieht sich vorallem auf folgende System-Konfiguration: 6 Kerne @ 4.2GHz bei 8 Gigybyte RAM. 
