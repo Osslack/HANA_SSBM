@@ -87,9 +87,13 @@ class Comparison:
     Compare multiple benchmarks.
     """
 
-    def __init__(self, *statisticals):
+    def __init__(self, *statisticals, name="", title=""):
         self.statisticals = statisticals
-        self.title = ""
+        self.title = title
+        self.name = name
+
+    def get_name(self):
+        return self.name
 
     def get_keys(self, stats):
         return set([row[0] for stat in stats for row in stat])
@@ -120,27 +124,56 @@ class Comparison:
         data = self.join_stats(self.get_statisticals())
         display_table(data, header, title=self.title)
 
-    def compare(self):
+    def _apply_to_row(self, row, f, ignore):
+        if ignore:
+            if ignore(row[0]):
+                return row
+        if row[0] == "Samples":
+            return row
+
+        result = [ row[0] ]
+        for element in row[1:]:
+            result += [f(element)]
+        return result
+
+    def compare(self, f=None, ignore=None):
         header = self._create_headings(*self.get_statisticals())
-        data = list(map(lambda x: self.normalize_row(x), self.join_stats(self.get_statisticals())))
+        p = None
+        if not f:
+            p = lambda x: self.normalize_row(x)
+        else:
+            p = lambda x : self._apply_to_row(x, f, ignore)
+
+        data = list(map(p, self.join_stats(self.get_statisticals())))
         display_table(data, header, title=self.title)
 
-    def compare_with(self, comparison, feature):
-        keys1 = self.get_keys()
-        keys2 = self.get_keys()
+    def compare_with(self, comparison, feature, f=None, ignore=None):
+        query_names_1 = list(self.get_query_names())
+        query_names_2 = list(comparison.get_query_names())
 
-        if not list(set(keys1).intersection(set(keys2))):
+        if not list(set(query_names_1).intersection(set(query_names_2))):
             raise Exception("Wrong queries")
 
-        header = []
-        data = [[self.get_name()], [comparison.get_name()]]
+        header = [""]
+        data = [[self.get_name()], [comparison.get_name()], ["Difference"], ["in %"]]
 
-        for key in keys1:
-            header += [q]
-            data[0] += self.get_feature(key, feature)
-            data[1] += comparison.get_feature(q, feature)
+        for query_name in self.get_query_names():
+            header += [query_name]
+            x1 = self.get_feature(query_name, feature)
+            x2 = comparison.get_feature(query_name, feature)
+            data[0] += [x1]
+            data[1] += [x2]
+            data[2] += [x1 - x2]
+            data[3] += [round((1 - x2 / x1) * 100, 1)]
+
+        if f:
+            data = list(map(lambda x: self._apply_to_row(x, f, ignore), data))
 
         display_table(data, header, title=self.title)
+
+    def get_query_names(self):
+        for statistical in self.get_statisticals():
+            yield statistical.get_name()
 
     def get_feature(self, stat_name, feature):
         stat = self._get_stat(stat_name)
