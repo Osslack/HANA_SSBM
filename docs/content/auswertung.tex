@@ -392,11 +392,12 @@ Die letzte Zahl scheint jeweils die Laufzeit in ms zu sein, aber eine genaue Erk
 %https://www.stechies.com/important-hints-related-sap-hana/
 Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine sowohl mit, als auch ohne Index deutlich schneller, als die Column-Engine. Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
 
-\begin{wrapfigure}{r}{\textwidth} 
-    \centering{
+\begin{figure}
+    \centering
     \includegraphics[scale=0.7]{images/olap_column_overall.png}
-    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}\label{fig:olap_column_overall}}
-\end{wrapfigure}
+    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}
+	\label{fig:olap_column_overall}
+\end{figure}
 
 Wie in Grafik \ref{fig:olap_column_overall} zu sehen, wird durch den OLAP-Hint eine deutliche Beschleunigung erzielt. Ob zusätzlich noch ein Index existiert hat jedoch wenig bis keinen Einfluss.
 
