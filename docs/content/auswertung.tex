@@ -332,7 +332,7 @@ Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 re
 
 Bei der Analyse des Query-Execution Plans zeigt sich schnell,
 woher die große Geschwindigkeitssteigerung kommt.
-In Query 3.4 bildet einen Join von Lineorder auf Customer,
+Query 3.4 bildet einen Join von Lineorder auf Customer,
 Supplier und Dim\_Date. 
 Dieser Join erfolgt jeweils über den Fremdschlüssel in Lineorder.
 Ohne Indizes ist dieser Join ausschlaggebend für die Laufzeit des Querys.
@@ -472,7 +472,20 @@ Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch 
 \label{tab:basic_index_row}
 \end{table}
 
-
+\begin{table}[H]
+    \begin{tabularx}{\linewidth}{lrrrrrr}
+        \toprule
+                &   q1.1    &   q1.2&	q1.3&	q2.1&	q2.2&	q2.3 \\
+                \toprule
+Row[ms]	        &	163	    &	133	&	127	&	139	&	111	&	102  \\
+Row Index[ms]   &   156     &   13	&   3	&   73	&   16	&   4    \\
+Abweichung[ms]  &   7       &   120 &   124 &   66  &   95  &   98   \\
+Abweichung[\%]  &   4.2     &   90.2&   97.6&   47.4&   85.5&   96.0 \\    
+\bottomrule
+    \end{tabularx}
+\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
+\label{tab:basic_index_row}
+\end{table}
 \section{Auswirkung unterschiedlicher Hardwarekonfiguration}\label{auswertung:hardware}
 
 Nicht nur die Betrachtung unterschiedlicher Konfigurationen auf Software-Ebene ist interessant, sondern auch die auf simulierter Hardware-Ebene. Die eingesetzten Hardwarekonstellationen wurden im Kapitel zur Ausführung des Benchmarks beschrieben und werden nun miteinander verglichen. Zum Einsatz kommen die Ergebnisse des Analysers, welche als Visualisierungen sowie Aggregaten-Werten präsentiert werden. In der Analyse werden wird zuerst auf den Columnstore eingegangen und anschließend vergleichend auf den Rowstore. 
