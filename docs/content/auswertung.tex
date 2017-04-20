@@ -277,7 +277,7 @@ Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 re
 
 Bei der Analyse des Query-Execution Plans zeigt sich schnell,
 woher die große Geschwindigkeitssteigerung kommt.
-In Query 3.4 bildet einen Join von Lineorder auf Customer,
+Query 3.4 bildet einen Join von Lineorder auf Customer,
 Supplier und Dim\_Date. 
 Dieser Join erfolgt jeweils über den Fremdschlüssel in Lineorder.
 Ohne Indizes ist dieser Join ausschlaggebend für die Laufzeit des Querys.
