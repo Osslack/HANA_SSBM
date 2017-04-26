@@ -182,7 +182,7 @@ Allerdings ist der Unterschied der Laufzeit beider Queries marginal.
 Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
 da eine bessere Parallelisierung möglich ist.
 
-\section{Query Execution Plan}
+\section{Vergleich der Query Execution Pläne - Query 4.3}
 In diesem Abschnitt werden die Query Execution Pläne für den Row und Column Store der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Column Store.
 \begin{lstlisting}[label=q42, caption={Benchmark Query 4.3}]
 select d_year, s_city, p_brand,sum(lo_revenue - lo_supplycost) as profit
@@ -221,8 +221,8 @@ Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoi
 	\caption{Join - Query Execution Plan für Q4.3 - Column Store \label{qepJoinCol} }
 \end{figure}
 \begin{enumerate}
-	\item Zuerst werden die beiden Tabellen \textbf{Lineorders} und \textbf{Customer} miteinander gejoint. In diesem Join fällt auf, dass auf keine der beiden Tabellen ein Filterkriterium angewendet wird und somit der Join unabhängig ausgeführt werden kann. 
-	\item Sobald die Ergebnismengen der Tabellen \textbf{Part}, \textbf{Supplier}, \textbf{Dim\_Date} vorliegen, werden diese ebenfalls in einer \enquote{Reduction Phase} mit den Fremdschlüsseln der Tabelle \textbf{Lineorders} gejoint. 
+	\item Zuerst werden die beiden Tabellen \textbf{Lineorder} und \textbf{Customer} miteinander gejoint. In diesem Join fällt auf, dass auf keine der beiden Tabellen ein Filterkriterium angewendet wird und somit der Join unabhängig ausgeführt werden kann. 
+	\item Sobald die Ergebnismengen der Tabellen \textbf{Part}, \textbf{Supplier} und \textbf{Dim\_Date} vorliegen, werden diese ebenfalls in einer \enquote{Reduction Phase} mit den Fremdschlüsseln der Tabelle \textbf{Lineorders} gejoint. 
 	\item Wenn die ersten beide Schritte ausgeführt wurden, werden beide einzelnen Ergebnisse über einen Merge-Join in einer Ergebnismenge abgebildet und ausgegeben. 
 \end{enumerate}
 Anschließend an den Join wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung aufsteigend sortiert und anschließend ausgeben.
