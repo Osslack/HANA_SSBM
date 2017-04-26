@@ -183,62 +183,74 @@ Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
 da eine bessere Parallelisierung möglich ist.
 
 \section{Query Execution Plan}
-In diesem Abschnitt wird der Query Execution Plan für den Row und Column Store zum in \autoref{q42} dargestellten Listing betrachtet. 
-
-\begin{lstlisting}[label=q42, caption={Benchmark Query 4.2}]
-select d_year, s_nation, p_category,
-sum(lo_revenue - lo_supplycost) as profit
+In diesem Abschnitt werden die Query Execution Pläne für den Row und Column Store der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Column Store.
+\begin{lstlisting}[label=q42, caption={Benchmark Query 4.3}]
+select d_year, s_city, p_brand,sum(lo_revenue - lo_supplycost) as profit
 from lineorder
-join dim_date
-on lo_orderdatekey = d_datekey
-join customer
-on lo_custkey = c_customerkey
-join supplier
-on lo_suppkey = s_suppkey
-join part
-on lo_partkey = p_partkey
+join dim_date on lo_orderdatekey = d_datekey
+join customer on lo_custkey = c_customerkey
+join supplier on lo_suppkey = s_suppkey
+join part on lo_partkey = p_partkey
 where
-c_region = 'AMERICA'
-and s_region = 'AMERICA'
+s_nation = 'UNITED STATES'
 and (d_year = 1997 or d_year = 1998)
-and (p_mfgr = 'MFGR#1'
-or p_mfgr = 'MFGR#2')
-group by d_year, s_nation, p_category
-order by d_year, s_nation, p_category;
+and p_category = 'MFGR#14'
+group by d_year, s_city, p_brand
+order by d_year, s_city, p_brand;
 \end{lstlisting}
 
 \subsection{Query Execution Plan - Column Store}
-\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den angegebenen Kriterien gefiltert wird. Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoint:
-\begin{enumerate}
-	\item Grundlage sind die ermittelten Ergebnisse der Tabelle \textbf{Part}
-	\item Ergebnismenge Lineorders wird mit den Ergebnissen der Tabelle \textbf{Customer} gejoint
-	\item Ergebnisemenge wird mit den Ergebnisse der Tabelle \textbf{Supplier} gejoint
-	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{Lineorder} gejoint
-	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{DIM\_Date} gejoint
-\end{enumerate}
-Danach wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung absteigend sortiert und anschließend ausgeben.
+\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den drei angegebenen Kriterien gefiltert wird.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.35]{images/q42col}
-	\caption{Query Execution Plan für Q4.2 - Column Store \label{qepCol} }
+	\includegraphics[scale=0.35]{images/col_q43_3}
+	\caption{Query Execution Plan für Q4.3 - Column Store \label{qepCol} }
 \end{figure}
+
+Die drei Tabellen liefern dann unterschiedlich große Ergebnismengen zurück:
+\begin{itemize}
+	\item Tabelle Part:			8029 Zeilen
+	\item Tabelle SUPPLIER:		76 Zeilen
+	\item Tabelle DIM\_DATE:	729 Zeilen
+\end{itemize}
+Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoint (vgl. \autoref{qepJoinCol}):
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.6]{images/colq43join}
+	\caption{Join - Query Execution Plan für Q4.3 - Column Store \label{qepJoinCol} }
+\end{figure}
+\begin{enumerate}
+	\item Zuerst werden die beiden Tabellen \textbf{Lineorders} und \textbf{Customer} miteinander gejoint. In diesem Join fällt auf, dass auf keine der beiden Tabellen ein Filterkriterium angewendet wird und somit der Join unabhängig ausgeführt werden kann. 
+	\item Sobald die Ergebnismengen der Tabellen \textbf{Part}, \textbf{Supplier}, \textbf{Dim\_Date} vorliegen, werden diese ebenfalls in einer \enquote{Reduction Phase} mit den Fremdschlüsseln der Tabelle \textbf{Lineorders} gejoint. 
+	\item Wenn die ersten beide Schritte ausgeführt wurden, werden beide einzelnen Ergebnisse über einen Merge-Join in einer Ergebnismenge abgebildet und ausgegeben. 
+\end{enumerate}
+Anschließend an den Join wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung aufsteigend sortiert und anschließend ausgeben.
+
 
 \subsection{Query Execution Plan - Row Store}
-\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Hier sieht die Reihenfolge der Abarbeitung des Queries wie folgt aus:
+\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Ohne genaueres Hinschauen fällt auf, dass die Ausführung sich im Vergleich zum Column Store stärker an einem sequentiellen Ablauf orientiert.\\ Im Row Store sieht die Reihenfolge der Abarbeitung des Joins wie folgt aus:
 \begin{enumerate}
-	\item Es wird ein Tablescan auf \textbf{Dim\_Date} ausgeführt
-	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint
-	\item Ergebnismenge wird mit \textbf{Supplier } gejoint
-	\item  Ergebnismenge wird mit \textbf{Customer } gejoint
-	\item  Ergebnismenge wird mit \textbf{Part } gejoint
+	\item Als erster Schritt wird ein Tablescan auf \textbf{Supplier} ausgeführt, der die Tabelle nach der Nation \enquote{UNITED STATES} filtert(76 Ergebnisse).
+	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint (228745 Ergebnisse)
+	\item Bevor der Hash Join ausgeführt werden kann, wird ein Index Search auf die Tabelle \textbf{PART} ausgeführt, der die Produktkategorie eingrenzt. (8029 Ergebnisse)
+	\item Es wird nun ein Hash Join auf mit den Ergebnisse der Schritte 1 und 2 mit den Ergebnissen des Schrittes 3 ausgeführt. Die Join wird über \textbf{LINEORDERS.LO\_Partkey} und \textbf{PART.P\_Partkey} ausgeführt. (9118 Ergebnisse)
+	\item Zeitgleich zu dem Hash Join kann ein Table Scan auf die Tabelle \textbf{DIM\_Date} erstellet werden. (729 Ergebnisse).
+	\item Anschließend werden die beiden Ergebnisse aus Schritt 4 und 5 wieder über eine Hash Join zu einem Ergebnis zusammengefasst. Dies geschieht über die Fremdschlüsselbeziehung der Tabelle \textbf{Lineorders} und \textbf{Dim\_Date} über die Spalte \enquote{LO\_Orderdatekey} bzw. \enquote{D\_Datekey}. (2194 Ergebnisse)
+	\item Im letzten Join, dem Index Join, werden die zuvor in Schritt 6 ermittelten Ergebnisse mit der Tabelle \textbf{Customer} verknüpft. Dies geschieht über die Beziehung \enquote{Lineorder.LO\_Custkey = Customer.C\_Customerkey}. (2194 Ergebnisse)
 \end{enumerate}
-Danach wird wieder eine Aggregation gebildet und die Gruppierung anschließend absteigend sortiert.
+Nachdem alle Joins ausgeführt wurden, wird wieder eine Aggregation gebildet und die Gruppierung anschließend aufsteigend sortiert und das Ergebnis ausgegeben.
 \begin{figure}[H]
 
 	\centering
-	\includegraphics[scale=0.4]{images/q42row}
-	\caption{Query Execution Plan für Q4.2 - Column Store 	\label{qepRow} }
+	\includegraphics[scale=0.4]{images/row_q43}
+	\caption{Query Execution Plan für Q4.3 - Row Store 	\label{qepRow} }
 \end{figure}
+
+\subsection{Fazit Query Execution Plan}
+Der große zeitliche Unterschied zwischen Row und Column Store lässt sich mit der sequentielle Ausführung des Query im Row Store begründen. \\In beiden Ausführungen war ersichtlich, dass die Ausführung in die 3 Schritte, Filtern, Join und Gruppieren eingeordnet werden können. Allerdings sind im Row Store das Filtern und Joinen eng miteinander verbunden und werden sogar abwechselnd nacheinander ausgeführt. Beim Column Store hingegen war die Abgrenzung zwischen Filtern und Join deutlich stärker, da zuerst die Tabellen gefiltert wurden und anschließend die Ergebnismengen miteinander verknüpft.
+
+
 
 
 
