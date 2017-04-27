@@ -430,7 +430,7 @@ Schaut man sich genauer an, was an dieser Stelle passiert, so werden die gleiche
         Colum               & 296        & 226            \\   
         \bottomrule
     \end{tabular}
-	\caption{Durchschnittslaufzeit für jede Benchmarkgruppe bei Column-Store.}
+	\caption{Durchschnitt der Gesamtlaufzeit mit und ohne OLAP-Engine bei Column-Store.}
     \label{tab:olap}
 \end{wraptable}
 
@@ -440,7 +440,7 @@ Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine insgesamt sowohl mit
 
 Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[scale=0.7]{images/olap_column_overall.png}
     \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}
@@ -452,11 +452,13 @@ Wie in Grafik \ref{fig:olap_column_overall} zu sehen, wird durch den OLAP-Hint e
 Bei genauerer Betrachtung der Laufzeit pro Benchmarkgruppe fällt besonders auf, dass die Querys der Gruppe 1 nicht von der OLAP-Engine profitieren, sondern sogar langsamer werden. 
 Warum dies beim Durchführen des Benchmarks, aber nicht bei Analyse der Execution-Pläne der Fall ist, ist nicht klar.
 
+\iffalse
 \begin{figure}[H] 
     \centering{
     \includegraphics[scale=0.7]{images/olap_column_overall.png}
     \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}\label{fig:olap_column_overall}}
 \end{figure}
+\fi
 
 Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe 3 und 4 nur geringfügig, Gruppe 2 jedoch wird nahezu doppelt so schnell.
 \begin{table}[H]
