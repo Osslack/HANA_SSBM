@@ -1,4 +1,5 @@
 \chapter{Auswertung Benchmark}
+In dem vorgenommenen Benchmark wurden alle Queries 250 mal wiederholt.
 Im folgenden werden die Ergebnisse des Benchmarks ausgewertet.
 Dazu wird zu erst die Gesamtlaufzeit des Benchmarks in \autoref{auswertung:generell} analysiert. Dabei wird zwischen zeilenbasierten und spatenbasierten
 Tabellen unterschieden.
@@ -17,15 +18,15 @@ untersucht.
 	\midrule
 	\endhead
 	\hline
-	\caption{Gesamtlaufzeiten von Row- und Columnstore in usec}
+	\caption{Gesamtlaufzeiten von Row- und Columnstore in msec mit 250 Wiederholungen}
 	\label{auswertung:gesamtlaufzeit}
 	\endfoot
-	Durchschnitt & 754689 & 3591003 \\
-	Minimum & 725710 & 3451791 \\
-	Maximum & 858595 & 4079505 \\
-	Median & 752236 & 3577376 \\
-	Standardabweichung & 17619 & 79002\\
-	Gesamt & 754689 & 3591003 \\
+	Durchschnitt & 371 & 1727 \\
+	Minimum & 359 & 1645 \\
+	Maximum & 488 & 1902 \\
+	Median & 369 & 1722 \\
+	Standardabweichung & 12 & 40\\
+	Gesamt & 92855 & 431635 \\
 \end{tabularx}
 
 Allgemein sollten Benchmarks auf der HANA Datenbank immer zwischen
@@ -33,6 +34,7 @@ Row- und Columnstore unterscheiden.
 Dies wird deutlich beim Betrachten der Allgemeinen Laufzeit.
 Wie \autoref{auswertung:gesamtlaufzeit} zu entnehmen ist, besteht ein deutlicher
 Unterschied in der Laufzeit zwischen Row- und Columnstore.
+Der Columnstore ist im Durschnitt um 79\% schneller.
 Da der SSBM Benchmark als Maß für Abfragen im Bereich des Datawarehouse
 eingesetzt wird, kann also allgemein gesagt werden,  dass der Columnstore
 dem Rowstore im Datawarehouse Umfeld vorzuziehen ist.
@@ -58,6 +60,59 @@ Dazu wird der Benchmark in die Gruppen Q1, Q2, Q3 und Q4 unterteilt.
 Diese Gruppen bestehen aus einzelnen Unterabfragen Q1.1, Q1.2 etc.
 Zuerst wird allgemein die Geschwindigkeit der einzelnen Gruppen verglichen
 und anschließend auf ausgewählte Unterabfragen eingegangen.
+
+\newcolumntype{f}{>{\columncolor{yellow}}r}
+\newcolumntype{s}{>{\columncolor{red}}r}
+
+\begin{table}[H]
+	\resizebox{\textwidth}{!}{%
+	\begin{tabular}{l|rfrr|rrrs}
+		\toprule
+		 & \multicolumn{4}{c|}{Columnstore} & \multicolumn{4}{c}{Rowstore} \\
+		 & \textbf{Q1} & \textbf{Q2} & \textbf{Q3} & \textbf{Q4} & \textbf{Q1} & \textbf{Q2} & \textbf{Q3} & \textbf{Q4}\\
+		\midrule
+		Durchschnitt & 103,5 & 61,5 & 95,0 & 111,3 & 414,0 & 345,4 & 477,6 & 489,5\\
+		Median & 101,9 & 60,2 & 93,6 & 109,6 & 412,8 & 343,2 & 474,9 & 485,9\\
+		Maximum & 160,1 & 90,7 & 111,2 & 143,7 & 497,4 & 415,5 & 579,7 & 562,6\\
+		Minimum & 100,3 & 58,3 & 91,4 & 106,3 & 385,6 & 311,1 & 441,5 & 454,0\\
+		Standardabweichung & 5,7 & 3,9 & 3,5 & 5,0 & 2 & 15,9 & 17,7 & 17,2\\
+		Gesamt & 25884,6 & 15385,1 & 23748,9 & 27836,4 & 103507,9 & 86354,2 & 119398,3 & 122374,7\\
+	\end{tabular}%
+	}
+	\caption{Laufzeit: Q1-4 von Row- und Columnstore in msec mit 250 Wiederholungen}
+	\label{auswertung:queries-overview}
+\end{table}
+
+Wie in \autoref{auswertung:queries-overview} zu sehen ist,
+ist die schnellste Query mit einer Durchschnittlaufzeit von 61,5 msec Q2 des Columnstores,
+wohingegen Q4 des Rowstores die langsamste Query mit einer Durchschnittlaufzeit von
+489 msec ist.
+
+Im folgenden soll verglichen werden welche Queries die größte Verbesserung durch
+Verwendung des Columnstores aufweisen.
+Dazu wird die Durchschnittlaufzeit aller einzelnen Subqueries Q1.1-Q4.3
+zwischen Row- und Columnstore verglichen und der relative Performanzgewinn errechnet.
+
+\begin{table}[H]
+	\resizebox{\textwidth}{!}{%
+	\begin{tabular}{l|rrrrrrrrrrrrr}
+		\toprule
+		 & \textbf{Q1.1} & \textbf{Q1.2} & \textbf{Q1.3} & \textbf{Q2.1} & \textbf{Q2.2} & \textbf{Q2.3} & \textbf{Q3.1} & \textbf{Q3.2} & \textbf{Q3.3} & \textbf{Q3.4} & \textbf{Q4.1} & \textbf{Q4.2} & \textbf{Q4.3}\\
+		\midrule
+		Rowstore & 163,56 & 126,25 & 124,69 & 134,93 & 108,39 & 99,14 & 186,91 & 113,75 & 85,76 & 87,23 & 196,88 & 162,72 & 123,76\\
+		Columnstore  & 35,95 & 47,0 & 21,29 & 28,03 & 25,63 & 7,92 & 31,19 & 23,34 & 21,01 & 20,61 & 47,06 & 42,8 & 22,29\\
+		Difference  & 127,61 & 79,25 & 103,4 & 106,9 & 82,76 & 91,22 & 155,72 & 90,41 & 64,75 & 66,61 & 149,82 & 119,93 & 101,47\\
+		in \% & 78,0 & \cellcolor{red} 62,8 & 82,9 & 79,2 & 76,4 & \cellcolor{yellow} 92,0 & 83,3 & 79,5 & 75,5 & 76,4 & 76,1 & 73,7 & 82,0\\
+	\end{tabular}%
+	}
+	\caption{Vergleich Row- vs. Columnstore von Q1.1-Q4.3 in msec mit 250 Wiederholungen}
+	\label{auswertung:row-vs-column}
+\end{table}
+
+Wie aus \autoref{auswertung:row-vs-column} zu entnehmen ist hat Q2.3 die größte
+Performanzsteigerung von 92 \%.
+Im Gegensatz dazu hat Q1.2 die geringste Performanzsteigerung und liegt dabei unter
+der durchschnittlichen Performanzsteigerung von 78,29\%.
 
 \begin{figure}[H]
 	\centering
@@ -127,63 +182,75 @@ Allerdings ist der Unterschied der Laufzeit beider Queries marginal.
 Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
 da eine bessere Parallelisierung möglich ist.
 
-\section{Query Execution Plan}
-In diesem Abschnitt wird der Query Execution Plan für den Row und Column Store zum in \autoref{q42} dargestellten Listing betrachtet. 
-
-\begin{lstlisting}[label=q42, caption={Benchmark Query 4.2}]
-select d_year, s_nation, p_category,
-sum(lo_revenue - lo_supplycost) as profit
+\section{Vergleich der Query Execution Pläne - Query 4.3}
+In diesem Abschnitt werden die Query Execution Pläne für den Row und Column Store der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Column Store.
+\begin{lstlisting}[label=q42, caption={Benchmark Query 4.3}]
+select d_year, s_city, p_brand,sum(lo_revenue - lo_supplycost) as profit
 from lineorder
-join dim_date
-on lo_orderdatekey = d_datekey
-join customer
-on lo_custkey = c_customerkey
-join supplier
-on lo_suppkey = s_suppkey
-join part
-on lo_partkey = p_partkey
+join dim_date on lo_orderdatekey = d_datekey
+join customer on lo_custkey = c_customerkey
+join supplier on lo_suppkey = s_suppkey
+join part on lo_partkey = p_partkey
 where
-c_region = 'AMERICA'
-and s_region = 'AMERICA'
+s_nation = 'UNITED STATES'
 and (d_year = 1997 or d_year = 1998)
-and (p_mfgr = 'MFGR#1'
-or p_mfgr = 'MFGR#2')
-group by d_year, s_nation, p_category
-order by d_year, s_nation, p_category;
+and p_category = 'MFGR#14'
+group by d_year, s_city, p_brand
+order by d_year, s_city, p_brand;
 \end{lstlisting}
 
 \subsection{Query Execution Plan - Column Store}
-\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den angegebenen Kriterien gefiltert wird. Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoint:
-\begin{enumerate}
-	\item Grundlage sind die ermittelten Ergebnisse der Tabelle \textbf{Part}
-	\item Ergebnismenge Lineorders wird mit den Ergebnissen der Tabelle \textbf{Customer} gejoint
-	\item Ergebnisemenge wird mit den Ergebnisse der Tabelle \textbf{Supplier} gejoint
-	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{Lineorder} gejoint
-	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{DIM\_Date} gejoint
-\end{enumerate}
-Danach wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung absteigend sortiert und anschließend ausgeben.
+\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den drei angegebenen Kriterien gefiltert wird.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.35]{images/q42col}
-	\caption{Query Execution Plan für Q4.2 - Column Store \label{qepCol} }
+	\includegraphics[scale=0.35]{images/col_q43_3}
+	\caption{Query Execution Plan für Q4.3 - Column Store \label{qepCol} }
 \end{figure}
+
+Die drei Tabellen liefern dann unterschiedlich große Ergebnismengen zurück:
+\begin{itemize}
+	\item Tabelle Part:			8029 Zeilen
+	\item Tabelle SUPPLIER:		76 Zeilen
+	\item Tabelle DIM\_DATE:	729 Zeilen
+\end{itemize}
+Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoint (vgl. \autoref{qepJoinCol}):
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.6]{images/colq43join}
+	\caption{Join - Query Execution Plan für Q4.3 - Column Store \label{qepJoinCol} }
+\end{figure}
+\begin{enumerate}
+	\item Zuerst werden die beiden Tabellen \textbf{Lineorder} und \textbf{Customer} miteinander gejoint. In diesem Join fällt auf, dass auf keine der beiden Tabellen ein Filterkriterium angewendet wird und somit der Join unabhängig ausgeführt werden kann. 
+	\item Sobald die Ergebnismengen der Tabellen \textbf{Part}, \textbf{Supplier} und \textbf{Dim\_Date} vorliegen, werden diese ebenfalls in einer \enquote{Reduction Phase} mit den Fremdschlüsseln der Tabelle \textbf{Lineorders} gejoint. 
+	\item Wenn die ersten beide Schritte ausgeführt wurden, werden beide einzelnen Ergebnisse über einen Merge-Join in einer Ergebnismenge abgebildet und ausgegeben. 
+\end{enumerate}
+Anschließend an den Join wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung aufsteigend sortiert und anschließend ausgeben.
+
 
 \subsection{Query Execution Plan - Row Store}
-\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Hier sieht die Reihenfolge der Abarbeitung des Queries wie folgt aus:
+\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Ohne genaueres Hinschauen fällt auf, dass die Ausführung sich im Vergleich zum Column Store stärker an einem sequentiellen Ablauf orientiert.\\ Im Row Store sieht die Reihenfolge der Abarbeitung des Joins wie folgt aus:
 \begin{enumerate}
-	\item Es wird ein Tablescan auf \textbf{Dim\_Date} ausgeführt
-	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint
-	\item Ergebnismenge wird mit \textbf{Supplier } gejoint
-	\item  Ergebnismenge wird mit \textbf{Customer } gejoint
-	\item  Ergebnismenge wird mit \textbf{Part } gejoint
+	\item Als erster Schritt wird ein Tablescan auf \textbf{Supplier} ausgeführt, der die Tabelle nach der Nation \enquote{UNITED STATES} filtert(76 Ergebnisse).
+	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint (228745 Ergebnisse)
+	\item Bevor der Hash Join ausgeführt werden kann, wird ein Index Search auf die Tabelle \textbf{PART} ausgeführt, der die Produktkategorie eingrenzt. (8029 Ergebnisse)
+	\item Es wird nun ein Hash Join auf mit den Ergebnisse der Schritte 1 und 2 mit den Ergebnissen des Schrittes 3 ausgeführt. Die Join wird über \textbf{LINEORDERS.LO\_Partkey} und \textbf{PART.P\_Partkey} ausgeführt. (9118 Ergebnisse)
+	\item Zeitgleich zu dem Hash Join kann ein Table Scan auf die Tabelle \textbf{DIM\_Date} erstellet werden. (729 Ergebnisse).
+	\item Anschließend werden die beiden Ergebnisse aus Schritt 4 und 5 wieder über eine Hash Join zu einem Ergebnis zusammengefasst. Dies geschieht über die Fremdschlüsselbeziehung der Tabelle \textbf{Lineorders} und \textbf{Dim\_Date} über die Spalte \enquote{LO\_Orderdatekey} bzw. \enquote{D\_Datekey}. (2194 Ergebnisse)
+	\item Im letzten Join, dem Index Join, werden die zuvor in Schritt 6 ermittelten Ergebnisse mit der Tabelle \textbf{Customer} verknüpft. Dies geschieht über die Beziehung \enquote{Lineorder.LO\_Custkey = Customer.C\_Customerkey}. (2194 Ergebnisse)
 \end{enumerate}
-Danach wird wieder eine Aggregation gebildet und die Gruppierung anschließend absteigend sortiert.
+Nachdem alle Joins ausgeführt wurden, wird wieder eine Aggregation gebildet und die Gruppierung anschließend aufsteigend sortiert und das Ergebnis ausgegeben.
 \begin{figure}[H]
 
 	\centering
-	\includegraphics[scale=0.4]{images/q42row}
-	\caption{Query Execution Plan für Q4.2 - Column Store 	\label{qepRow} }
+	\includegraphics[scale=0.4]{images/row_q43}
+	\caption{Query Execution Plan für Q4.3 - Row Store 	\label{qepRow} }
 \end{figure}
+
+\subsection{Fazit Query Execution Plan}
+Der große zeitliche Unterschied zwischen Row und Column Store lässt sich mit der sequentielle Ausführung des Query im Row Store begründen. \\In beiden Ausführungen war ersichtlich, dass die Ausführung in die 3 Schritte, Filtern, Join und Gruppieren eingeordnet werden können. Allerdings sind im Row Store das Filtern und Joinen eng miteinander verbunden und werden sogar abwechselnd nacheinander ausgeführt. Beim Column Store hingegen war die Abgrenzung zwischen Filtern und Join deutlich stärker, da zuerst die Tabellen gefiltert wurden und anschließend die Ergebnismengen miteinander verknüpft.
+
+
 
 
 
@@ -368,9 +435,17 @@ Schaut man sich genauer an, was an dieser Stelle passiert, so werden die gleiche
 \end{wraptable}
 
 
+
 Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine insgesamt sowohl mit, als auch ohne Index deutlich schneller, als die Column-Engine. 
 
 Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.7]{images/olap_column_overall.png}
+    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}
+	\label{fig:olap_column_overall}
+\end{figure}
 
 Wie in Grafik \ref{fig:olap_column_overall} zu sehen, wird durch den OLAP-Hint eine deutliche Beschleunigung erzielt. Ob zusätzlich noch ein Index existiert hat jedoch wenig bis keinen Einfluss.
 
