@@ -41,3 +41,137 @@ Nach erfolgreicher Anmeldung über die Zugangsdaten zur HANA Instanz erfolgt zue
 Nach der Ausführung des ersten Benchmarks werden in drei Schritten Indizes hinzugefügt und jeweils erneut Benchmarks durchgeführt. Darauf schliesst sich der Wechsel zum Rowstore an, was zuerst das Anlegen des Schemas für den Rowstore und ein erneutes Importieren der Daten involviert. Die Schritte zum Ausführen des Benchmarks bei unterschiedlichen Indizes werden nun wiederholt. 
 
 Eine Iteration des Skriptes resultiert damit in acht einzelnen Benchmarks. Die Daten aus den Logs werden im folgenden Schritt vom Analyser analysiert. Die Auswertung des Benchmarks bezieht sich vorallem auf folgende System-Konfiguration: 6 Kerne @ 4.2GHz bei 8 Gigybyte RAM. 
+
+\section{Verwendung des Benchmarks}
+
+Um möglichst gute Ergebnisse für den Benchmark zu erhalten ist es ein
+Ziel den Benchmark mehrmals auszuführen. Um dies zu realisieren war es Teil dieser
+Arbeit ein Script zu entwickeln welches den Benchmark automatisiert.
+Da die HANA Express Datenbank in einer Suse Linux basierten virtuellen Maschine
+betrieben werden kann, war es naheliegend dieses Script in BASH\cite{bash}
+zu schreiben, um keine extra Compiler oder Interpreter in der virtuellen Maschine
+installieren zu müssen.
+Das resultierende Script kann unter \faGithub \url{https://github.com/Osslack/HANA_SSBM}
+gefunden werden.
+
+Durch ausführen des \href{https://github.com/Osslack/HANA_SSBM/blob/master/src/run_benchmark.bash}{run\_benchmark.sh} scripts kann der Benchmark gestarted werden.
+
+Dabei geht das Script davon aus dass die HANA Datenbank mit den Standardeinstellungen
+auf dem selben System installiert ist.
+Standardmäßig versucht das Script mittels des SYSTEM Users auf das System zuzugreifen.
+Um alle Einstellungen manuell zu ändern muss das Script mittels \verb+run_benchmark.sh -v+
+ausgeführt werden.
+
+Um den Benchmark anzupassen können neue Tests dem Script hinzugefügt werden.
+Die Mentalität dabei ist, dass der Tester dem Framework sagt, wie seine
+Benchmarks strukturiert sind und anschließend mittels SQL\cite{sql} und BASH
+spezifische Queries ausführen und wiederholen kann.
+Anschließend werden die Laufzeitdaten der SQL Queries als JSON\cite{json} in einer
+Log Datei gespeichert.
+Dann kann ein Analyst mit seiner favorisierten Programmiersprache
+die Daten auswerten.
+
+Dabei kann mittels des \verb+hdb_run_file_lite+ ein SQL-Script
+zum Setup und Cleanup der Datenbank vor bzw. nach jedem Benchmark ausgeführt werden.
+
+Mittels \verb+hdb_start_benchmark+ kann ein neuer Benchmark gestarted werden.
+Dabei geht es nicht darum einen speziellen Benchmark zu starten.
+Es sagt lediglich, dass ein neuer Benchmark beginnt. Dadurch kann das Script
+das Log strukturieren.
+Anschließend können mehrere SQL-Kommandos mittels \verb+all_benchmarks <path> <repetitions>+ ausgeführt werden.
+Dabei gibt \verb+path+ an in welchem Ordner die SQL Dateien gespeichert sind.
+Das Skript ließt alle SQL Dateien ein und führt sie \enquote{repetitions}-mal aus.
+Zum Beenden des Benchmarks muss \verb+hdb_end_benchmark+ aufgerufen werden.
+Alle Benchmarks müssen in einem \verb+hdb_init_log+ - \verb+hdb_finish_log+ Statement 
+stehen damit sie in eine Log Datei geschrieben werden.
+Ein Beispiel ist in \autoref{ausfuehrung:beispiel-benchmark} zu sehen.
+
+\begin{lstlisting}[
+	language=bash,
+	caption={Beispiel Benchmark},
+	label={ausfuehrung:beispiel-benchmark}
+]
+source ./hdbsql.bash
+source ./all_benchmarks.bash
+
+hdb_init_log
+
+hdb_start_benchmark <benchmark name>
+run_all_benchmarks <path> <repetitions>
+hdb_end_benchmark
+
+hdb_finish_log
+\end{lstlisting}
+
+Ein Beispiel einer resultierenden Log Datei ist in \autoref{exec:log-file} zu sehen.
+Es wird jeder Benchmark als Attribut gespeichert welches aus einem Array Besteht.
+Der Array besteht wiederrum aus einzelnen Arrays welche die Wiederholung des Benchmarks repräsentieren.
+Ein einzelner Testlauf besteht aus mehreren Objekten. Jedes Objekt repräsentiert dabei
+einen ausgeführten Befehl. Dieser hat einen Typ welcher z.B. \verb+exec_file+ oder 
+\verb+inline_command+ sein kann.
+Dieser Typ gibt an wie das Objekt zu lesen ist. So sagt zum Beispiel der Typ \verb+exec_file+
+dass der Befehl durch das Ausführen einer SQL Datei gestartet wurde, wohingegen
+der Typ \verb+inline_command+ sagt dass der SQL Befehl direkt als String
+an die HANA Datenbank gesendet wurde. Dementsprechend kann ein Befehl vom Typ \verb+exec_file+
+im Gegensatz zu einem Befehl des Typ \verb+inline_command+ einen Filenamen als Attribut haben.
+
+Das Attribut \verb+times+ gibt in jedem Fall die Ausführungszeit des Befehls an.
+Dabei kann sich eine Query in Teilqueries unterteilen, weshalb die einzelnen Laufzeiten
+per Semikolon separiert in einem String gespeichert werden.
+Ein Analyse Werkzeug müsste die einzelnen Laufzeiten parsen und summieren um die
+Gesamtlaufzeit des einzelnen Befehls zu erhalten.
+Die Zeiten sind in Mikrosekunden angegeben.
+
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+
+\lstdefinelanguage{json}{
+    basicstyle=\normalfont\ttfamily,
+    numbers=left,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+\begin{lstlisting}[language=json, caption={Aufbau der Log Datei}, label={exec:log-file}]
+{
+	"column_benchmark_no_index": [
+		[
+			{
+				"Type": "exec_file",
+				"Filename": "./sql/benchmark/q1_bench/q1.sql",
+				"times": " 88645;70697;39871;"
+			},
+			{
+				"Type": "exec_file",
+				"Filename": "./sql/benchmark/q1_bench/q1.1.sql",
+				"times": " 44470;"
+			}
+		]
+	]
+}
+\end{lstlisting}
+
+
