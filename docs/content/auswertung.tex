@@ -182,63 +182,75 @@ Allerdings ist der Unterschied der Laufzeit beider Queries marginal.
 Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
 da eine bessere Parallelisierung möglich ist.
 
-\section{Query Execution Plan}
-In diesem Abschnitt wird der Query Execution Plan für den Row und Column Store zum in \autoref{q42} dargestellten Listing betrachtet. 
-
-\begin{lstlisting}[label=q42, caption={Benchmark Query 4.2}]
-select d_year, s_nation, p_category,
-sum(lo_revenue - lo_supplycost) as profit
+\section{Vergleich der Query Execution Pläne - Query 4.3}
+In diesem Abschnitt werden die Query Execution Pläne für den Row und Column Store der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Column Store.
+\begin{lstlisting}[label=q42, caption={Benchmark Query 4.3}]
+select d_year, s_city, p_brand,sum(lo_revenue - lo_supplycost) as profit
 from lineorder
-join dim_date
-on lo_orderdatekey = d_datekey
-join customer
-on lo_custkey = c_customerkey
-join supplier
-on lo_suppkey = s_suppkey
-join part
-on lo_partkey = p_partkey
+join dim_date on lo_orderdatekey = d_datekey
+join customer on lo_custkey = c_customerkey
+join supplier on lo_suppkey = s_suppkey
+join part on lo_partkey = p_partkey
 where
-c_region = 'AMERICA'
-and s_region = 'AMERICA'
+s_nation = 'UNITED STATES'
 and (d_year = 1997 or d_year = 1998)
-and (p_mfgr = 'MFGR#1'
-or p_mfgr = 'MFGR#2')
-group by d_year, s_nation, p_category
-order by d_year, s_nation, p_category;
+and p_category = 'MFGR#14'
+group by d_year, s_city, p_brand
+order by d_year, s_city, p_brand;
 \end{lstlisting}
 
 \subsection{Query Execution Plan - Column Store}
-\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den angegebenen Kriterien gefiltert wird. Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoint:
-\begin{enumerate}
-	\item Grundlage sind die ermittelten Ergebnisse der Tabelle \textbf{Part}
-	\item Ergebnismenge Lineorders wird mit den Ergebnissen der Tabelle \textbf{Customer} gejoint
-	\item Ergebnisemenge wird mit den Ergebnisse der Tabelle \textbf{Supplier} gejoint
-	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{Lineorder} gejoint
-	\item Ergebnismenge wird mit den Ergebnissen der Tabelle \textbf{DIM\_Date} gejoint
-\end{enumerate}
-Danach wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung absteigend sortiert und anschließend ausgeben.
+\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den drei angegebenen Kriterien gefiltert wird.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.35]{images/q42col}
-	\caption{Query Execution Plan für Q4.2 - Column Store \label{qepCol} }
+	\includegraphics[scale=0.35]{images/col_q43_3}
+	\caption{Query Execution Plan für Q4.3 - Column Store \label{qepCol} }
 \end{figure}
+
+Die drei Tabellen liefern dann unterschiedlich große Ergebnismengen zurück:
+\begin{itemize}
+	\item Tabelle Part:			8029 Zeilen
+	\item Tabelle SUPPLIER:		76 Zeilen
+	\item Tabelle DIM\_DATE:	729 Zeilen
+\end{itemize}
+Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoint (vgl. \autoref{qepJoinCol}):
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.6]{images/colq43join}
+	\caption{Join - Query Execution Plan für Q4.3 - Column Store \label{qepJoinCol} }
+\end{figure}
+\begin{enumerate}
+	\item Zuerst werden die beiden Tabellen \textbf{Lineorder} und \textbf{Customer} miteinander gejoint. In diesem Join fällt auf, dass auf keine der beiden Tabellen ein Filterkriterium angewendet wird und somit der Join unabhängig ausgeführt werden kann. 
+	\item Sobald die Ergebnismengen der Tabellen \textbf{Part}, \textbf{Supplier} und \textbf{Dim\_Date} vorliegen, werden diese ebenfalls in einer \enquote{Reduction Phase} mit den Fremdschlüsseln der Tabelle \textbf{Lineorders} gejoint. 
+	\item Wenn die ersten beide Schritte ausgeführt wurden, werden beide einzelnen Ergebnisse über einen Merge-Join in einer Ergebnismenge abgebildet und ausgegeben. 
+\end{enumerate}
+Anschließend an den Join wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung aufsteigend sortiert und anschließend ausgeben.
+
 
 \subsection{Query Execution Plan - Row Store}
-\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Hier sieht die Reihenfolge der Abarbeitung des Queries wie folgt aus:
+\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Ohne genaueres Hinschauen fällt auf, dass die Ausführung sich im Vergleich zum Column Store stärker an einem sequentiellen Ablauf orientiert.\\ Im Row Store sieht die Reihenfolge der Abarbeitung des Joins wie folgt aus:
 \begin{enumerate}
-	\item Es wird ein Tablescan auf \textbf{Dim\_Date} ausgeführt
-	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint
-	\item Ergebnismenge wird mit \textbf{Supplier } gejoint
-	\item  Ergebnismenge wird mit \textbf{Customer } gejoint
-	\item  Ergebnismenge wird mit \textbf{Part } gejoint
+	\item Als erster Schritt wird ein Tablescan auf \textbf{Supplier} ausgeführt, der die Tabelle nach der Nation \enquote{UNITED STATES} filtert(76 Ergebnisse).
+	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint (228745 Ergebnisse)
+	\item Bevor der Hash Join ausgeführt werden kann, wird ein Index Search auf die Tabelle \textbf{PART} ausgeführt, der die Produktkategorie eingrenzt. (8029 Ergebnisse)
+	\item Es wird nun ein Hash Join auf mit den Ergebnisse der Schritte 1 und 2 mit den Ergebnissen des Schrittes 3 ausgeführt. Die Join wird über \textbf{LINEORDERS.LO\_Partkey} und \textbf{PART.P\_Partkey} ausgeführt. (9118 Ergebnisse)
+	\item Zeitgleich zu dem Hash Join kann ein Table Scan auf die Tabelle \textbf{DIM\_Date} erstellet werden. (729 Ergebnisse).
+	\item Anschließend werden die beiden Ergebnisse aus Schritt 4 und 5 wieder über eine Hash Join zu einem Ergebnis zusammengefasst. Dies geschieht über die Fremdschlüsselbeziehung der Tabelle \textbf{Lineorders} und \textbf{Dim\_Date} über die Spalte \enquote{LO\_Orderdatekey} bzw. \enquote{D\_Datekey}. (2194 Ergebnisse)
+	\item Im letzten Join, dem Index Join, werden die zuvor in Schritt 6 ermittelten Ergebnisse mit der Tabelle \textbf{Customer} verknüpft. Dies geschieht über die Beziehung \enquote{Lineorder.LO\_Custkey = Customer.C\_Customerkey}. (2194 Ergebnisse)
 \end{enumerate}
-Danach wird wieder eine Aggregation gebildet und die Gruppierung anschließend absteigend sortiert.
+Nachdem alle Joins ausgeführt wurden, wird wieder eine Aggregation gebildet und die Gruppierung anschließend aufsteigend sortiert und das Ergebnis ausgegeben.
 \begin{figure}[H]
 
 	\centering
-	\includegraphics[scale=0.4]{images/q42row}
-	\caption{Query Execution Plan für Q4.2 - Column Store 	\label{qepRow} }
+	\includegraphics[scale=0.4]{images/row_q43}
+	\caption{Query Execution Plan für Q4.3 - Row Store 	\label{qepRow} }
 \end{figure}
+
+\subsection{Fazit Query Execution Plan}
+Der große zeitliche Unterschied zwischen Row und Column Store lässt sich mit der sequentielle Ausführung des Query im Row Store begründen. \\In beiden Ausführungen war ersichtlich, dass die Ausführung in die 3 Schritte, Filtern, Join und Gruppieren eingeordnet werden können. Allerdings sind im Row Store das Filtern und Joinen eng miteinander verbunden und werden sogar abwechselnd nacheinander ausgeführt. Beim Column Store hingegen war die Abgrenzung zwischen Filtern und Join deutlich stärker, da zuerst die Tabellen gefiltert wurden und anschließend die Ergebnismengen miteinander verknüpft.
+
+
 
 
 
@@ -251,17 +263,14 @@ Danach wird wieder eine Aggregation gebildet und die Gruppierung anschließend a
 
 \begin{table}[H]
 \centering
-    \begin{tabularx}{10cm}{lrrr}
+    \begin{tabularx}{\textwidth}{lrrr}
         \toprule
         Merkmal             &   Col[ms]    &    Col Index[ms] & Abweichung[\%]\\
         \toprule
         Samples             &   250        &   250      &        \\
         \midrule    
-        Max                 &   859        &   697      & -18.8\%\\
-        Min                 &   726        &   546      & -24.7\%\\
         Median              &   752        &   574      & -23.6\%\\
         Average             &   755        &   578      & -23.4\%\\
-        Standard Deviation  &   18         &   19       & +5.5\%\\
         Total               &   188672     &   144605   & -23.3\%\\
         \bottomrule
     \end{tabularx}
@@ -276,12 +285,15 @@ Die Standardabweichung hat sich jedoch nur geringfügig verändert.
 Die Werte streuen relativ gesehen also gleich stark wie zuvor.
 Folglich konnten Mindest- und Maximallaufzeit auch deutlich reduziert werden. 
 
-
+\iffalse
 Diese Ergebnisse sind interessant,
 da Columnstores bereits einen natürlichen Index
 durch speichern der Daten in Spalten haben,
 wie in \autoref{sec:col_store} beschrieben.
 Deshalb profitieren Columnstore meist nicht von zusätzlichen Indizes.
+\fi
+Diese Ergebnisse sind interessant, da in der Regel davon ausgegangen wird, 
+dass bei Column-Stores kein großartiges Optimierungspotenzial durch Indizes vorhanden ist.
 Um herauszufinden, warum trotzdem eine deutliche Verbesserung merkbar ist,
 wird der Query-Execution Plan des Subqueries mit der deutlichsten Verbesserung
 im folgenden untersucht.
@@ -290,7 +302,7 @@ im folgenden untersucht.
 
 \begin{table}[H]
     \centering
-    \begin{tabularx}{14cm}{lrrr}
+    \begin{tabularx}{\linewidth}{crrr}
         \toprule
         Benchmarkgruppe & Col[ms]   & Col Index[ms] & Laufzeitreduzierung[ms|\%]\\
         \toprule
@@ -311,20 +323,22 @@ Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 re
 
 \begin{table}[H]
     \centering
-    \begin{tabularx}{13cm}{lrrr}
+    \begin{tabularx}{\linewidth}{crrr}
         \toprule
         Benchmark           & Col[ms]       & Col Index[ms] & Laufzeitreduzierung[ms|\%]   \\
         \toprule
         Q1.1                & 36.1          & 36.4          & -0.3 | -0.8\%                \\
         Q1.2                & 47.8          & 16.8          & 31.0 | 64.8\%                 \\
         Q1.3                & 21.3          & 14.1          & 7.2 | 33.8\%                \\
+        \midrule
         Q3.1                & 31.3          & 31.6          & -0.3 | -0.9\%                \\
         Q3.2                & 24.0          & 18.9          & 5.1 | 21.2\%                 \\
         Q3.3                & 21.3          & 2.1           & 19.2 | 90.1\%                \\
         Q3.4                & 20.5          & 1.6           & 18.9 | 92.1\%                \\
         \bottomrule
     \end{tabularx}
-\caption{Durchschnittslaufzeit für Benchmarkgruppe 3 für Column-Store.}
+\caption{Durchschnittslaufzeit für Benchmarkgruppen 1 und 3 für Column-Store.}
+\label{tab:q1_q3_col}
 \end{table}
 
 \subsubsection{Analyse des Query-Execution-Plans für Query 3.4}
@@ -340,8 +354,8 @@ Durch anlegen von Indizes auf alle Fremdschlüssel,
 kann der Join deutlich schneller ausgeführt werden.
 Den größten Vorteil hat hier der Index auf LO\_Suppkey.
 
-Der Execution Plan ohne Indizes ist in \autoref{execution-plan:before-index}
-zu finden und der Execution Plan mit Indizes ist in \autoref{execution-plan:after-index} zu finden.
+Der Execution Plan ohne Indizes ist in \autoref{execution-plan:before-index}, sowie \autoref{exec:q3.4-col-no}
+zu finden und der Execution Plan mit Indizes ist in \autoref{execution-plan:after-index},sowie \autoref{exec:q34-col-index} zu finden.
 
 Query 3.1 im Vergleich nutzt zwar auch Fremdschlüssel, um einen Join zu bilden,
 allerdings sind hier die nicht indizierten Felder \verb+S_Region+, \verb+D_Year+,
@@ -353,46 +367,80 @@ Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen
 \subsubsection{Analyse des Query-Execution-Plans für Query 1.2}
 \textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
 %https://archive.sap.com/discussions/thread/3429357
+
+
 Bei Query 1.2 gibt es eine Besonderheit: Manchmal wird der Query über die OLAP-Engine ausgeführt\footnote{Um zu sehen, welche Engine verwendet wird, muss anstatt \enquote{Visualize Plan} die Option \enquote{Explain Plan} gewählt werden.}. 
 Hierbei ist der Laufzeitunterschied zwischen Index und kein Index fast nicht mehr vorhanden, der Query mit Index braucht allerdings weniger Zeit zur Kompilation. 
-Eigentlich ist die OLAP-Engine für \enquote{Analytical Views}, die im Star-Schema vorliegen gedacht, was beim Star-Schema Benchmark ja definitv der Fall ist.
+Eigentlich ist die OLAP-Engine für \enquote{Analytical Views}, die im Star-Schema vorliegen,gedacht. Beim Star-Schema Benchmark liegen die Daten definitv im Start Schema vor.
 Allerdings ist nicht klar, warum die OLAP-Engine manchmal verwendet wird und manchmal nicht. Ein Muster war hier nicht zu erkennen. 
+
+
+\begin{wraptable}{r}{0.5\textwidth}
+    \centering
+    \begin{tabular}{lrr}
+        \toprule
+        Engine              & Col [ms]       & Col Index [ms]    \\
+        \toprule
+        OLAP                & 6           & 6         \\
+        Colum               & 16          & 6         \\   
+        \bottomrule
+    \end{tabular}
+	\caption{Durchschnittslaufzeit für Query 1.2 bei Column-Store.}
+    \label{tab:olap_q12}
+\end{wraptable}
 
 
 %http://saphanatutorial.com/sap-hana-modeling/
 %https://archive.sap.com/discussions/thread/3340726
 Zunächst trat die OLAP-Engine nur auf, wenn Indizes hinzugefügt wurden, weshalb zunächst angenommen wurde, dass HANA an Hand der Indizes erkennt, dass es sich im Grunde um einen Analytical View handelt und dementsprechend optimiert.
-Allerdings gab es auch Fälle, wo die OLAP-Engine auch ohne Indizes verwendet wurde. Kommt die OLAP-Engine zum Einsatz, so ist der Query deutlich schneller. Die folgenden Zahlen sind nur Ergebnisse einzelner Durchläufe.
+Allerdings gab es auch Fälle, wo die OLAP-Engine auch ohne Indizes verwendet wurde. Kommt die OLAP-Engine zum Einsatz, so ist der Query in etwa so schnell, wie mit der Column-Engine in Kombination mit Indizes, siehe \autoref{tab:olap_q12}.
 
 Kommt nicht die OLAP-Engine, sondern die \enquote{normale} Column-Engine zum Einsatz, so gibt es einen deutlichen Unterschied zwischen Index und kein Index. Hierbei kann der Index auf LO\_OrderDateKey für den JOIN genutzt werden und beschleunigt diesen somit.
 Außerdem wird die Berechnung \textbf{sum(lo\_extendedprice*lo\_discount)} deutlich beschleunigt. Warum ist allerdings nicht klar, denn auf diese Felder wurde kein Index angelegt.
 
-An dieser Stelle unterscheidet sich der Execution-Plan nur in diesem Wert:
-\begin{description}
-    \item[Kein Index] <executePop(<lockInputs(num=3,)=0.00><calculateOnAttr(<calculateWithAggregation(rows=4301,inputs=2,outputs=1,)=8.04>rows=4301,outputs=1,)=8.15>)=11.61>
-    \item[Index]      <executePop(<lockInputs(num=3,)=0.00><calculateOnAttr(<calculateWithAggregation(rows=4301,inputs=2,outputs=1,)=1.03>rows=4301,outputs=1,)=1.10>)=1.18>
-\end{description}
 
-Die letzte Zahl scheint jeweils die Laufzeit in ms zu sein, aber eine genaue Erklärung dieser Werte war leider nicht zu finden.
+Schaut man sich genauer an, was an dieser Stelle passiert, so werden die gleichen Operationen auf die gleichen Datenmengen angewandt, allerdings sind die Operationen \textbf{mit} Index deutlich schneller.\footnote{Die letzte Zahl scheint jeweils die Laufzeit in ms zu sein, aber eine genaue Erklärung dieser Werte war leider nicht zu finden.}
+\begin{lstlisting}[breaklines, caption=Ohne Index]
+<executePop(
+  <lockInputs(num=3,)=0.00>
+    <calculateOnAttr(
+      <calculateWithAggregation(rows=4301,inputs=2,outputs=1,)=8.04>
+    rows=4301,outputs=1,)
+  =8.15>
+)=11.61>
+\end{lstlisting}
 
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{14cm}{lXX}
-        \toprule
-        Engine              & Col (Comp | Exec)[ms]                 & Col Index (Comp | Exec)[ms]     \\
-        \toprule
-        OLAP                & 7.18 | 10.04          & 0.13  | 10.29         \\
-        Colum               & 7.64 | 40.85          & 11.44 | 17.90          \\   
-        \bottomrule
-    \end{tabularx}
-	\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
-    \label{tab:olap}
-\end{table}
+\begin{lstlisting}[breaklines, caption=Mit Index]
+<executePop(
+  <lockInputs(num=3,)=0.00>
+    <calculateOnAttr(
+      <calculateWithAggregation(rows=4301,inputs=2,outputs=1,)=1.03>
+    rows=4301,outputs=1,)
+  =1.10>
+)=1.18>
+\end{lstlisting}
 
 %https://www.stechies.com/important-hints-related-sap-hana/
-Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine sowohl mit, als auch ohne Index deutlich schneller, als die Column-Engine. Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
+\begin{wraptable}{r}{0.5\textwidth}
+    \begin{tabular}{ccc}
+        \toprule
+        Engine              & No Index [ms]   & Index [ms] \\
+        \toprule
+        OLAP                & 187        & 188            \\
+        Colum               & 296        & 226            \\   
+        \bottomrule
+    \end{tabular}
+	\caption{Durchschnitt der Gesamtlaufzeit mit und ohne OLAP-Engine bei Column-Store.}
+    \label{tab:olap}
+\end{wraptable}
 
-\begin{figure}
+
+
+Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine insgesamt sowohl mit, als auch ohne Index deutlich schneller, als die Column-Engine. 
+
+Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
+
+\begin{figure}[H]
     \centering
     \includegraphics[scale=0.7]{images/olap_column_overall.png}
     \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}
@@ -404,10 +452,18 @@ Wie in Grafik \ref{fig:olap_column_overall} zu sehen, wird durch den OLAP-Hint e
 Bei genauerer Betrachtung der Laufzeit pro Benchmarkgruppe fällt besonders auf, dass die Querys der Gruppe 1 nicht von der OLAP-Engine profitieren, sondern sogar langsamer werden. 
 Warum dies beim Durchführen des Benchmarks, aber nicht bei Analyse der Execution-Pläne der Fall ist, ist nicht klar.
 
+\iffalse
+\begin{figure}[H] 
+    \centering{
+    \includegraphics[scale=0.7]{images/olap_column_overall.png}
+    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}\label{fig:olap_column_overall}}
+\end{figure}
+\fi
+
 Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe 3 und 4 nur geringfügig, Gruppe 2 jedoch wird nahezu doppelt so schnell.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\linewidth}{lXrrrr}
+    \begin{tabularx}{\textwidth}{lXrrrr}
     \toprule
 	Wert        &	OLAP-Hint & Q1 	    &	Q2 	    &	Q3	    &	Q4 \\
     \toprule
@@ -425,22 +481,20 @@ Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe
 
 \subsubsection{Fazit für Column-Stores}
 Auch Column-Stores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Durch Nutzung der OLAP-Engine können diese Beschleunigungen jedoch nochmals teils deutlich überboten werden. 
-Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch nutzen. Dies ist zwar über einen HINT möglich, davon wird jedoch abgeraten.
+Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch nutzen. Dies ist zwar über einen HINT möglich, davon wird in der Praxis jedoch abgeraten.
 %https://archive.sap.com/discussions/thread/3277920
 
 \subsection{Grundlegende Untersuchung für Row-Store}
 
 \begin{table}[H]
-    \begin{tabularx}{10cm}{lrrr}
+    \begin{tabularx}{\textwidth}{lrrr}
         \toprule
         Wert                & Row[ms] & Row Index[ms]   & Abweichung [\%]\\
         \toprule
         Samples             & 250      & 250            &       \\
-        Min                 & 3353     & 2839           &  15.3\%     \\
+        \midrule
         Median              & 3519     & 3006           &  14.5\%     \\
         Average             & 3539     & 3048           &  13.8\%     \\
-        Max                 & 4283     & 3394           &  20.7\%     \\
-        Standard Deviation  & 110      & 124            &       \\
         Total               & 884960   & 762128         &       \\ 
         \bottomrule
     \end{tabularx}
@@ -453,20 +507,14 @@ Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch 
 
 
 \begin{table}[H]
-    \begin{tabularx}{10cm}{lrrr}
+    \begin{tabularx}{\textwidth}{lrrr}
         \toprule
         Wert                & Row[ms] & Row Index[ms]   & Abweichung [\%]\\
         \toprule
         Samples             & 250     &  250            &       \\
         \midrule
-        Min                 & 3309    &  2780           &       \\
-        Max                 & 3783    &  3186           &       \\
-        Standard Deviation  & 67      &  51             &       \\
-        \midrule
         Median              & 3426    &  2877           &       \\
         Average             & 3440    &  2881           &       \\
-        \midrule
-        Total               & 860131  &  720329         &       \\
         \bottomrule
     \end{tabularx}
 \caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
@@ -477,13 +525,13 @@ Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch 
     \begin{tabularx}{\linewidth}{lrrrrrr}
         \toprule
                 &   q1.1    &   q1.2&	q1.3&	q2.1&	q2.2&	q2.3 \\
-                \toprule
-Row[ms]	        &	163	    &	133	&	127	&	139	&	111	&	102  \\
-Row Index[ms]   &   156     &   13	&   3	&   73	&   16	&   4    \\
-Abweichung[ms]  &   7       &   120 &   124 &   66  &   95  &   98   \\
-Abweichung[\%]  &   4.2     &   90.2&   97.6&   47.4&   85.5&   96.0 \\    
+        \toprule
+        Row[ms]	        &	163	    &	133	&	127	&	139	&	111	&	102  \\
+        Row Index[ms]   &   156     &   13	&   3	&   73	&   16	&   4    \\
+        Abweichung[ms]  &   7       &   120 &   124 &   66  &   95  &   98   \\
+        Abweichung[\%]  &   4.2     &   90.2&   97.6&   47.4&   85.5&   96.0 \\    
 \bottomrule
-    \end{tabularx}
+\end{tabularx}
 \caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
 \label{tab:basic_index_row}
 \end{table}
