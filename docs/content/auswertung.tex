@@ -581,9 +581,3 @@ Im Rowstore müssen viele einzelne Lesezugriffe durchgeführt werden, wobei die 
 \autoref{rowram} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 6 CPU Kernen. Die Ausführungszeiten unterscheiden sich ebenfalls deutlicher als beim Columnstore. Unterschieden sich im Columstore die durchschnittlichen Ausführungszeiten von 12 Gigabyte und 6 Gigabyte RAM noch um 1,33\%, so liegt der Unterschied nun bereits bei 7,13\%. Die Standardabweichungen scheinen dasselbe Muster wie im Columnstore aufzuweisen: Je mehr RAM, desto stabiler läuft der Benchmark. Im Falle des 6 Gigabyte Systems sind enorme Ausschläge zu beobachten, obwohl teilweise sogar die Ausführungszeit des 8 Gigabyte Systems unterboten wird. 
 Die erhöhte Relevanz der Menge an verfügbarem RAM scheint im Rowstore ebenfalls von größerer Bedeutung für die Laufzeit zu sein als im Columnstore. Während im Columnstore automatisch Optimierungen, wie Indexierung und Kompression stattfinden, können diese im Rowstore womöglich nur bei ausreichend RAM durchgeführt werden. 
 
-\section{Vergleich zu anderen Datenbanksystemen}\label{auswertung:vergleich}
-
-%TODO
-%https://github.com/Osslack/HANA_SSBM/issues/27
-%siehe auch ressourcen
-
