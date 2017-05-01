@@ -27,7 +27,7 @@ Der Einsatz eines Columnstores bringt folgende Vorteile \cite[vgl.][]{column, ro
 
 \begin{itemize}
 	\item \textbf{Kompression}: Durch sich oft wiederholende Werte innerhalb einer Spalte können diese effizient zusammengefasst werden. Das Ergebnis ist eine Organisation, die die selben Vorteile wie eine Indexierung bringt. 
-    \item \textbf{Große Datenmengen}: Updates, die wenige Spalten, aber dafür viel Daten umfassen, sind im Columnstore effizienter. 
+    \item \textbf{Große Datenmengen}: Zugriffe, die wenige Spalten, aber dafür viel Daten umfassen, sind im Columnstore effizienter. 
 	\item \textbf{Aggregation}: Die Kompression ermöglicht auch das  logische Zusammenfassen der Werte. Damit werden Suchoperationen, sowie das Zusammenfassen von Werten und vergleichbare Operationen auf Spaltenebene effizienter. 
     \item \textbf{Parallelisierung}: Durch die Spalten-orientierte Speicherung können Datenoperationen spaltenweise parallelisiert werden. 
 \end{itemize}
