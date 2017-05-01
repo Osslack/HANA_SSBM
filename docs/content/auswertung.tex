@@ -12,9 +12,17 @@ untersucht.
 
 \section{Gesamtlaufzeit des Benchmarks}\label{auswertung:generell}
 
+
+Allgemein sollten Benchmarks auf der HANA Datenbank immer zwischen
+Row- und Columnstore unterscheiden.
+Dies wird deutlich beim Betrachten der Allgemeinen Laufzeit.
+Wie \autoref{auswertung:gesamtlaufzeit} zu entnehmen ist, besteht ein deutlicher
+Unterschied in der Laufzeit zwischen Row- und Columnstore.
+Der Columnstore ist im Durschnitt um 79\% schneller.
+
 \begin{tabularx}{\textwidth}{Xrr}
 	\toprule
-	 & \textbf{Rowstore} & \textbf{Columnstore}\\
+	 & \textbf{Columnstore} & \textbf{Rowstore}\\
 	\midrule
 	\endhead
 	\hline
@@ -29,12 +37,6 @@ untersucht.
 	Gesamt & 92855 & 431635 \\
 \end{tabularx}
 
-Allgemein sollten Benchmarks auf der HANA Datenbank immer zwischen
-Row- und Columnstore unterscheiden.
-Dies wird deutlich beim Betrachten der Allgemeinen Laufzeit.
-Wie \autoref{auswertung:gesamtlaufzeit} zu entnehmen ist, besteht ein deutlicher
-Unterschied in der Laufzeit zwischen Row- und Columnstore.
-Der Columnstore ist im Durschnitt um 79\% schneller.
 Da der SSBM Benchmark als Maß für Abfragen im Bereich des Datawarehouse
 eingesetzt wird, kann also allgemein gesagt werden,  dass der Columnstore
 dem Rowstore im Datawarehouse Umfeld vorzuziehen ist.
