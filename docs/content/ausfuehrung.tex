@@ -59,17 +59,17 @@ Durch ausführen des \href{https://github.com/Osslack/HANA_SSBM/blob/master/src/
 Dabei geht das Script davon aus dass die HANA Datenbank mit den Standardeinstellungen
 auf dem selben System installiert ist.
 Standardmäßig versucht das Script mittels des SYSTEM Users auf das System zuzugreifen.
-Um alle Einstellungen manuell zu ändern muss das Script mittels \verb+run_benchmark.sh -v+
-ausgeführt werden.
+Möchte man nicht die Standardeinstellungen verwenden, muss das Script mittels \verb+run_benchmark.sh -v+ ausgeführt werden.
+Dadurch bekommt man bei jedem Schritt die Möglichkeit, die Einstellung anzupassen.
 
 Um den Benchmark anzupassen können neue Tests dem Script hinzugefügt werden.
-Die Mentalität dabei ist, dass der Tester dem Framework sagt, wie seine
+Die Idee dabei ist, dass der Tester dem Framework sagt, wie seine
 Benchmarks strukturiert sind und anschließend mittels SQL\cite{sql} und BASH
 spezifische Queries ausführen und wiederholen kann.
 Anschließend werden die Laufzeitdaten der SQL Queries als JSON\cite{json} in einer
 Log Datei gespeichert.
 Dann kann ein Analyst mit seiner favorisierten Programmiersprache
-die Daten auswerten.
+die Daten auswerten. In unserem Fall erfolgte die Auswertung in Python unter zu Hilfe nahme von Jupyter Notebook zur Visualisierung der Ergebnisse.
 
 Dabei kann mittels des \verb+hdb_run_file_lite+ ein SQL-Script
 zum Setup und Cleanup der Datenbank vor bzw. nach jedem Benchmark ausgeführt werden.
