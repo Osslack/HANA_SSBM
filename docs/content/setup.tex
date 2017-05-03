@@ -56,8 +56,8 @@ hdbsql -i 90 -d SystemDB -u SYSTEM -p password -T /usr/sap/HXE/HDB90/work/log.lo
 
 
 \section{Datenbankschema}
-Zu Beginn muss das Datenbankschema des SSBM-Benchmarks definiert werden. Die Tabellen werden entweder als Column Store (vgl. \autoref{schemaCol})  oder in einem ROW Store gespeichert (vgl.\autoref{schemaRow}). Die in den Listings enthaltenen \enquote{Create Table} Statements unterscheiden sich nur anhand des Schlüsselworts \enquote{COLUMN} bzw. \enquote{ROW} voneinander. 
-\\Damit die Auswirkungen der Indizes ebenfalls festgestellt werden können, wird der Benchmark sowohl für den \enquote{ROW} als auch den \enquote{COLUMN} Store zuerst ohne Indizes ausgeführt. Diese lassen sich anschließend über das Statement \enquote{CREATE Index <index\_name> ON <tabellen\_name>} hinzufügen (vgl. \autoref{indizes}).
+Zu Beginn muss das Datenbankschema des SSBM-Benchmarks definiert werden. Die Tabellen werden entweder als Columnstore (vgl. \autoref{schemaCol})  oder in einem Rowstore gespeichert (vgl.\autoref{schemaRow}). Die in den Listings enthaltenen \enquote{Create Table} Statements unterscheiden sich nur anhand des Schlüsselworts \enquote{COLUMN} bzw. \enquote{ROW} voneinander. 
+\\Damit die Auswirkungen der Indizes ebenfalls festgestellt werden können, wird der Benchmark sowohl für den Row- als auch den Columnstore zuerst ohne Indizes ausgeführt. Diese lassen sich anschließend über das Statement \enquote{CREATE Index <index\_name> ON <tabellen\_name>} hinzufügen (vgl. \autoref{indizes}).
 
 \section{Daten Import}
 Der Import kann entweder über die \enquote{SQL Console} der Entwicklungsumgebung Eclipse geschehen, oder über die Kommandozeile der virtuellen Maschine, indem mittels \enquote{HDBSQL} die verschiedenen Dateien für das Anlegen des Schemas, den Import, etc. ausgeführt wird.

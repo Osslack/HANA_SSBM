@@ -5,7 +5,7 @@
 
 \setcounter{figure}{0}
 
-\begin{lstlisting}[label=schemaCol, caption={Schema COLUMN Store}]
+\begin{lstlisting}[label=schemaCol, caption={Schema Columnstore}]
 DROP TABLE  customer;
 
 CREATE COLUMN TABLE  customer (
@@ -101,7 +101,7 @@ CREATE COLUMN TABLE  lineorder
 );
 \end{lstlisting}
 
-\begin{lstlisting}[label=schemaRow, caption={Schema ROW Store}]
+\begin{lstlisting}[label=schemaRow, caption={Schema Rowstore}]
 DROP TABLE  customer;
 
 CREATE ROW TABLE  customer (
@@ -261,40 +261,40 @@ field delimited by '|';
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{images/q3-1-row-exec.png}
-	\caption{Q3.1 Execution Plan - Row Store}\label{auswertung:q3.1:row}
+	\caption{Q3.1 Execution Plan - Rowstore}\label{auswertung:q3.1:row}
 \end{figure}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{images/q1-1-col-exec.png}
-	\caption{Q1.1 Execution Plan - Column Store}\label{exec:q1.1-col}
+	\caption{Q1.1 Execution Plan - Columnstore}\label{exec:q1.1-col}
 \end{figure}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{images/q1-2-col-exec.png}
-	\caption{Q1.2 Execution Plan - Column Store}\label{exec:q1.2-col}
+	\caption{Q1.2 Execution Plan - Columnstore}\label{exec:q1.2-col}
 \end{figure}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{images/q1-1-row-exec.png}
-	\caption{Q1.1 Execution Plan - Row Store}\label{exec:q1.1-row}
+	\caption{Q1.1 Execution Plan - Rowstore}\label{exec:q1.1-row}
 \end{figure}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{images/q1-2-row-exec.png}
-	\caption{Q1.2 Execution Plan - Row Store}\label{exec:q1.2-row}
+	\caption{Q1.2 Execution Plan - Rowstore}\label{exec:q1.2-row}
 \end{figure}
 
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{images/col_q34_index.pdf}
-	\caption{Q3.4 Execution Plan - Column Store mit Indizes}\label{exec:q34-col-index}
+	\caption{Q3.4 Execution Plan - Columnstore mit Indizes}\label{exec:q34-col-index}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{images/col_q34_no.pdf}
-	\caption{Q3.4 Execution Plan - Column Store ohne Indizes}\label{exec:q3.4-col-no}
+	\caption{Q3.4 Execution Plan - Columnstore ohne Indizes}\label{exec:q3.4-col-no}
 \end{figure}
 
 \begin{landscape}

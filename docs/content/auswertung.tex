@@ -131,8 +131,8 @@ Tabellen schneller als Q1, wohingegen bei zeilenorientierten Tabellen
 Q1 schneller als Q3 ist.
 Gleich bleibt, dass Q2 die schnellsten und Q4 die langsamsten Queries sind.
 Um zu verstehen wodurch der Unterschied von Q1 und Q3 zustande kommt wird
-im folgenden der jeweils die Unterabfragen von Q1 und Q3 im Row store betrachtet.
-Anschließend werden die selben Queries im Row store betrachtet und
+im folgenden der jeweils die Unterabfragen von Q1 und Q3 im Rowstore betrachtet.
+Anschließend werden die selben Queries im Rowstore betrachtet und
 dann verglichen.
 
 Da der SSBM Benchmark so gestaltet ist dass die Queries
@@ -185,7 +185,7 @@ Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
 da eine bessere Parallelisierung möglich ist.
 
 \section{Vergleich der Query Execution Pläne - Query 4.3}
-In diesem Abschnitt werden die Query Execution Pläne für den Row und Column Store der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Column Store.
+In diesem Abschnitt werden die Query Execution Pläne für den Row- und Columnstore der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Columnstore.
 \begin{lstlisting}[label=q42, caption={Benchmark Query 4.3}]
 select d_year, s_city, p_brand,sum(lo_revenue - lo_supplycost) as profit
 from lineorder
@@ -201,13 +201,13 @@ group by d_year, s_city, p_brand
 order by d_year, s_city, p_brand;
 \end{lstlisting}
 
-\subsection{Query Execution Plan - Column Store}
-\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den drei angegebenen Kriterien gefiltert wird.
+\subsection{Query Execution Plan - Columnstore}
+\autoref{qepCol} zeigt den Ablauf der Query Execution im Columnstore. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den drei angegebenen Kriterien gefiltert wird.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.35]{images/col_q43_3}
-	\caption{Query Execution Plan für Q4.3 - Column Store \label{qepCol} }
+	\caption{Query Execution Plan für Q4.3 - Columnstore \label{qepCol} }
 \end{figure}
 
 Die drei Tabellen liefern dann unterschiedlich große Ergebnismengen zurück:
@@ -220,7 +220,7 @@ Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoi
 \begin{figure}
 	\centering
 	\includegraphics[scale=0.6]{images/colq43join}
-	\caption{Join - Query Execution Plan für Q4.3 - Column Store \label{qepJoinCol} }
+	\caption{Join - Query Execution Plan für Q4.3 - Columnstore \label{qepJoinCol} }
 \end{figure}
 \begin{enumerate}
 	\item Zuerst werden die beiden Tabellen \textbf{Lineorder} und \textbf{Customer} miteinander gejoint. In diesem Join fällt auf, dass auf keine der beiden Tabellen ein Filterkriterium angewendet wird und somit der Join unabhängig ausgeführt werden kann. 
@@ -230,8 +230,8 @@ Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoi
 Anschließend an den Join wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung aufsteigend sortiert und anschließend ausgeben.
 
 
-\subsection{Query Execution Plan - Row Store}
-\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Ohne genaueres Hinschauen fällt auf, dass die Ausführung sich im Vergleich zum Column Store stärker an einem sequentiellen Ablauf orientiert.\\ Im Row Store sieht die Reihenfolge der Abarbeitung des Joins wie folgt aus:
+\subsection{Query Execution Plan - Rowstore}
+\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Rowstore abgelegt sind. Ohne genaueres Hinschauen fällt auf, dass die Ausführung sich im Vergleich zum Columnstore stärker an einem sequentiellen Ablauf orientiert.\\ Im Rowstore sieht die Reihenfolge der Abarbeitung des Joins wie folgt aus:
 \begin{enumerate}
 	\item Als erster Schritt wird ein Tablescan auf \textbf{Supplier} ausgeführt, der die Tabelle nach der Nation \enquote{UNITED STATES} filtert(76 Ergebnisse).
 	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint (228745 Ergebnisse)
@@ -246,11 +246,11 @@ Nachdem alle Joins ausgeführt wurden, wird wieder eine Aggregation gebildet und
 
 	\centering
 	\includegraphics[scale=0.4]{images/row_q43}
-	\caption{Query Execution Plan für Q4.3 - Row Store 	\label{qepRow} }
+	\caption{Query Execution Plan für Q4.3 - Rowstore 	\label{qepRow} }
 \end{figure}
 
 \subsection{Fazit Query Execution Plan}
-Der große zeitliche Unterschied zwischen Row und Column Store lässt sich mit der sequentielle Ausführung des Query im Row Store begründen. \\In beiden Ausführungen war ersichtlich, dass die Ausführung in die 3 Schritte, Filtern, Join und Gruppieren eingeordnet werden können. Allerdings sind im Row Store das Filtern und Joinen eng miteinander verbunden und werden sogar abwechselnd nacheinander ausgeführt. Beim Column Store hingegen war die Abgrenzung zwischen Filtern und Join deutlich stärker, da zuerst die Tabellen gefiltert wurden und anschließend die Ergebnismengen miteinander verknüpft.
+Der große zeitliche Unterschied zwischen Row- und Columnstore lässt sich mit der sequentielle Ausführung des Query im Rowstore begründen. \\In beiden Ausführungen war ersichtlich, dass die Ausführung in die 3 Schritte, Filtern, Join und Gruppieren eingeordnet werden können. Allerdings sind im Rowstore das Filtern und Joinen eng miteinander verbunden und werden sogar abwechselnd nacheinander ausgeführt. Beim Columnstore hingegen war die Abgrenzung zwischen Filtern und Join deutlich stärker, da zuerst die Tabellen gefiltert wurden und anschließend die Ergebnismengen miteinander verknüpft.
 
 
 
@@ -261,7 +261,7 @@ Der große zeitliche Unterschied zwischen Row und Column Store lässt sich mit d
 % Row with or without indices
 % Column with or without indices
 
-\subsection{Grundlegende Untersuchung für Column-Store}
+\subsection{Grundlegende Untersuchung für Columnstore}
 
 \begin{table}[H]
 \centering
@@ -276,7 +276,7 @@ Der große zeitliche Unterschied zwischen Row und Column Store lässt sich mit d
         Total               &   188672     &   144605   & -23.3\%\\
         \bottomrule
     \end{tabularx}
-\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Column-Store.}
+\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Columnstore.}
 \label{tab:basic_index_col}
 \end{table}
 
@@ -295,7 +295,7 @@ wie in \autoref{sec:col_store} beschrieben.
 Deshalb profitieren Columnstore meist nicht von zusätzlichen Indizes.
 \fi
 Diese Ergebnisse sind interessant, da in der Regel davon ausgegangen wird, 
-dass bei Column-Stores kein großartiges Optimierungspotenzial durch Indizes vorhanden ist.
+dass bei Columnstores kein großartiges Optimierungspotenzial durch Indizes vorhanden ist.
 Um herauszufinden, warum trotzdem eine deutliche Verbesserung merkbar ist,
 wird der Query-Execution Plan des Subqueries mit der deutlichsten Verbesserung
 im folgenden untersucht.
@@ -314,7 +314,7 @@ im folgenden untersucht.
         Q4              & 112.4       & 106.3           & 6.1 |  05.4\%\\
         \bottomrule
     \end{tabularx}
-	\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
+	\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Columnstore.}
 \end{table}
 
 Deutliche Verbesserungungen sind bei den Queries der Gruppen 1 und 3 festzustellen. Hier hat sich die Laufzeit um 35\% bzw. sogar 41\% reduziert. 
@@ -339,7 +339,7 @@ Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 re
         Q3.4                & 20.5          & 1.6           & 18.9 | 92.1\%                \\
         \bottomrule
     \end{tabularx}
-\caption{Durchschnittslaufzeit für Benchmarkgruppen 1 und 3 für Column-Store.}
+\caption{Durchschnittslaufzeit für Benchmarkgruppen 1 und 3 für Columnstore.}
 \label{tab:q1_q3_col}
 \end{table}
 
@@ -364,7 +364,7 @@ allerdings sind hier die nicht indizierten Felder \verb+S_Region+, \verb+D_Year+
 \verb+C_Nation+ und \verb+S_Nation+ in der Where- und der Group by-Klausel gelistet,
 wodurch eine Geschwindigkeitsverbesserung nicht möglich ist.
 
-Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
+Auch bei Columnstores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
 
 \subsubsection{Analyse des Query-Execution-Plans für Query 1.2}
 \textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
@@ -387,7 +387,7 @@ Allerdings ist nicht klar, warum die OLAP-Engine manchmal verwendet wird und man
         Colum               & 16          & 6         \\   
         \bottomrule
     \end{tabular}
-	\caption{Durchschnittslaufzeit für Query 1.2 bei Column-Store.}
+	\caption{Durchschnittslaufzeit für Query 1.2 bei Columnstore.}
     \label{tab:olap_q12}
 \end{wraptable}
 
@@ -432,7 +432,7 @@ Schaut man sich genauer an, was an dieser Stelle passiert, so werden die gleiche
         Colum               & 296        & 226            \\   
         \bottomrule
     \end{tabular}
-	\caption{Durchschnitt der Gesamtlaufzeit mit und ohne OLAP-Engine bei Column-Store.}
+	\caption{Durchschnitt der Gesamtlaufzeit mit und ohne OLAP-Engine bei Columnstore.}
     \label{tab:olap}
 \end{wraptable}
 
@@ -445,7 +445,7 @@ Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Eng
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.7]{images/olap_column_overall.png}
-    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}
+    \caption{Vergleich der Gesamtlaufzeit für Columnstore mit Indizes, testweise mit OLAP-Hint. n=100}
 	\label{fig:olap_column_overall}
 \end{figure}
 
@@ -458,7 +458,7 @@ Warum dies beim Durchführen des Benchmarks, aber nicht bei Analyse der Executio
 \begin{figure}[H] 
     \centering{
     \includegraphics[scale=0.7]{images/olap_column_overall.png}
-    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}\label{fig:olap_column_overall}}
+    \caption{Vergleich der Gesamtlaufzeit für Columnstore mit Indizes, testweise mit OLAP-Hint. n=100}\label{fig:olap_column_overall}}
 \end{figure}
 \fi
 
@@ -476,17 +476,17 @@ Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe
     Median	    & Ja          &	26.5	&	36.0	&	59.5	&	66.0 \\
     \bottomrule
     \end{tabularx}
-	\caption{Laufzeit jeder Benchmarkgruppe für Column-Store mit Index, testweise mit OLAP-Hint. n=100}
+	\caption{Laufzeit jeder Benchmarkgruppe für Columnstore mit Index, testweise mit OLAP-Hint. n=100}
     \label{tab:olap_bench}
 \end{table}
 %Hier dann Tabelle, wenn Benchmark fertig ist. 
 
-\subsubsection{Fazit für Column-Stores}
-Auch Column-Stores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Durch Nutzung der OLAP-Engine können diese Beschleunigungen jedoch nochmals teils deutlich überboten werden. 
+\subsubsection{Fazit für Columnstores}
+Auch Columnstores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Durch Nutzung der OLAP-Engine können diese Beschleunigungen jedoch nochmals teils deutlich überboten werden. 
 Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch nutzen. Dies ist zwar über einen HINT möglich, davon wird in der Praxis jedoch abgeraten.
 %https://archive.sap.com/discussions/thread/3277920
 
-\subsection{Grundlegende Untersuchung für Row-Store}
+\subsection{Grundlegende Untersuchung für Rowstore}
 
 \begin{table}[H]
     \begin{tabularx}{\textwidth}{lrrr}
@@ -500,7 +500,7 @@ Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch 
         Total               & 884960   & 762128         &       \\ 
         \bottomrule
     \end{tabularx}
-\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
+\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Rowstore.}
 \label{tab:basic_index_row}
 \end{table}
 
@@ -519,7 +519,7 @@ Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch 
         Average             & 3440    &  2881           &       \\
         \bottomrule
     \end{tabularx}
-\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
+\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Rowstore.}
 \label{tab:basic_index_row}
 \end{table}
 
@@ -534,7 +534,7 @@ Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch 
         Abweichung[\%]  &   4.2     &   90.2&   97.6&   47.4&   85.5&   96.0 \\    
 \bottomrule
 \end{tabularx}
-\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
+\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Rowstore.}
 \label{tab:basic_index_row}
 \end{table}
 \section{Auswirkung unterschiedlicher Hardwarekonfiguration}\label{auswertung:hardware}
