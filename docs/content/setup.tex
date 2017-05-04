@@ -70,8 +70,25 @@ record delimited by '\n'
 field delimited by '|';
 \end{lstlisting}
 
-Beim Importieren der Daten in die entsprechenden Tabellen fällt auf, dass die Tabelle Lineorder am meisten Zeit benötigt. Dies ist auf die 6000000 Mio. Datensätze zurückzuführen. 
+\begin{tabularx}{\textwidth}{Xrr}
+	\toprule
+	\textbf{Tabellenname} & \textbf{Columnstore} & \textbf{Rowstore}\\
+	\midrule
+	\endhead
+	\hline
+	\caption{Dauer des Importieren der Daten in Column- und Rowstore\footnote{ Hardwarespezifikation der VM: RAM: 6GB, Prozessor:Intel Core-i7-860, Kerne: 4 }}
+	\label{auswertung:gesamtlaufzeit}
+	\endfoot
+	DIM\_Date & 84 ms & 109 ms \\
+	Customer & 357 ms & 940 ms \\
+	Lineorder & 1:13:233 min & 2:56:135 min \\
+	Part & 1,89 s & 6,122 s \\
+	Supplier & 118 ms & 104 ms\\
+	Gesamt & 1:15:685 min & 3:03:401 min \\
+\end{tabularx}
 
+Beim Importieren der Daten in die Datenbank fällt auf, dass bei beiden Speicherarten (Column- \& Rowstore) die Tabelle Lineorder am längsten benötigt. Dies ist auf die große Anzahl der Datensätze zurückzuführen.\\
+Das Importieren in den Rowstore dauert bei der Tabelle Lineorder ca. 2,41 mal solange wie in den Columnstore, bei der Tabelle Customer wird ca. 2,63 mal so viel Zeit benötigt und bei der Tabelle Part ist der Unterschied der Laufzeiten am größten zwischen spalten- bzw. zeilenbasierter Speicherung der Daten, nämlich um den Faktor 3,24. 
 
 \section{Query Execution Plan}
 Um nachvollziehen zu können, in welcher Abfolge die SQL Statements von der SAP HANA Datenbank verarbeitet werden, lassen sich mithilfe von Eclipse Query Execution Pläne visualisiren.
