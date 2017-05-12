@@ -284,30 +284,59 @@ field delimited by '|';
 	\caption{Q1.2 Execution Plan - Rowstore}\label{exec:q1.2-row}
 \end{figure}
 
+\graphicspath{{images/indizes/}}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{images/col_q34_index.pdf}
+	\includegraphics[width=\textwidth]{col_q34_index.pdf}
 	\caption{Q3.4 Execution Plan - Columnstore mit Indizes}\label{exec:q34-col-index}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{images/col_q34_no.pdf}
+	\includegraphics[width=\textwidth]{col_q34_no.pdf}
 	\caption{Q3.4 Execution Plan - Columnstore ohne Indizes}\label{exec:q3.4-col-no}
 \end{figure}
 
 \begin{landscape}
 	\begin{figure}[H]
 		\centering
-		\includegraphics[scale=0.28]{images/execCol.png}
+		\includegraphics[scale=0.28]{execCol.png}
 		\caption{Execution Plan: Q3.4}\label{execution-plan:before-index}
 	\end{figure}
 \end{landscape}
 \begin{landscape}
 	\begin{figure}[H]
 		\centering
-		\includegraphics[scale=0.28]{images/execColIndex.png}
+		\includegraphics[scale=0.28]{execColIndex.png}
 		\caption{Execution Plan: Q3.4 with Index}\label{execution-plan:after-index}
 	\end{figure}
 \end{landscape}
+
+
+\begin{figure}[H] 
+    \centering{
+    \includegraphics[scale=0.7]{q23_r}
+    \caption{QEP für Query 2.3 ohne Index.}\label{fig:q23_r}}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering{
+    \includegraphics[scale=0.7]{q23_r_I}
+    \caption{QEP für Query 2.3 mit Index.}\label{fig:q23_r_I}}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering{
+    \includegraphics[scale=0.7]{q43_r}
+    \caption{QEP für Query 4.3 ohne Index.}\label{fig:q43_r}}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering{
+    \includegraphics[scale=0.7]{q43_r_I}
+    \caption{QEP für Query 4.3 mit Index.}\label{fig:q43_r_I}}
+\end{figure}
+
+
+\graphicspath{{images/}}
