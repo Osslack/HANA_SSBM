@@ -2,6 +2,7 @@
 %TODO
 % Row with or without indices
 % Column with or without indices
+\iffalse
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.49\textwidth]{col_ind.png}
@@ -9,6 +10,44 @@
     \caption{Gesamtergebnis für Row- und Columnstore.}
 	\label{fig:ind_overall}
 \end{figure}
+\fi
+
+Im folgenden soll die Auswirkung grundlegender Indizes auf die Laufzeit der Queries untersucht werden. Die angelegten Indizes finden sich in 
+\autoref{fig:ind_layout} zeigt das DB-Layout mit Indizes. Die \textbf{fett} markierten Attribute sind Felder, auf die Indizes angelegt wurde.
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{images/ssbm_basic}
+    \caption{Übersicht des DB-Layouts mit Indizes.}
+	\label{fig:ind_layout}
+\end{figure}
+
+Um die Indizes anzulegen wurde der folgende Code ausgeführt:
+\begin{Verbatim}
+CREATE INDEX idx_c_name ON customer(C_Name);
+CREATE INDEX idx_c_city ON customer(C_City);
+CREATE INDEX idx_c_region ON customer(C_Region);
+CREATE INDEX idx_c_phone ON customer(C_Phone);
+CREATE INDEX idx_c_mktsegment ON customer(C_MktSegment);
+
+CREATE INDEX idx_p_name ON part(P_Name);
+CREATE INDEX idx_p_mfgr ON part(P_MFGR);
+CREATE INDEX idx_p_category ON part(P_Category);
+CREATE INDEX idx_p_brand ON part(P_Brand);
+
+CREATE INDEX idx_s_city ON supplier(S_City);
+CREATE INDEX idx_s_name ON supplier(S_Name);
+CREATE INDEX idx_s_phone ON supplier(S_Phone);
+
+CREATE INDEX idx_lo_orderkey_lo_linenumber ON lineorder(LO_OrderKey, LO_LineNumber);
+CREATE INDEX idx_lo_custkey ON lineorder(LO_CustKey);
+CREATE INDEX idx_lo_suppkey ON lineorder(LO_SuppKey);
+CREATE INDEX idx_lo_partkey ON lineorder(LO_PartKey);
+CREATE INDEX idx_lo_orderdatekey ON lineorder(LO_OrderDateKey);
+CREATE INDEX idx_lo_commitdatekey ON lineorder(LO_CommitDateKey);
+\end{Verbatim}
 
 \subsection{Grundlegende Untersuchung für Columnstore}
 \begin{table}[H]
@@ -17,7 +56,7 @@
         \toprule
         Merkmal             &   Col[ms]    &    Col Index[ms] & Abweichung[\%]\\
         \toprule
-        Samples             &   250        &   250      &        \\
+        Samples             &   250        &   250      &       \\
         \midrule    
         Median              &   373        &   286      & 23.3\%\\
         Average             &   376        &   289      & 23.1\%\\
@@ -213,8 +252,7 @@ Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe
 \fi
 
 \subsubsection{Fazit für Columnstores}
-Auch Columnstores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Durch Nutzung der OLAP-Engine können diese Beschleunigungen jedoch nochmals teils deutlich überboten werden. 
-Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch nutzen. Dies ist zwar über einen HINT möglich, davon wird in der Praxis jedoch abgeraten.
+Auch Columnstores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Erwartet man nur wenige schreibende Zugriffe auf eine Tabelle kann es also durchaus Sinn machen, sinnvolle Indizes anzulegen.
 %https://archive.sap.com/discussions/thread/3277920
 
 \subsection{Grundlegende Untersuchung für Rowstore}
@@ -282,8 +320,12 @@ Die deutlichste Änderung gibt es jedoch bei Query 2.3, welcher im folgenden im 
 
 Der Query Execution Plan für Query 2.3 ohne Index wird in \autoref{fig:q23_r}, der Plan für Query 2.3 mit Index in \autoref{fig:q23_r_I}, dargestellt.
 
+Die Ursache für die große Verbesserung bei Query 2.3 lässt sich sehr leicht erkennen:
 
+Anstatt die Tabellen Lineorder und Part erst über einen Table Scan zu durchsuchen und anschließend über einen Hash-Join zu verknüpfen,kann nun der einerseits der Index
+auf PartKey in Lineorder und Part für den Join genutzt werden. Außerdem kann der Index auf P\_Brand genutzt werden, um Part schneller zu filtern. 
 
+Die Laufzeit für diesen einzelnen Schritt kann von 169,7ms auf 2ms reduziert werden.
 
 
 \subsection{Analyse der Queries aus Gruppe 4}
@@ -308,7 +350,34 @@ gibt es bei Query 4.1, welcher im folgenden im Detail untersucht werden soll.
 \label{tab:q4_row}
 \end{table}
 
-Der Query Execution Plan für Query 4.3 ohne Index wird in \autoref{fig:q43_r}, der Plan für Query 4.3 mit Index in \autoref{fig:q43_r_I}, dargestellt.
+Der Query Execution Plan für Query 4.1 ohne Index wird in \autoref{fig:q41_r}, der Plan für Query 4.1 mit Index in \autoref{fig:q41_r_I}, dargestellt.
+
+Auf den ersten Blick scheinen die Indizes Wirkung zu zeigen: Anstatt Table Scans in Kombination mit Hash-Joins zu Nutzen werden Index Search und Index Join verwendet.
+
+Allerdings wird die Bedingung auf Custkey immer noch über einen Hash Join erfüllt. Bei der Version ohne Index sind die Treffermengen ~400 und ~1.2 Millionen.
+Mit Index sind die Treffermengen ~6000 und ~1.1 Millionen.
+
+%https://de.wikipedia.org/wiki/Joinalgorithmen
+Für die durchschnittliche Laufzeit des  Hash Joins gilt:
+\begin{equation}
+    \mathcal{O}(m+n)
+\end{equation}
+
+Die Laufzeiten sollten also in etwa gleich sein, wenn der Join ohne Index nicht sogar langsamer sein sollte.
+
+Trotzdem benötigt der Join ohne Index nur 168ms, mit Index werden 283ms benötigt.
+Warum die Laufzeiten dennoch so stark voneinandern abweichen, ist nicht klar. Möglicherweise ist 
+die Hashtabelle auf die Treffermenge 6000 Einträgen zu groß, um komplett im Hauptspeicher zu liegen.
+Überprüft wurde dies jedoch nicht.
+
+Der Unterschied ist beim Hash-Join zwar am auffälligsten, allerdings sind auch viele andere Schritte, wie zum Beispiel die Suche auf Lineorder, bei der Version ohne Index schneller, was sich in Summe in dem großen Laufzeitunterschied niederschlägt.
 
 
+\subsection{Fazit für Rowstore}
+Auch Rowstores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Sie profitieren zwar nicht ganz so stark wie Columstores, werden aber doch merklich schneller.  
+Allerdings scheint es auch Fälle zu geben, in denen Indizes deutliche Verschlimmbesserungen darstellen. Von blind angelegten Indizes ist also abzuraten.
 
+\section{Fazit}
+Sowohl Columnstores als auch Rowstores könen durch Indizes nochmals teils deutlich 
+beschleunigt werden. Bei Rowstores gab es jedoch auch Fälle, wo die Indizes den Query deutlich verlangsamten.
+Doch auch mit Indizes liegen Rowstores immer noch weit hinter Columnstores. 
