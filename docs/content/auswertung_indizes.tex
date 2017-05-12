@@ -146,13 +146,6 @@ Auch bei Columnstores scheinen sinnvoll angelegte Indizes also einen deutlichen 
 \textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
 %https://archive.sap.com/discussions/thread/3429357
 
-
-
-
-
-%http://saphanatutorial.com/sap-hana-modeling/
-%https://archive.sap.com/discussions/thread/3340726
-
 \setlength\intextsep{0pt}
 \begin{wraptable}{r}{0.5\textwidth}
     \centering
@@ -358,7 +351,7 @@ Allerdings wird die Bedingung auf Custkey immer noch über einen Hash Join erfü
 Mit Index sind die Treffermengen ~6000 und ~1.1 Millionen.
 
 %https://de.wikipedia.org/wiki/Joinalgorithmen
-Für die durchschnittliche Laufzeit des  Hash Joins gilt:
+Für die durchschnittliche Laufzeit des  Hash Joins gilt:\cite{hash}
 \begin{equation}
     \mathcal{O}(m+n)
 \end{equation}
