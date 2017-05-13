@@ -1,5 +1,6 @@
 $out_dir = "output";
 @default_files = ("dokumentation.tex");
+$pdf_previewer = "open -a /Applications/Skim.app";
 
 $pdf_mode = 1;
 $dvi_mode = 0;
