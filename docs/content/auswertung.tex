@@ -286,14 +286,14 @@ Columnstore eingegangen und anschließend vergleichend auf den Rowstore.
 
 \autoref{colcpu} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 8 Gigabyte RAM. 
 Generell bewegt sich die Ausführungsdauer pro Benchmark hauptsächlich im Bereich von ca. 0.7 Sekunden bis 1 Sekunde. 
-Dabei werden die schnelleren Werte, wie erwartet, durch den sechs-Kerner gebildet und die langsameren Werte durch den zwei-Kerner. 
-Werden der sechs-Kerner(0.75 Sekunden) und der zwei-Kerner(0.95 Sekunden) anhand ihren arithmetischen Mitteln miteinander 
+Dabei werden die schnelleren Werte, wie erwartet, durch den 6-Kerner gebildet und die langsameren Werte durch den zwei-Kerner. 
+Werden der 6-Kerner(0.75 Sekunden) und der 2-Kerner(0.95 Sekunden) anhand ihren arithmetischen Mitteln miteinander 
 verglichen so ergibt sich eine prozentuale Differenz von 26.7\%. Der vier-Kerner hingegen erreicht eine durchschnittliche 
-Ausführungszeit von 0,8 Sekunden was ihm eine Differenz von 7\% im Vergleich zum sechs-Kerner einbringt. 
+Ausführungszeit von 0,8 Sekunden was ihm eine Differenz von 7\% im Vergleich zum 6-Kerner einbringt. 
 Grundsätzlich gilt, dass im Columnstore im HANA Umfeld dank der begünstigten Parallelisierung eine bessere Ausnutzung der 
 CPU durch mehrere Threads stattfindet. Dadurch wird die Nutzung der Hardware optimiert und eine bestmögliche Performance 
 wird erzielt. Pro zusätzlichem Kern kann die Ausführungszeit halbiert werden, indem die Last gleichmäßig auf die Kerne 
-aufgeteilt wird. Diese Überlegung stimmt mit den Messwerten überein und es lässt sich auf einen quadratischen Zuwachs 
+aufgeteilt wird. Diese Überlegung stimmt mit den Messwerten überein und es lässt sich auf eine quadratische Abnahme 
 der Ausführungszeit abhängig zur Anzahl der CPU-Kerne schliessen. 
 
 \begin{figure}[H]
@@ -321,13 +321,13 @@ Die Ausführungsdauer pro Benchmark scheint nicht markant zu variieren, auch wen
 
 \autoref{rowcpu} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 8 Gigabyte RAM.
  Zu erkennen ist die starke Abweichung der Ausführungszeiten, welcher deutlicher ausfällt als im Columnstore. 
- Der zwei-Kerner liegt mit einer durschnittlichen Ausführungszeit von 8,2 Sekunden 137\% über der Ausführungszeit des acht-Kerners,
-  welcher nur 3,4 Sekunden im Schnitt braucht. Die Abweichung des sechs-Kerners beträgt dagegen nur 26\%. 
+ Der 2-Kerner liegt mit einer durschnittlichen Ausführungszeit von 8,2 Sekunden 137\% über der Ausführungszeit des acht-Kerners,
+  welcher nur 3,4 Sekunden im Schnitt braucht. Die Abweichung des 6-Kerners beträgt dagegen nur 26\%. 
 Es scheint als würde die Anzahl der CPU-Kerne einen größeren Einfluss haben im Rowstore als im Columnstore.
  Eine mögliche Erklärung dafür kann folgendermaßen aussehen: 
 Da die Daten im Columnstore blockweise gelesen werden können, haben die Lesezugriffe eine längere Ausführungszeit,
  da auch viele Daten in einem Zuge gelesen werden können. Der komplette Satz an Daten wird anschliessend von der CPU ausgewertet,
-  wobei die Auswertung kürzer dauert als der Speicherzugriff. Dadurch wird das RAM zum Bottleneck und die CPU unrelevanter für die Ausführungszeit. 
+  wobei die Auswertung kürzer dauert als der Speicherzugriff. Dadurch wird das RAM zum Bottleneck und die CPU irrelevanter für die Ausführungszeit. 
 Im Rowstore müssen viele einzelne Lesezugriffe durchgeführt werden, wobei die einzelnen Daten direkt
  verarbeitet werden von der CPU. Die Parallelität ist nicht in dem Maße gegeben wie im Columnstore, wodurch
   stets das RAM auf die CPU wartet und umgekehrt. Daraus ensteht eine erhöhte Relevanz der CPU für die Ausführungszeit als beim Columnstore. 
@@ -344,5 +344,9 @@ Im Rowstore müssen viele einzelne Lesezugriffe durchgeführt werden, wobei die 
    Die Standardabweichungen scheinen dasselbe Muster wie im Columnstore aufzuweisen: Je mehr RAM, desto stabiler läuft der Benchmark. 
    Im Falle des 6 Gigabyte Systems sind enorme Ausschläge zu beobachten, obwohl teilweise sogar die Ausführungszeit des 8 Gigabyte Systems unterboten wird. 
 Die erhöhte Relevanz der Menge an verfügbarem RAM scheint im Rowstore ebenfalls von größerer Bedeutung für die Laufzeit zu sein als im Columnstore. 
-Während im Columnstore automatisch Optimierungen, wie Indexierung und Kompression stattfinden, können diese im Rowstore womöglich nur bei ausreichend RAM durchgeführt werden. 
+Während im Columnstore automatisch Optimierungen, wie Indexierung und Kompression stattfinden, können diese im Rowstore nur bei ausreichend RAM durchgeführt werden. 
 
+\subsection{Fazit Hardware}
+Grundsätzlich lässt sich sagen, dass sich die Variation des RAMs vor allem auf die Stabilität des Benchmarks auswirkt. Mehr RAM bringt eine bessere Stabilität. 
+
+Genauso verbessert eine höhere Zahl an genutzten Kernen die Performance. Im Columnstore kann die begünstigte Parallelisierung erst bei mehreren Kernen effizient genutzt werden. Im Rowstore wird die Performance durch wenige Kerne aufgrund der fehlenden Parallelität umso mehr eingeschränkt, da Lesezugriffe auf die Ausführung der Cpu warten müssen und umgekehrt. 

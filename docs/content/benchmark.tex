@@ -15,26 +15,8 @@ Die Merkmale des Benchmarks sind wie folgt \cite[vgl.][]{tpch3}:
 	\item \textbf{Datenmenge}: Die Minimalanforderung an die Datenmenge sieht 2 Tausend Datensätze in der {\glqq}SUPPLIER{\grqq} -Tabelle vor, wodurch ca. 1 Gigabyte an Daten vorliegen. 
 \end{itemize}
 
-\newpage
-
 \section{Datenbanklayout}
 
 \begin{figure}[htp] \centering{
 \includegraphics[scale=0.6]{ssbm_basic.pdf}}
 \end{figure}  
-
-Das genutze logische Schema des Benchmarks sieht folgende Tabellen vor: 
-\begin{itemize}
-	\item \textbf{{\glqq}COSTUMER{\grqq}}: Die Tabelle {\glqq}COSTUMER{\grqq} hat den Primärschlüssel {\glqq}CUSTKEY{\grqq} und umfasst 30 Tausend Datensätze. Indizes werden über die Felder {\glqq}NAME{\grqq}, {\glqq}CITY{\grqq}, {\glqq}REGION{\grqq}, {\glqq}PHONE{\grqq} und {\glqq}MKTSEGMENT{\grqq} gebildet. 
-	\item \textbf{{\glqq}PART{\grqq}}: Die Tabelle {\glqq}PART{\grqq} enthält 200 Tausend Datensätze und hat den Primärschlüssel {\glqq}PARTKEY{\grqq}. Indizes werden über die Felder {\glqq}NAME{\grqq}, {\glqq}MFGR{\grqq}, {\glqq}CATEGORY{\grqq} und {\glqq}BRAND{\grqq} gebildet. 
-	\item \textbf{{\glqq}SUPPLIER{\grqq}}: Die Tabelle {\glqq}SUPPLIER{\grqq} umfasst 2 Tausend Datensätze und hat den Primärschlüssel {\glqq}SUPPKEY{\grqq}. Indizes werden über die Felder {\glqq}NAME{\grqq}, {\glqq}CITY{\grqq} und {\glqq}PHONE{\grqq} gebildet. 
-	\item \textbf{{\glqq}DATE{\grqq}}: Die Tabelle {\glqq}DATE{\grqq} hat den Primärschlüssel {\glqq}DATEKEY{\grqq} und hält 2,555 Tausend Einträge. Ihre Datensätze werden über {\glqq}ORDERDATEKEY{\grqq} und {\glqq}COMMITDATEKEY{\grqq} zugleich aggregiert. 
-	\item \textbf{{\glqq}LINEORDER{\grqq}}: Die Tabelle {\glqq}LINEORDER{\grqq} hat den Primärschlüssel {\glqq}ORDERKEY{\grqq} und verweist über die Fremdschlüssel {\glqq}CUSTKEY{\grqq}, {\glqq}PARTKEY{\grqq}, {\glqq}ORDERDATEKEY{\grqq}, {\glqq}COMMITDATEKEY{\grqq} und {\glqq}SUPPKEY{\grqq} auf Datensätze der anderen Tabellen. Die Tabelle umfasst ca. 6 Millionen Einträge. Indizes werden über die Felder {\glqq}ORDERKEY, {\glqq}LINENUMBER, {\glqq}CUSTKEY{\grqq}, {\glqq}PARTKEY{\grqq}, {\glqq}SUPPKEY{\grqq}, {\glqq}ORDERDATEKEY{\grqq} und {\glqq}COMMITDATEKEY{\grqq} gebildet. 
-\end{itemize}
-
-
-
-
-
-
-
