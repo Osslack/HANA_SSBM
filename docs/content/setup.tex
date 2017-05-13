@@ -1,4 +1,4 @@
-\chapter{Setup}
+\chapter{Setup}\label{chapter:setup}
 Dieses Kapitel beschreibt das grundlegende Setup, um mit der SAP HANA Datenbank, in Form einer virtuellen Maschine, arbeiten zu können.
 
 \section{Github Repository}
@@ -91,7 +91,7 @@ Beim Importieren der Daten in die Datenbank fällt auf, dass bei beiden Speicher
 Das Importieren in den Rowstore dauert bei der Tabelle Lineorder ca. 2,41 mal solange wie in den Columnstore, bei der Tabelle Customer wird ca. 2,63 mal so viel Zeit benötigt und bei der Tabelle Part ist der Unterschied der Laufzeiten am größten zwischen spalten- bzw. zeilenbasierter Speicherung der Daten, nämlich um den Faktor 3,24. 
 
 \section{Query Execution Plan}
-Um nachvollziehen zu können, in welcher Abfolge die SQL Statements von der SAP HANA Datenbank verarbeitet werden, lassen sich mithilfe von Eclipse Query Execution Pläne visualisiren.
+Um nachvollziehen zu können, in welcher Abfolge die SQL Statements von der SAP HANA Datenbank verarbeitet werden, lassen sich mithilfe von Eclipse Query Execution Pläne visualisieren.
 Dafür sind folgende Schritte auszuführen:
 \begin{enumerate}
 	\item SQL Console öffnen \& Statement eingeben

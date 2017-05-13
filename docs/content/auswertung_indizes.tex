@@ -72,11 +72,15 @@ Im Schnitt wurde er 23,1\%, im Median um 23,3\% schneller.
 
 Diese Ergebnisse sind interessant, da in der Regel davon ausgegangen wird, 
 dass bei Columnstores kein großartiges Optimierungspotenzial durch Indizes vorhanden ist.
-Um herauszufinden, warum trotzdem eine deutliche Verbesserung merkbar ist,
+Um herauszufinden, warum trotzdem eine deutliche Verbesserung messbar ist,
 wird der Query-Execution Plan des Subqueries mit der deutlichsten Verbesserung
 im folgenden untersucht.
 
-\subsubsection{Untersuchung der Laufzeit für einzelne Query-Gruppen}
+Schaut man sich die Ergebnisse für jede Query Gruppe (siehe \autoref{tab:qg_c}) an, so sind 
+deutliche Verbesserungungen sind bei den Queries der Gruppen 1 und 3 festzustellen. 
+Hier hat sich die Laufzeit um 35\% bzw. sogar 41\% reduziert. 
+Die Queries dieser Gruppe werden im Detail untersucht, um geeignete Kandidaten 
+für die Analyse des Execution-Plans zu finden.
 
 \begin{table}[H]
     \centering
@@ -91,13 +95,14 @@ im folgenden untersucht.
         \bottomrule
     \end{tabularx}
 	\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Columnstore.}
+    \label{tab:qg_c}
 \end{table}
 
-Deutliche Verbesserungungen sind bei den Queries der Gruppen 1 und 3 festzustellen. Hier hat sich die Laufzeit um 35\% bzw. sogar 41\% reduziert. 
-Die Queries dieser Gruppe werden im Detail untersucht, um geeignete Kandidaten für die Analyse des Execution-Plans zu finden.
-Hier sind besonders bei Query 1.2 und 3.4 interessant, da diese die größte Verbesserung in ihrer Gruppe vorweisen können. 
-Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 reduziert. Woher diese Verbesserung kommen, soll im Folgenden durch die Analyse der Execution-Pläne von Query 1.1 und 3.4 geklärt werden.
-
+Hier sind besonders bei Query 1.2 und 3.4 interessant, da diese die größte 
+Verbesserung in ihrer Gruppe vorweisen können, siehe \autoref{tab:q1_q3_col}. 
+Die Laufzeit wurde um 64\% für Query 1.2 und um mehr als 90\% für Query 3.4 
+reduziert. Woher diese Verbesserung kommen, soll im Folgenden durch die Analyse 
+der Execution-Pläne von Query 1.2 und 3.4 geklärt werden.
 
 \begin{table}[H]
     \centering
@@ -118,29 +123,6 @@ Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 re
 \caption{Durchschnittslaufzeit für Benchmarkgruppen 1 und 3 für Columnstore.}
 \label{tab:q1_q3_col}
 \end{table}
-
-\subsubsection{Analyse von Query 3.4}
-\textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
-
-Bei der Analyse des Query-Execution Plans zeigt sich schnell,
-woher die große Geschwindigkeitssteigerung kommt.
-Query 3.4 bildet einen Join von Lineorder auf Customer,
-Supplier und Dim\_Date. 
-Dieser Join erfolgt jeweils über den Fremdschlüssel in Lineorder.
-Ohne Indizes ist dieser Join ausschlaggebend für die Laufzeit des Querys.
-Durch anlegen von Indizes auf alle Fremdschlüssel,
-kann der Join deutlich schneller ausgeführt werden.
-Den größten Vorteil hat hier der Index auf LO\_Suppkey.
-
-Der Execution Plan ohne Indizes ist in \autoref{execution-plan:before-index}, sowie \autoref{exec:q3.4-col-no}
-zu finden und der Execution Plan mit Indizes ist in \autoref{execution-plan:after-index},sowie \autoref{exec:q34-col-index} zu finden.
-
-Query 3.1 im Vergleich nutzt zwar auch Fremdschlüssel, um einen Join zu bilden,
-allerdings sind hier die nicht indizierten Felder \verb+S_Region+, \verb+D_Year+,
-\verb+C_Nation+ und \verb+S_Nation+ in der Where- und der Group by-Klausel gelistet,
-wodurch eine Geschwindigkeitsverbesserung nicht möglich ist.
-
-Auch bei Columnstores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
 
 \subsubsection{Analyse von Query 1.2}
 \textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
@@ -183,66 +165,28 @@ Schaut man sich genauer an, was an dieser Stelle passiert, so werden die gleiche
 )=1.18>
 \end{lstlisting}
 
-\iffalse
-\setlength\intextsep{0pt}
-%https://www.stechies.com/important-hints-related-sap-hana/
-\begin{wraptable}{r}{0.5\textwidth}
-    \begin{tabular}{ccc}
-        \toprule
-        Engine              & No Index [ms]   & Index [ms] \\
-        \toprule
-        OLAP                & 187        & 188            \\
-        Colum               & 296        & 226            \\   
-        \bottomrule
-    \end{tabular}
-	\caption{Durchschnitt der Gesamtlaufzeit mit und ohne OLAP-Engine bei Columnstore.}
-    \label{tab:olap}
-\end{wraptable}
+\subsubsection{Analyse von Query 3.4}
+\textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
 
+Bei der Analyse des Query-Execution Plans zeigt sich schnell,
+woher die große Geschwindigkeitssteigerung kommt.
+Query 3.4 bildet einen Join von Lineorder auf Customer,
+Supplier und Dim\_Date. 
+Dieser Join erfolgt jeweils über den Fremdschlüssel in Lineorder.
+Ohne Indizes ist dieser Join ausschlaggebend für die Laufzeit des Querys.
+Durch anlegen von Indizes auf alle Fremdschlüssel,
+kann der Join deutlich schneller ausgeführt werden.
+Den größten Vorteil hat hier der Index auf LO\_Suppkey.
 
+Der Execution Plan ohne Indizes ist in \autoref{execution-plan:before-index}, sowie \autoref{exec:q3.4-col-no}
+zu finden und der Execution Plan mit Indizes ist in \autoref{execution-plan:after-index},sowie \autoref{exec:q34-col-index} zu finden.
 
-Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine insgesamt sowohl mit, als auch ohne Index deutlich schneller, als die Column-Engine. 
+Query 3.1 im Vergleich nutzt zwar auch Fremdschlüssel, um einen Join zu bilden,
+allerdings sind hier die nicht indizierten Felder \verb+S_Region+, \verb+D_Year+,
+\verb+C_Nation+ und \verb+S_Nation+ in der Where- und der Group by-Klausel gelistet,
+wodurch eine Geschwindigkeitsverbesserung nicht möglich ist.
 
-Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.7]{olap_column_overall.png}
-    \caption{Vergleich der Gesamtlaufzeit für Columnstore mit Indizes, testweise mit OLAP-Hint. n=100}
-	\label{fig:olap_column_overall}
-\end{figure}
-
-Wie in Grafik \ref{fig:olap_column_overall} zu sehen, wird durch den OLAP-Hint eine deutliche Beschleunigung erzielt. Ob zusätzlich noch ein Index existiert hat jedoch wenig bis keinen Einfluss.
-
-Bei genauerer Betrachtung der Laufzeit pro Benchmarkgruppe fällt besonders auf, dass die Querys der Gruppe 1 nicht von der OLAP-Engine profitieren, sondern sogar langsamer werden. 
-Warum dies beim Durchführen des Benchmarks, aber nicht bei Analyse der Execution-Pläne der Fall ist, ist nicht klar.
-\fi
-\iffalse
-\begin{figure}[H] 
-    \centering{
-    \includegraphics[scale=0.7]{olap_column_overall.png}
-    \caption{Vergleich der Gesamtlaufzeit für Columnstore mit Indizes, testweise mit OLAP-Hint. n=100}\label{fig:olap_column_overall}}
-\end{figure}
-
-Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe 3 und 4 nur geringfügig, Gruppe 2 jedoch wird nahezu doppelt so schnell.
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{\textwidth}{lXrrrr}
-    \toprule
-	Wert        &	OLAP-Hint & Q1 	    &	Q2 	    &	Q3	    &	Q4 \\
-    \toprule
-    Average	    & Nein        &	23.5	&	72.5	&	60.4	&	69.9 \\
-    Average     & Ja	      &	26.3	&	36.4	&	58.3	&	65.6 \\
-    \midrule
-    Median	    & Nein        &	23.4	&	72.1	&	60.2	&	69.3 \\
-    Median	    & Ja          &	26.5	&	36.0	&	59.5	&	66.0 \\
-    \bottomrule
-    \end{tabularx}
-	\caption{Laufzeit jeder Benchmarkgruppe für Columnstore mit Index, testweise mit OLAP-Hint. n=100}
-    \label{tab:olap_bench}
-\end{table}
-%Hier dann Tabelle, wenn Benchmark fertig ist. 
-\fi
+Auch bei Columnstores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
 
 \subsubsection{Fazit für Columnstores}
 Auch Columnstores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Erwartet man nur wenige schreibende Zugriffe auf eine Tabelle kann es also durchaus Sinn machen, sinnvolle Indizes anzulegen.
@@ -285,7 +229,7 @@ Um zu analysieren, woran diese deutlichen Verbesserungen/Verschlechterungen lieg
 \bottomrule
 \end{tabularx}
 \caption{Durchschnittslaufzeit jeder Querygruppe. n=250}
-\label{tab:basic_index_row}
+\label{tab:basic_index_row_q}
 \end{table}
 
 

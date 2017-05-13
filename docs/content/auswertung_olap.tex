@@ -26,7 +26,7 @@ Um die Auswirkung der OLAP-Engine genauer zu untersuchen, wurden die Benchmarks 
 Beim Vergleich der verschiedenen Kombinationen für Columstores war das Ergebnis eindeutig: Die OLAP-Engine schlägt die normale Column-Engine um Längen.
 
 Im Schnitt ist die OLAP-Engine 38 ms schneller, als die Column-Engine mit Indizes. Lässt man die Indizes weg wird der Unterschied noch größer, da die Column-Engine langsamer wird.
- Die OLAP-Engine scheint von den Inidzes nicht beeinflusst zu werden, siehe \autoref{tab:olap}.
+ Die OLAP-Engine scheint von den Inidzes nicht beeinflusst zu werden, siehe \autoref{tab:olap_col}.
 
 %https://www.stechies.com/important-hints-related-sap-hana/
 \setlength\intextsep{0pt}
@@ -40,7 +40,7 @@ Im Schnitt ist die OLAP-Engine 38 ms schneller, als die Column-Engine mit Indize
         \bottomrule
     \end{tabular}
 	\caption{Durchschnitt der Gesamtlaufzeit mit und ohne OLAP-Engine bei Columnstore.}
-    \label{tab:olap}
+    \label{tab:olap_col}
 \end{wraptable}
 
 Bei genauerer Betrachtung der Laufzeit pro Benchmarkgruppe fällt besonders auf, dass die Querys der Gruppe 1 nicht von der OLAP-Engine profitieren, sondern sogar langsamer werden. 
@@ -75,7 +75,7 @@ Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe
         \bottomrule
     \end{tabular}
 	\caption{Durchschnitt der Gesamtlaufzeit mit und ohne OLAP-Engine bei Rowstore.}
-    \label{tab:olap}
+    \label{tab:olap_row}
 \end{wraptable}
 
 Bei der Untersuchung der Ergebnisse für Rowstore und wie bereits in \autoref{fig:olap_overall} zu sehen, hat die OLAP-Engine keine Auswirkung auf die Laufzeit des Benchmarks.
