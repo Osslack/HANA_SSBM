@@ -2,7 +2,7 @@
 
 Das HANA Studio Plugin für Eclipse ermöglicht die direkte Ausführung von SQL-Code über die SQL-Console und würde damit ausreichen um die Schemata anzulegen, die Daten zu importieren und den Benchmark auszuführen. Werden nun jedoch Ansprüche wie das mehrfache Ausführen des Benchmarks unter unterschiedlichen Bedingungen gestellt, so ist offensichtlich, dass das händische Ausführen der einzelnen Schritte nachteilig ist. Eine elegantere Lösung ist die des Einsatzes von Skripten, welche Logik implementieren zur automatisierten Ausführung der Benchmarks. Dem Prozess der Ausführung des Benchmarks liegen dabei mehrere Gedanken zugrunde, welche in diesem Kapitel vorgestellt werden. 
 
-\section{Ziele}
+\section{Ziele}\label{run:ziele}
 
 Die erwähnten Ansprüche an den kompletten Benchmark beziehen sich unter anderem auf seine \textbf{erleichtete Ausführung}. Wie im Kapitel zum Setup vorgestellt wurde, existiert ein Bash Skript {\glqq}run{\textunderscore}benchmark.bash{\grqq}, welches das zentrale Skript darstellt und dessen alleiniger Aufruf zur Ausführung des kompletten Benchmarks ausreicht. Somit ist die Komplexität der Ausführung für den Anwender reduziert. Nicht nur wird dadurch die Ausführung an sich erleichtert, auch die Installation des HANA Studio Plugins für Eclipse wird überflüssig, da jegliche SQL-Befehle automatisch über das Skript aus SQL-Dateien ausgeführt wird. Es sind also keine SQL-Kenntnisse für den Anwender notwendig, jeglich der Umgang mit Bash-Skripten. 
 
@@ -14,7 +14,7 @@ Ein weiterer Aspekt ist die \textbf{Anzahl an Iterationen} innherhalb des komple
 
 Nicht nur werden die Bedingungen für die Benchmarks variiert, sondern auch deren Inhalt. So werden unterschiedliche Konstellationen im Einsatz von \textbf{Row- und Columnstore} sowie \textbf{Indizes} durchgespielt. Genau wie die Variation des Test-Systems lassen sich dadurch essentielle Daten für den Analyser generieren. 
 
-\section{Realisierung der Ziele}
+\section{Realisierung der Ziele}\label{run:real}
 
 Die eingesetzten Test-Systeme variieren folgendermassen: 
 \begin{itemize}
@@ -26,7 +26,7 @@ Die Anzahl der Iterationen wird auf den Wert 250 festgelegt.
 
 \newpage
 
-\section{Durchführung}
+\section{Durchführung}\label{run:exec}
 
 \begin{wrapfigure}{r}{0.25\textwidth} 
     \centering{
@@ -42,7 +42,7 @@ Nach der Ausführung des ersten Benchmarks werden in drei Schritten Indizes hinz
 
 Eine Iteration des Skriptes resultiert damit in acht einzelnen Benchmarks. Die Daten aus den Logs werden im folgenden Schritt vom Analyser analysiert. Die Auswertung des Benchmarks bezieht sich vorallem auf folgende System-Konfiguration: 6 Kerne @ 4.2GHz bei 8 Gigybyte RAM. 
 
-\section{Verwendung des Benchmarks}
+\section{Verwendung des Benchmarks}\label{run:usage}
 
 Um möglichst gute Ergebnisse für den Benchmark zu erhalten ist es ein
 Ziel den Benchmark mehrmals auszuführen. Um dies zu realisieren war es Teil dieser
