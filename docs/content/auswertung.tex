@@ -345,8 +345,3 @@ Im Rowstore müssen viele einzelne Lesezugriffe durchgeführt werden, wobei die 
    Im Falle des 6 Gigabyte Systems sind enorme Ausschläge zu beobachten, obwohl teilweise sogar die Ausführungszeit des 8 Gigabyte Systems unterboten wird. 
 Die erhöhte Relevanz der Menge an verfügbarem RAM scheint im Rowstore ebenfalls von größerer Bedeutung für die Laufzeit zu sein als im Columnstore. 
 Während im Columnstore automatisch Optimierungen, wie Indexierung und Kompression stattfinden, können diese im Rowstore nur bei ausreichend RAM durchgeführt werden. 
-
-\subsection{Fazit Hardware}
-Grundsätzlich lässt sich sagen, dass sich die Variation des RAMs vor allem auf die Stabilität des Benchmarks auswirkt. Mehr RAM bringt eine bessere Stabilität. 
-
-Genauso verbessert eine höhere Zahl an genutzten Kernen die Performance. Im Columnstore kann die begünstigte Parallelisierung erst bei mehreren Kernen effizient genutzt werden. Im Rowstore wird die Performance durch wenige Kerne aufgrund der fehlenden Parallelität umso mehr eingeschränkt, da Lesezugriffe auf die Ausführung der Cpu warten müssen und umgekehrt. 
