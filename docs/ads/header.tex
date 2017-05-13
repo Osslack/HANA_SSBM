@@ -103,6 +103,8 @@
 \date{\datum}
 
 % PDF Einstellungen
+
+\usepackage[hyphens]{url}
 \usepackage[%
 	pdftitle={\titel},
 	pdfauthor={\autor},
@@ -124,6 +126,8 @@
 	linktocpage=true, 		% Nicht der Text sondern die Seitenzahlen in Verzeichnissen klickbar
 	bookmarksnumbered=true 	% Überschriftsnummerierung im PDF Inhalt anzeigen.
 }
+\usepackage[anythingbreaks]{breakurl}
+\urlstyle{tt}
 % Workaround um Fehler in Hyperref, muss hier stehen bleiben
 \usepackage{bookmark} %nur ein latex-Durchlauf für die Aktualisierung von Verzeichnissen nötig
 
