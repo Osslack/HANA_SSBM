@@ -1,4 +1,4 @@
-\chapter{Auswertung Benchmark}
+\chapter{Auswertung Benchmark}\label{chapter:auswertung}
 In dem vorgenommenen Benchmark wurden alle Queries 250 mal wiederholt.
 Im folgenden werden die Ergebnisse des Benchmarks ausgewertet.
 Dazu wird zu erst die Gesamtlaufzeit des Benchmarks in \autoref{auswertung:generell} analysiert. Dabei wird zwischen zeilenbasierten und spatenbasierten
@@ -8,18 +8,26 @@ einzelnen Unterabfragen des Benchmarks eingegangen.
 Dabei soll untersucht werden welche Abfragen besonders schnell sind.
 In \autoref{auswertung:basic_indizes} und \autoref{auswertung:hardware}
 wird der Einfluss von Indizes bzw.\ unterschiedlicher Hardwarekonfigurationen
-untersucht.
+untersucht. In \autoref{auswertung:olap} wird die Ausuwirkung der OLAP-Engine genauer analysiert.
 
 \section{Gesamtlaufzeit des Benchmarks}\label{auswertung:generell}
 
+
+Allgemein sollten Benchmarks auf der HANA Datenbank immer zwischen
+Row- und Columnstore unterscheiden.
+Dies wird deutlich beim Betrachten der Allgemeinen Laufzeit.
+Wie \autoref{tab:gesamtlaufzeit} zu entnehmen ist, besteht ein deutlicher
+Unterschied in der Laufzeit zwischen Row- und Columnstore.
+Der Columnstore ist im Durschnitt um 79\% schneller.
+
 \begin{tabularx}{\textwidth}{Xrr}
 	\toprule
-	 & \textbf{Rowstore} & \textbf{Columnstore}\\
+	 & \textbf{Columnstore} & \textbf{Rowstore}\\
 	\midrule
 	\endhead
 	\hline
 	\caption{Gesamtlaufzeiten von Row- und Columnstore in msec mit 250 Wiederholungen}
-	\label{auswertung:gesamtlaufzeit}
+	\label{tab:gesamtlaufzeit}
 	\endfoot
 	Durchschnitt & 371 & 1727 \\
 	Minimum & 359 & 1645 \\
@@ -29,12 +37,6 @@ untersucht.
 	Gesamt & 92855 & 431635 \\
 \end{tabularx}
 
-Allgemein sollten Benchmarks auf der HANA Datenbank immer zwischen
-Row- und Columnstore unterscheiden.
-Dies wird deutlich beim Betrachten der Allgemeinen Laufzeit.
-Wie \autoref{auswertung:gesamtlaufzeit} zu entnehmen ist, besteht ein deutlicher
-Unterschied in der Laufzeit zwischen Row- und Columnstore.
-Der Columnstore ist im Durschnitt um 79\% schneller.
 Da der SSBM Benchmark als Maß für Abfragen im Bereich des Datawarehouse
 eingesetzt wird, kann also allgemein gesagt werden,  dass der Columnstore
 dem Rowstore im Datawarehouse Umfeld vorzuziehen ist.
@@ -49,7 +51,7 @@ kann ein Rowstore von Vorteil sein, wenn Daten gespeichert werden.
 \end{figure}
 Anhand der Standardabweichung und \autoref{auswertung:gesamtlaufzeit:graph} ist auch zu sehen, dass der Columnstore
 eine konstantere Zeit pro Abfrage aufweist.
-Allerdings da der Rowstore im allgemeinen langsamer ist als der Columnstore
+Da der Rowstore allerdings im allgemeinen langsamer ist, als der Columnstore,
 kann dies vernachlässigt werden, da die Standardabweichung relativ zur
 Gesamtlaufzeit sehr gering ist.
 
@@ -128,9 +130,9 @@ deutlich schneller, jedoch ist Q3 bei spaltenorientierten
 Tabellen schneller als Q1, wohingegen bei zeilenorientierten Tabellen
 Q1 schneller als Q3 ist.
 Gleich bleibt, dass Q2 die schnellsten und Q4 die langsamsten Queries sind.
-Um zu verstehen wodurch der Unterschied von Q1 und Q3 zustande kommt wird
-im folgenden der jeweils die Unterabfragen von Q1 und Q3 im Row store betrachtet.
-Anschließend werden die selben Queries im Row store betrachtet und
+Um zu verstehen, wodurch der Unterschied von Q1 und Q3 zustande kommt, wird
+im folgenden der jeweils die Unterabfragen von Q1 und Q3 im Rowstore betrachtet.
+Anschließend werden die selben Queries im Rowstore betrachtet und
 dann verglichen.
 
 Da der SSBM Benchmark so gestaltet ist dass die Queries
@@ -183,7 +185,9 @@ Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
 da eine bessere Parallelisierung möglich ist.
 
 \section{Vergleich der Query Execution Pläne - Query 4.3}
-In diesem Abschnitt werden die Query Execution Pläne für den Row und Column Store der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Column Store.
+Um der Ursache für den großen Laufzeitunterschied zwischen Row- und Columnstore auf den Grund zu gehen, werden im folgenden exemplarisch die Query Execution Pläne für Query 4.3 untersucht, siehe \autoref{q42}.
+Die Wahl viel hierbei auf Q4.3, da er einerseits deutlich beschleunigt wurde, siehe \autoref{auswertung:row-vs-column}, andererseits handelt es sich um einen der komplexeren Queries, wovon wir uns interessantere Ergebnisse erhoffen.
+%In diesem Abschnitt werden die Query Execution Pläne für den Row- und Columnstore der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Columnstore.
 \begin{lstlisting}[label=q42, caption={Benchmark Query 4.3}]
 select d_year, s_city, p_brand,sum(lo_revenue - lo_supplycost) as profit
 from lineorder
@@ -199,13 +203,13 @@ group by d_year, s_city, p_brand
 order by d_year, s_city, p_brand;
 \end{lstlisting}
 
-\subsection{Query Execution Plan - Column Store}
-\autoref{qepCol} zeigt den Ablauf der Query Execution im Column Store. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den drei angegebenen Kriterien gefiltert wird.
+\subsection{Query Execution Plan - Columnstore}
+\autoref{qepCol} zeigt den Ablauf der Query Execution im Columnstore. Es ist zu erkennen, dass zu Beginn jede Tabelle einzeln nach den drei angegebenen Kriterien gefiltert wird.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.35]{images/col_q43_3}
-	\caption{Query Execution Plan für Q4.3 - Column Store \label{qepCol} }
+	\caption{Query Execution Plan für Q4.3 - Columnstore \label{qepCol} }
 \end{figure}
 
 Die drei Tabellen liefern dann unterschiedlich große Ergebnismengen zurück:
@@ -218,25 +222,25 @@ Die ermittelten Resultate werden dann in folgender Reihenfolge miteinander gejoi
 \begin{figure}
 	\centering
 	\includegraphics[scale=0.6]{images/colq43join}
-	\caption{Join - Query Execution Plan für Q4.3 - Column Store \label{qepJoinCol} }
+	\caption{Join - Query Execution Plan für Q4.3 - Columnstore \label{qepJoinCol} }
 \end{figure}
 \begin{enumerate}
 	\item Zuerst werden die beiden Tabellen \textbf{Lineorder} und \textbf{Customer} miteinander gejoint. In diesem Join fällt auf, dass auf keine der beiden Tabellen ein Filterkriterium angewendet wird und somit der Join unabhängig ausgeführt werden kann. 
-	\item Sobald die Ergebnismengen der Tabellen \textbf{Part}, \textbf{Supplier} und \textbf{Dim\_Date} vorliegen, werden diese ebenfalls in einer \enquote{Reduction Phase} mit den Fremdschlüsseln der Tabelle \textbf{Lineorders} gejoint. 
+	\item Sobald die Ergebnismengen der Tabellen \textbf{Part}, \textbf{Supplier} und \textbf{Dim\_Date} vorliegen, werden diese ebenfalls in einer \enquote{Reduction Phase} mit den Fremdschlüsseln der Tabelle \textbf{Lineorder} gejoint. 
 	\item Wenn die ersten beide Schritte ausgeführt wurden, werden beide einzelnen Ergebnisse über einen Merge-Join in einer Ergebnismenge abgebildet und ausgegeben. 
 \end{enumerate}
 Anschließend an den Join wird eine Aggregation gebildet, die die Ergebnismenge nach Jahr, Nation und Produktkategorie gruppiert. Sobald die Gruppierung beendet ist, werden die Datensätze pro Gruppierung aufsteigend sortiert und anschließend ausgeben.
 
 
-\subsection{Query Execution Plan - Row Store}
-\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Row Store abgelegt sind. Ohne genaueres Hinschauen fällt auf, dass die Ausführung sich im Vergleich zum Column Store stärker an einem sequentiellen Ablauf orientiert.\\ Im Row Store sieht die Reihenfolge der Abarbeitung des Joins wie folgt aus:
+\subsection{Query Execution Plan - Rowstore}
+\autoref{qepRow} zeigt den Query Execution Plan für das gleiche Query, nur dass die Daten im Rowstore abgelegt sind. Ohne genaueres Hinschauen fällt auf, dass die Ausführung sich im Vergleich zum Columnstore stärker an einem sequentiellen Ablauf orientiert.\\ Im Rowstore sieht die Reihenfolge der Abarbeitung des Joins wie folgt aus:
 \begin{enumerate}
 	\item Als erster Schritt wird ein Tablescan auf \textbf{Supplier} ausgeführt, der die Tabelle nach der Nation \enquote{UNITED STATES} filtert(76 Ergebnisse).
 	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint (228745 Ergebnisse)
 	\item Bevor der Hash Join ausgeführt werden kann, wird ein Index Search auf die Tabelle \textbf{PART} ausgeführt, der die Produktkategorie eingrenzt. (8029 Ergebnisse)
 	\item Es wird nun ein Hash Join auf mit den Ergebnisse der Schritte 1 und 2 mit den Ergebnissen des Schrittes 3 ausgeführt. Die Join wird über \textbf{LINEORDERS.LO\_Partkey} und \textbf{PART.P\_Partkey} ausgeführt. (9118 Ergebnisse)
 	\item Zeitgleich zu dem Hash Join kann ein Table Scan auf die Tabelle \textbf{DIM\_Date} erstellet werden. (729 Ergebnisse).
-	\item Anschließend werden die beiden Ergebnisse aus Schritt 4 und 5 wieder über eine Hash Join zu einem Ergebnis zusammengefasst. Dies geschieht über die Fremdschlüsselbeziehung der Tabelle \textbf{Lineorders} und \textbf{Dim\_Date} über die Spalte \enquote{LO\_Orderdatekey} bzw. \enquote{D\_Datekey}. (2194 Ergebnisse)
+	\item Anschließend werden die beiden Ergebnisse aus Schritt 4 und 5 wieder über eine Hash Join zu einem Ergebnis zusammengefasst. Dies geschieht über die Fremdschlüsselbeziehung der Tabelle \textbf{Lineorder} und \textbf{Dim\_Date} über die Spalte \enquote{LO\_Orderdatekey} bzw. \enquote{D\_Datekey}. (2194 Ergebnisse)
 	\item Im letzten Join, dem Index Join, werden die zuvor in Schritt 6 ermittelten Ergebnisse mit der Tabelle \textbf{Customer} verknüpft. Dies geschieht über die Beziehung \enquote{Lineorder.LO\_Custkey = Customer.C\_Customerkey}. (2194 Ergebnisse)
 \end{enumerate}
 Nachdem alle Joins ausgeführt wurden, wird wieder eine Aggregation gebildet und die Gruppierung anschließend aufsteigend sortiert und das Ergebnis ausgegeben.
@@ -244,300 +248,31 @@ Nachdem alle Joins ausgeführt wurden, wird wieder eine Aggregation gebildet und
 
 	\centering
 	\includegraphics[scale=0.4]{images/row_q43}
-	\caption{Query Execution Plan für Q4.3 - Row Store 	\label{qepRow} }
+	\caption{Query Execution Plan für Q4.3 - Rowstore 	\label{qepRow} }
 \end{figure}
 
 \subsection{Fazit Query Execution Plan}
-Der große zeitliche Unterschied zwischen Row und Column Store lässt sich mit der sequentielle Ausführung des Query im Row Store begründen. \\In beiden Ausführungen war ersichtlich, dass die Ausführung in die 3 Schritte, Filtern, Join und Gruppieren eingeordnet werden können. Allerdings sind im Row Store das Filtern und Joinen eng miteinander verbunden und werden sogar abwechselnd nacheinander ausgeführt. Beim Column Store hingegen war die Abgrenzung zwischen Filtern und Join deutlich stärker, da zuerst die Tabellen gefiltert wurden und anschließend die Ergebnismengen miteinander verknüpft.
+Der große zeitliche Unterschied zwischen Row- und Columnstore lässt sich mit der sequentielle Ausführung des Query im Rowstore begründen. 
+
+In beiden Ausführungen war ersichtlich, dass die Ausführung in die 3 Schritte, Filtern, Join und Gruppieren eingeordnet werden kann. Allerdings sind im Rowstore das Filtern und Joinen eng miteinander verbunden und werden sogar abwechselnd nacheinander ausgeführt. Beim Columnstore hingegen war die Abgrenzung zwischen Filtern und Join deutlich stärker, da zuerst die Tabellen gefiltert wurden und anschließend die Ergebnismengen miteinander verknüpft.
+
+\graphicspath{{images/indizes/}}
+\input{content/auswertung_indizes}
+\input{content/auswertung_olap}
+\graphicspath{{images/}}
 
 
 
 
 
-\section{Einfluss der grundlegenden Indizes}\label{auswertung:basic_indizes}
-%TODO
-% Row with or without indices
-% Column with or without indices
 
-\subsection{Grundlegende Untersuchung für Column-Store}
-
-\begin{table}[H]
-\centering
-    \begin{tabularx}{\textwidth}{lrrr}
-        \toprule
-        Merkmal             &   Col[ms]    &    Col Index[ms] & Abweichung[\%]\\
-        \toprule
-        Samples             &   250        &   250      &        \\
-        \midrule    
-        Median              &   752        &   574      & -23.6\%\\
-        Average             &   755        &   578      & -23.4\%\\
-        Total               &   188672     &   144605   & -23.3\%\\
-        \bottomrule
-    \end{tabularx}
-\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Column-Store.}
-\label{tab:basic_index_col}
-\end{table}
-
-Durch hinzufügen der grundlegenden Indizes wurde der Benchmark
-für Columstores sowohl im Schnitt als auch im Median schneller.
-Im Schnitt wurde er 23,4\%, im Median um 23,6\% schneller.
-Die Standardabweichung hat sich jedoch nur geringfügig verändert.
-Die Werte streuen relativ gesehen also gleich stark wie zuvor.
-Folglich konnten Mindest- und Maximallaufzeit auch deutlich reduziert werden. 
-
-\iffalse
-Diese Ergebnisse sind interessant,
-da Columnstores bereits einen natürlichen Index
-durch speichern der Daten in Spalten haben,
-wie in \autoref{sec:col_store} beschrieben.
-Deshalb profitieren Columnstore meist nicht von zusätzlichen Indizes.
-\fi
-Diese Ergebnisse sind interessant, da in der Regel davon ausgegangen wird, 
-dass bei Column-Stores kein großartiges Optimierungspotenzial durch Indizes vorhanden ist.
-Um herauszufinden, warum trotzdem eine deutliche Verbesserung merkbar ist,
-wird der Query-Execution Plan des Subqueries mit der deutlichsten Verbesserung
-im folgenden untersucht.
-
-\subsubsection{Untersuchung der Laufzeit für einzelne Query-Gruppen}
-
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{\linewidth}{crrr}
-        \toprule
-        Benchmarkgruppe & Col[ms]   & Col Index[ms] & Laufzeitreduzierung[ms|\%]\\
-        \toprule
-        Q1              & 104.7       & 68.5            & 36.2 | 34.5\%\\
-        Q2              & 62.1        & 59.7            & 2.4 |  03.8\%\\
-        Q3              & 96.2        & 54.8            & 41.4 | 40.8\%\\
-        Q4              & 112.4       & 106.3           & 6.1 |  05.4\%\\
-        \bottomrule
-    \end{tabularx}
-	\caption{Durchschnittslaufzeit für jede Benchmarkgruppe für Column-Store.}
-\end{table}
-
-Deutliche Verbesserungungen sind bei den Queries der Gruppen 1 und 3 festzustellen. Hier hat sich die Laufzeit um 35\% bzw. sogar 41\% reduziert. 
-Die Queries dieser Gruppe werden im Detail untersucht, um geeignete Kandidaten für die Analyse des Execution-Plans zu finden.
-Hier sind besonders bei Query 1.2 und 3.4 interessant, da diese die größte Verbesserung in ihrer Gruppe vorweisen können. 
-Die Laufzeit wurde um 64\% für Query 1.1 und um mehr als 90\% für Query 3.4 reduziert. Woher diese Verbesserung kommen, soll im Folgenden durch die Analyse der Execution-Pläne von Query 1.1 und 3.4 geklärt werden.
-
-
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{\linewidth}{crrr}
-        \toprule
-        Benchmark           & Col[ms]       & Col Index[ms] & Laufzeitreduzierung[ms|\%]   \\
-        \toprule
-        Q1.1                & 36.1          & 36.4          & -0.3 | -0.8\%                \\
-        Q1.2                & 47.8          & 16.8          & 31.0 | 64.8\%                 \\
-        Q1.3                & 21.3          & 14.1          & 7.2 | 33.8\%                \\
-        \midrule
-        Q3.1                & 31.3          & 31.6          & -0.3 | -0.9\%                \\
-        Q3.2                & 24.0          & 18.9          & 5.1 | 21.2\%                 \\
-        Q3.3                & 21.3          & 2.1           & 19.2 | 90.1\%                \\
-        Q3.4                & 20.5          & 1.6           & 18.9 | 92.1\%                \\
-        \bottomrule
-    \end{tabularx}
-\caption{Durchschnittslaufzeit für Benchmarkgruppen 1 und 3 für Column-Store.}
-\label{tab:q1_q3_col}
-\end{table}
-
-\subsubsection{Analyse des Query-Execution-Plans für Query 3.4}
-\textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
-
-Bei der Analyse des Query-Execution Plans zeigt sich schnell,
-woher die große Geschwindigkeitssteigerung kommt.
-Query 3.4 bildet einen Join von Lineorder auf Customer,
-Supplier und Dim\_Date. 
-Dieser Join erfolgt jeweils über den Fremdschlüssel in Lineorder.
-Ohne Indizes ist dieser Join ausschlaggebend für die Laufzeit des Querys.
-Durch anlegen von Indizes auf alle Fremdschlüssel,
-kann der Join deutlich schneller ausgeführt werden.
-Den größten Vorteil hat hier der Index auf LO\_Suppkey.
-
-Der Execution Plan ohne Indizes ist in \autoref{execution-plan:before-index}, sowie \autoref{exec:q3.4-col-no}
-zu finden und der Execution Plan mit Indizes ist in \autoref{execution-plan:after-index},sowie \autoref{exec:q34-col-index} zu finden.
-
-Query 3.1 im Vergleich nutzt zwar auch Fremdschlüssel, um einen Join zu bilden,
-allerdings sind hier die nicht indizierten Felder \verb+S_Region+, \verb+D_Year+,
-\verb+C_Nation+ und \verb+S_Nation+ in der Where- und der Group by-Klausel gelistet,
-wodurch eine Geschwindigkeitsverbesserung nicht möglich ist.
-
-Auch bei Column-Stores scheinen sinnvoll angelegte Indizes also einen deutlichen Unterschied zu machen.
-
-\subsubsection{Analyse des Query-Execution-Plans für Query 1.2}
-\textbf{Hinweis:} Die Ergebnisse in diesem Abschnitt basieren auf Ausführung auf einem PC mit einer Intel Xeon 1230 V3 CPU mit 16GB DDR3 RAM. Die VM hatte 4 Kerne und 8GB RAM zur Verfügung.
-%https://archive.sap.com/discussions/thread/3429357
-
-
-Bei Query 1.2 gibt es eine Besonderheit: Manchmal wird der Query über die OLAP-Engine ausgeführt\footnote{Um zu sehen, welche Engine verwendet wird, muss anstatt \enquote{Visualize Plan} die Option \enquote{Explain Plan} gewählt werden.}. 
-Hierbei ist der Laufzeitunterschied zwischen Index und kein Index fast nicht mehr vorhanden, der Query mit Index braucht allerdings weniger Zeit zur Kompilation. 
-Eigentlich ist die OLAP-Engine für \enquote{Analytical Views}, die im Star-Schema vorliegen,gedacht. Beim Star-Schema Benchmark liegen die Daten definitv im Start Schema vor.
-Allerdings ist nicht klar, warum die OLAP-Engine manchmal verwendet wird und manchmal nicht. Ein Muster war hier nicht zu erkennen. 
-
-
-\begin{wraptable}{r}{0.5\textwidth}
-    \centering
-    \begin{tabular}{lrr}
-        \toprule
-        Engine              & Col [ms]       & Col Index [ms]    \\
-        \toprule
-        OLAP                & 6           & 6         \\
-        Colum               & 16          & 6         \\   
-        \bottomrule
-    \end{tabular}
-	\caption{Durchschnittslaufzeit für Query 1.2 bei Column-Store.}
-    \label{tab:olap_q12}
-\end{wraptable}
-
-
-%http://saphanatutorial.com/sap-hana-modeling/
-%https://archive.sap.com/discussions/thread/3340726
-Zunächst trat die OLAP-Engine nur auf, wenn Indizes hinzugefügt wurden, weshalb zunächst angenommen wurde, dass HANA an Hand der Indizes erkennt, dass es sich im Grunde um einen Analytical View handelt und dementsprechend optimiert.
-Allerdings gab es auch Fälle, wo die OLAP-Engine auch ohne Indizes verwendet wurde. Kommt die OLAP-Engine zum Einsatz, so ist der Query in etwa so schnell, wie mit der Column-Engine in Kombination mit Indizes, siehe \autoref{tab:olap_q12}.
-
-Kommt nicht die OLAP-Engine, sondern die \enquote{normale} Column-Engine zum Einsatz, so gibt es einen deutlichen Unterschied zwischen Index und kein Index. Hierbei kann der Index auf LO\_OrderDateKey für den JOIN genutzt werden und beschleunigt diesen somit.
-Außerdem wird die Berechnung \textbf{sum(lo\_extendedprice*lo\_discount)} deutlich beschleunigt. Warum ist allerdings nicht klar, denn auf diese Felder wurde kein Index angelegt.
-
-
-Schaut man sich genauer an, was an dieser Stelle passiert, so werden die gleichen Operationen auf die gleichen Datenmengen angewandt, allerdings sind die Operationen \textbf{mit} Index deutlich schneller.\footnote{Die letzte Zahl scheint jeweils die Laufzeit in ms zu sein, aber eine genaue Erklärung dieser Werte war leider nicht zu finden.}
-\begin{lstlisting}[breaklines, caption=Ohne Index]
-<executePop(
-  <lockInputs(num=3,)=0.00>
-    <calculateOnAttr(
-      <calculateWithAggregation(rows=4301,inputs=2,outputs=1,)=8.04>
-    rows=4301,outputs=1,)
-  =8.15>
-)=11.61>
-\end{lstlisting}
-
-\begin{lstlisting}[breaklines, caption=Mit Index]
-<executePop(
-  <lockInputs(num=3,)=0.00>
-    <calculateOnAttr(
-      <calculateWithAggregation(rows=4301,inputs=2,outputs=1,)=1.03>
-    rows=4301,outputs=1,)
-  =1.10>
-)=1.18>
-\end{lstlisting}
-
-%https://www.stechies.com/important-hints-related-sap-hana/
-\begin{wraptable}{r}{0.5\textwidth}
-    \begin{tabular}{ccc}
-        \toprule
-        Engine              & No Index [ms]   & Index [ms] \\
-        \toprule
-        OLAP                & 187        & 188            \\
-        Colum               & 296        & 226            \\   
-        \bottomrule
-    \end{tabular}
-	\caption{Durchschnitt der Gesamtlaufzeit mit und ohne OLAP-Engine bei Column-Store.}
-    \label{tab:olap}
-\end{wraptable}
-
-
-
-Wie in Tabelle \ref{tab:olap} zu sehen, ist die OLAP-Engine insgesamt sowohl mit, als auch ohne Index deutlich schneller, als die Column-Engine. 
-
-Durch den HINT \enquote{USE\_OLAP\_PLAN} kann die OLAP-Engine als bevorzugte Engine festgelegt werden. Führt man jeden der Querys mit diesem Hint durch, so liefert dies die folgenden Ergebnisse:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.7]{images/olap_column_overall.png}
-    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}
-	\label{fig:olap_column_overall}
-\end{figure}
-
-Wie in Grafik \ref{fig:olap_column_overall} zu sehen, wird durch den OLAP-Hint eine deutliche Beschleunigung erzielt. Ob zusätzlich noch ein Index existiert hat jedoch wenig bis keinen Einfluss.
-
-Bei genauerer Betrachtung der Laufzeit pro Benchmarkgruppe fällt besonders auf, dass die Querys der Gruppe 1 nicht von der OLAP-Engine profitieren, sondern sogar langsamer werden. 
-Warum dies beim Durchführen des Benchmarks, aber nicht bei Analyse der Execution-Pläne der Fall ist, ist nicht klar.
-
-\iffalse
-\begin{figure}[H] 
-    \centering{
-    \includegraphics[scale=0.7]{images/olap_column_overall.png}
-    \caption{Vergleich der Gesamtlaufzeit für Column-Store mit Indizes, testweise mit OLAP-Hint. n=100}\label{fig:olap_column_overall}}
-\end{figure}
-\fi
-
-Die anderen Benchmarkgruppen werden durch den OLAP-Hint jedoch schneller, Gruppe 3 und 4 nur geringfügig, Gruppe 2 jedoch wird nahezu doppelt so schnell.
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{\textwidth}{lXrrrr}
-    \toprule
-	Wert        &	OLAP-Hint & Q1 	    &	Q2 	    &	Q3	    &	Q4 \\
-    \toprule
-    Average	    & Nein        &	23.5	&	72.5	&	60.4	&	69.9 \\
-    Average     & Ja	      &	26.3	&	36.4	&	58.3	&	65.6 \\
-    \midrule
-    Median	    & Nein        &	23.4	&	72.1	&	60.2	&	69.3 \\
-    Median	    & Ja          &	26.5	&	36.0	&	59.5	&	66.0 \\
-    \bottomrule
-    \end{tabularx}
-	\caption{Laufzeit jeder Benchmarkgruppe für Column-Store mit Index, testweise mit OLAP-Hint. n=100}
-    \label{tab:olap_bench}
-\end{table}
-%Hier dann Tabelle, wenn Benchmark fertig ist. 
-
-\subsubsection{Fazit für Column-Stores}
-Auch Column-Stores können durch geschickt gewählte Indizes deutlich beschleunigt werden. Durch Nutzung der OLAP-Engine können diese Beschleunigungen jedoch nochmals teils deutlich überboten werden. 
-Es erscheint sinnvoller, sein Augenmerk darauf zu legen, dass Querys diese auch nutzen. Dies ist zwar über einen HINT möglich, davon wird in der Praxis jedoch abgeraten.
-%https://archive.sap.com/discussions/thread/3277920
-
-\subsection{Grundlegende Untersuchung für Row-Store}
-
-\begin{table}[H]
-    \begin{tabularx}{\textwidth}{lrrr}
-        \toprule
-        Wert                & Row[ms] & Row Index[ms]   & Abweichung [\%]\\
-        \toprule
-        Samples             & 250      & 250            &       \\
-        \midrule
-        Median              & 3519     & 3006           &  14.5\%     \\
-        Average             & 3539     & 3048           &  13.8\%     \\
-        Total               & 884960   & 762128         &       \\ 
-        \bottomrule
-    \end{tabularx}
-\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
-\label{tab:basic_index_row}
-\end{table}
-
-
-
-
-
-\begin{table}[H]
-    \begin{tabularx}{\textwidth}{lrrr}
-        \toprule
-        Wert                & Row[ms] & Row Index[ms]   & Abweichung [\%]\\
-        \toprule
-        Samples             & 250     &  250            &       \\
-        \midrule
-        Median              & 3426    &  2877           &       \\
-        Average             & 3440    &  2881           &       \\
-        \bottomrule
-    \end{tabularx}
-\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
-\label{tab:basic_index_row}
-\end{table}
-
-\begin{table}[H]
-    \begin{tabularx}{\linewidth}{lrrrrrr}
-        \toprule
-                &   q1.1    &   q1.2&	q1.3&	q2.1&	q2.2&	q2.3 \\
-        \toprule
-        Row[ms]	        &	163	    &	133	&	127	&	139	&	111	&	102  \\
-        Row Index[ms]   &   156     &   13	&   3	&   73	&   16	&   4    \\
-        Abweichung[ms]  &   7       &   120 &   124 &   66  &   95  &   98   \\
-        Abweichung[\%]  &   4.2     &   90.2&   97.6&   47.4&   85.5&   96.0 \\    
-\bottomrule
-\end{tabularx}
-\caption{Vergleich der Ergebnisse mit und ohne grundlegende Indizes für Row-Store.}
-\label{tab:basic_index_row}
-\end{table}
 \section{Auswirkung unterschiedlicher Hardwarekonfiguration}\label{auswertung:hardware}
 
-Nicht nur die Betrachtung unterschiedlicher Konfigurationen auf Software-Ebene ist interessant, sondern auch die auf simulierter Hardware-Ebene. Die eingesetzten Hardwarekonstellationen wurden im Kapitel zur Ausführung des Benchmarks beschrieben und werden nun miteinander verglichen. Zum Einsatz kommen die Ergebnisse des Analysers, welche als Visualisierungen sowie Aggregaten-Werten präsentiert werden. In der Analyse werden wird zuerst auf den Columnstore eingegangen und anschließend vergleichend auf den Rowstore. 
+Nicht nur die Betrachtung unterschiedlicher Konfigurationen auf Software-Ebene ist interessant, 
+sondern auch die auf simulierter Hardware-Ebene. Die eingesetzten Hardwarekonstellationen 
+wurden im Kapitel zur Ausführung des Benchmarks beschrieben und werden nun miteinander 
+verglichen. In der Analyse werden wird zuerst auf den 
+Columnstore eingegangen und anschließend vergleichend auf den Rowstore. 
 
 \subsection{Columnstore}
 
@@ -548,8 +283,17 @@ Nicht nur die Betrachtung unterschiedlicher Konfigurationen auf Software-Ebene i
 \end{figure}
 
 
-\autoref{colcpu} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 8 Gigabyte RAM. Generell bewegt sich die Ausführungsdauer pro Benchmark hauptsächlich im Bereich von ca. 0.7 Sekunden bis 1 Sekunde. Dabei werden die schnelleren Werte, wie erwartet, durch den sechs-Kerner gebildet und die langsameren Werte durch den zwei-Kerner. Werden der sechs-Kerner(0.75 Sekunden) und der zwei-Kerner(0.95 Sekunden) anhand ihren arithmetischen Mitteln miteinander verglichen so ergibt sich eine prozentuale Differenz von 26.7\%. Der vier-Kerner hingegen erreicht eine durchschnittliche Ausführungszeit von 0,8 Sekunden was ihm eine Differenz von 7\% im Vergleich zum sechs-Kerner einbringt. 
-Grundsätzlich gilt, dass im Columnstore im HANA Umfeld dank der begünstigten Parallelisierung eine bessere Ausnutzung der CPU durch mehrere Threads stattfindet. Dadurch wird die Nutzung der Hardware optimiert und eine bestmögliche Performance wird erzielt. Pro zusätzlichem Kern kann die Ausführungszeit halbiert werden, indem die Last gleichmäßig auf die Kerne aufgeteilt wird. Diese Überlegung stimmt mit den Messwerten überein und es lässt sich auf einen quadratischen Zuwachs der Ausführungszeit abhängig zur Anzahl der CPU-Kerne schliessen. 
+\autoref{colcpu} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 8 Gigabyte RAM. 
+Generell bewegt sich die Ausführungsdauer pro Benchmark hauptsächlich im Bereich von ca. 0.7 Sekunden bis 1 Sekunde. 
+Dabei werden die schnelleren Werte, wie erwartet, durch den sechs-Kerner gebildet und die langsameren Werte durch den zwei-Kerner. 
+Werden der sechs-Kerner(0.75 Sekunden) und der zwei-Kerner(0.95 Sekunden) anhand ihren arithmetischen Mitteln miteinander 
+verglichen so ergibt sich eine prozentuale Differenz von 26.7\%. Der vier-Kerner hingegen erreicht eine durchschnittliche 
+Ausführungszeit von 0,8 Sekunden was ihm eine Differenz von 7\% im Vergleich zum sechs-Kerner einbringt. 
+Grundsätzlich gilt, dass im Columnstore im HANA Umfeld dank der begünstigten Parallelisierung eine bessere Ausnutzung der 
+CPU durch mehrere Threads stattfindet. Dadurch wird die Nutzung der Hardware optimiert und eine bestmögliche Performance 
+wird erzielt. Pro zusätzlichem Kern kann die Ausführungszeit halbiert werden, indem die Last gleichmäßig auf die Kerne 
+aufgeteilt wird. Diese Überlegung stimmt mit den Messwerten überein und es lässt sich auf einen quadratischen Zuwachs 
+der Ausführungszeit abhängig zur Anzahl der CPU-Kerne schliessen. 
 
 \begin{figure}[H]
     \centering{
@@ -557,7 +301,14 @@ Grundsätzlich gilt, dass im Columnstore im HANA Umfeld dank der begünstigten P
     \caption{Benchmark im Columnstore unter Variation des RAMs}\label{colram}}
 \end{figure}
 
-\autoref{colram} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 6 CPU Kernen. Die Ausführungsdauer pro Benchmark scheint nicht markant zu variieren, auch wenn die genauere Betrachtung der Aggregat-Werte zeigt, dass der Benchmark unter 12 Gigabyte RAM im Schnitt um eine Hunderdstel Sekunde schneller ist, als bei 6 und 8 Gigabyte. Ein besseres Mittel zum Vergleich als die Durchschnittslaufzeit bildet in diesem Falle die Standardabweichung der Laufzeiten, welche ein Maß für die Stabilität des Benchmarks darstellt. Diese beträgt bei 12 Gigabyte RAM gerade einmal 16 Millisekunden, während sich bei 8 Gigabyte ein 4 prozentiger Zuwachs und bei 6 Gigabyte ein 37 prozentiger Zuwachs erkennen lässt. Daraus lässt sich ableiten, dass die Stabilität stark unter der Einschränkung des RAMs leidet, und somit einzelne Anfragen erheblich länger dauern können. Vermutlich liegt die Unregelmäßigkeit vorallem darin begründet, dass bei reduziertem RAM externe Faktoren (Cache-Miss, Zugriffszeit) deutlicher zum tragen kommen. 
+\autoref{colram} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 6 CPU Kernen. 
+Die Ausführungsdauer pro Benchmark scheint nicht markant zu variieren, auch wenn die genauere Betrachtung der Aggregat-Werte zeigt,
+ dass der Benchmark unter 12 Gigabyte RAM im Schnitt um eine Hunderdstel Sekunde schneller ist, als bei 6 und 8 Gigabyte.
+ Ein besseres Mittel zum Vergleich als die Durchschnittslaufzeit bildet in diesem Falle die Standardabweichung der Laufzeiten, 
+ welche ein Maß für die Stabilität des Benchmarks darstellt. Diese beträgt bei 12 Gigabyte RAM gerade einmal 16 Millisekunden, 
+ während sich bei 8 Gigabyte ein 4 prozentiger Zuwachs und bei 6 Gigabyte ein 37 prozentiger Zuwachs erkennen lässt. 
+ Daraus lässt sich ableiten, dass die Stabilität stark unter der Einschränkung des RAMs leidet, und somit einzelne Anfragen erheblich länger dauern können. 
+ Vermutlich liegt die Unregelmäßigkeit vorallem darin begründet, dass bei reduziertem RAM externe Faktoren (Cache-Miss, Zugriffszeit) deutlicher zum tragen kommen. 
 
 \subsection{Rowstore}
 
@@ -567,10 +318,18 @@ Grundsätzlich gilt, dass im Columnstore im HANA Umfeld dank der begünstigten P
     \caption{Benchmark im Rowstore unter Variation der CPU Kerne}\label{rowcpu}}
 \end{figure}
 
-\autoref{rowcpu} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 8 Gigabyte RAM. Zu erkennen ist die starke Abweichung der Ausführungszeiten, welcher deutlicher ausfällt als im Columnstore. Der zwei-Kerner liegt mit einer durschnittlichen Ausführungszeit von 8,2 Sekunden 137\% über der Ausführungszeit des acht-Kerners, welcher nur 3,4 Sekunden im Schnitt braucht. Die Abweichung des sechs-Kerners beträgt dagegen nur 26\%. 
-Es scheint als würde die Anzahl der CPU-Kerne einen größeren Einfluss haben im Rowstore als im Columnstore. Eine mögliche Erklärung dafür kann folgendermaßen aussehen: 
-Da die Daten im Columnstore blockweise gelesen werden können, haben die Lesezugriffe eine längere Ausführungszeit, da auch viele Daten in einem Zuge gelesen werden können. Der komplette Satz an Daten wird anschliessend von der CPU ausgewertet, wobei die Auswertung kürzer dauert als der Speicherzugriff. Dadurch wird das RAM zum Bottleneck und die CPU unrelevanter für die Ausführungszeit. 
-Im Rowstore müssen viele einzelne Lesezugriffe durchgeführt werden, wobei die einzelnen Daten direkt verarbeitet werden von der CPU. Die Parallelität ist nicht in dem Maße gegeben wie im Columnstore, wodurch stets das RAM auf die CPU wartet und umgekehrt. Daraus ensteht eine erhöhte Relevanz der CPU für die Ausführungszeit als beim Columnstore. 
+\autoref{rowcpu} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 8 Gigabyte RAM.
+ Zu erkennen ist die starke Abweichung der Ausführungszeiten, welcher deutlicher ausfällt als im Columnstore. 
+ Der zwei-Kerner liegt mit einer durschnittlichen Ausführungszeit von 8,2 Sekunden 137\% über der Ausführungszeit des acht-Kerners,
+  welcher nur 3,4 Sekunden im Schnitt braucht. Die Abweichung des sechs-Kerners beträgt dagegen nur 26\%. 
+Es scheint als würde die Anzahl der CPU-Kerne einen größeren Einfluss haben im Rowstore als im Columnstore.
+ Eine mögliche Erklärung dafür kann folgendermaßen aussehen: 
+Da die Daten im Columnstore blockweise gelesen werden können, haben die Lesezugriffe eine längere Ausführungszeit,
+ da auch viele Daten in einem Zuge gelesen werden können. Der komplette Satz an Daten wird anschliessend von der CPU ausgewertet,
+  wobei die Auswertung kürzer dauert als der Speicherzugriff. Dadurch wird das RAM zum Bottleneck und die CPU unrelevanter für die Ausführungszeit. 
+Im Rowstore müssen viele einzelne Lesezugriffe durchgeführt werden, wobei die einzelnen Daten direkt
+ verarbeitet werden von der CPU. Die Parallelität ist nicht in dem Maße gegeben wie im Columnstore, wodurch
+  stets das RAM auf die CPU wartet und umgekehrt. Daraus ensteht eine erhöhte Relevanz der CPU für die Ausführungszeit als beim Columnstore. 
 
 \begin{figure}[H]
     \centering{
@@ -578,6 +337,11 @@ Im Rowstore müssen viele einzelne Lesezugriffe durchgeführt werden, wobei die 
     \caption{Benchmark im Rowstore unter Variation des RAMs}\label{rowram}}
 \end{figure}
 
-\autoref{rowram} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 6 CPU Kernen. Die Ausführungszeiten unterscheiden sich ebenfalls deutlicher als beim Columnstore. Unterschieden sich im Columstore die durchschnittlichen Ausführungszeiten von 12 Gigabyte und 6 Gigabyte RAM noch um 1,33\%, so liegt der Unterschied nun bereits bei 7,13\%. Die Standardabweichungen scheinen dasselbe Muster wie im Columnstore aufzuweisen: Je mehr RAM, desto stabiler läuft der Benchmark. Im Falle des 6 Gigabyte Systems sind enorme Ausschläge zu beobachten, obwohl teilweise sogar die Ausführungszeit des 8 Gigabyte Systems unterboten wird. 
-Die erhöhte Relevanz der Menge an verfügbarem RAM scheint im Rowstore ebenfalls von größerer Bedeutung für die Laufzeit zu sein als im Columnstore. Während im Columnstore automatisch Optimierungen, wie Indexierung und Kompression stattfinden, können diese im Rowstore womöglich nur bei ausreichend RAM durchgeführt werden. 
+\autoref{rowram} zeigt die Ausführungsdauer über den 250 Durchläufen des Benchmarks bei konstanten 6 CPU Kernen.
+ Die Ausführungszeiten unterscheiden sich ebenfalls deutlicher als beim Columnstore. Unterschieden sich im Columstore die
+  durchschnittlichen Ausführungszeiten von 12 Gigabyte und 6 Gigabyte RAM noch um 1,33\%, so liegt der Unterschied nun bereits bei 7,13\%.
+   Die Standardabweichungen scheinen dasselbe Muster wie im Columnstore aufzuweisen: Je mehr RAM, desto stabiler läuft der Benchmark. 
+   Im Falle des 6 Gigabyte Systems sind enorme Ausschläge zu beobachten, obwohl teilweise sogar die Ausführungszeit des 8 Gigabyte Systems unterboten wird. 
+Die erhöhte Relevanz der Menge an verfügbarem RAM scheint im Rowstore ebenfalls von größerer Bedeutung für die Laufzeit zu sein als im Columnstore. 
+Während im Columnstore automatisch Optimierungen, wie Indexierung und Kompression stattfinden, können diese im Rowstore womöglich nur bei ausreichend RAM durchgeführt werden. 
 

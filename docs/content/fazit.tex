@@ -1,0 +1,23 @@
+\chapter{Fazit}\label{chapter:fazit}
+Generell lässt sich sagen, dass der Columnstore für die im SSBM Benchmark geschaffenen Bedingungen deutlich besser geeignet ist.
+ In Zahlen bedeutet dies, dass der Columnstore im Schnitt mehr als 4 mal so schnell ist, wie der Rowstore.
+
+Die exemplarische Analyse der Query Execution Pläne für Query 4.3 hat gezeigt, dass der große zeitliche Unterschied zwischen Row- und 
+Columnstore darauf zurückzuführen ist, dass der Query im Columnstore paralellisiert abläuft.
+Hier gibt es außerdem eine klare Trennung zwischen Filtern und Joinen, beim Rowstore ist dies enger miteinander verknüpft. 
+
+
+Durch Indizes kann der Benchmark in beiden Fällen nochmals teils deutlich beschleunigt werden, allerdings gab es besonders beim Rowstore auch Fälle, 
+wo bestimmte Queries durch die Indizes extrem verlangsamt wurden. Indizes sollten also bewusst eingesetzt und auf ungewünschte Nebeneffekte geprüft werden.
+
+Außerdem hat sich gezeigt, dass die optimierte OLAP-Engine um Längen schneller ist, also die schnellste Variante der Column-Engine. In der Praxis
+würde es sich also durchaus lohnen, seine Abfragen als Analytical Views zu realisieren, um diese Engine nutzen zu können. Für Rowstores ist die Egine leider nicht verfügbar.
+
+Desweiteren hat sich gezeigt, dass der Columnstore immens von mehr CPU-Kernen profitiert, da hier sehr stark paralellisiert werden kann. 
+Die Messwerte lassen auf einen quadratischen Zuwachs der Ausführungszeit abhängig zur Anzahl der CPU-Kerne schliessen. Durch geringe Mengen an 
+Hauptspeicher nahm die Stabilität des Benchmarks stark ab, was vermutlich darauf zurückzuführen ist, dass bei reduziertem RAM externe Faktoren (Cache-Miss, Zugriffszeit) deutlicher zum tragen kommen. 
+
+Beim Rowstore hat sich gezeigt, dass hier sowohl CPU als auch RAM von größerer Bedeutung für die Laufzeit sind. 
+Während im Columnstore automatisch Optimierungen, wie Indexierung und Kompression stattfinden, können diese im Rowstore womöglich nur bei ausreichend RAM durchgeführt werden. 
+
+Zusammenfassend lässt sich sagen, dass die oft im Netz zu findende Empfehlung, hauptsächlich auf Columnstores zu setzen, durch unsere Ergebnisse unterstützt wird.

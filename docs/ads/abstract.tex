@@ -6,7 +6,11 @@
 \renewcommand{\abstractname}{\langabstract} % Text für Überschrift
 
 % \begin{otherlanguage}{english} % auskommentieren, wenn Abstract auf Deutsch sein soll
-\begin{abstract}
-	Die nachfolgende Arbeit betrachtet die Ausführung des Star Schema Benchmarks mit einer SAP HANA Datenbank. Grundlegend werden einige Unterschiede von verschiedenen Speicherarten, Column bzw. Row Store, in In-Memory Datenbanktabellen aufgezeigt. Insbesondere  werden Laufzeitunterschiede, Verbesserungsmöglichkeiten der Laufzeit mit Indizes, sowie die Auswirkungen von verschiedenen Hardwarevoraussetzungen eines Coulmn Store und Row Stores betrachtet und analysiert.
+\begin{abstract}\label{abstract}
+	Die nachfolgende Arbeit betrachtet die Ausführung des Star Schema Benchmarks mit einer SAP HANA Datenbank. 
+	Grundlegend werden einige Unterschiede von verschiedenen Speicherarten, Column- bzw. Rowstore, in In-Memory Datenbanktabellen aufgezeigt. 
+	Insbesondere  werden Laufzeitunterschiede, Verbesserungsmöglichkeiten der Laufzeit mit Indizes, sowie die Auswirkungen von verschiedenen Hardwarevoraussetzungen 
+	eines Coulmnstores und Rowstores betrachtet und analysiert. Hierbei hat sich gezeigt, dass der Columnstore in allen Belangen deutlich schneller ist, als der Rowstore.
+	Durch Indizes lässt sich dieser sogar noch beschleunigen, wobei die schnellsten Durchläufe durch Nutzung der OLAP-Engine erzielt werden konnten.
 \end{abstract}
 

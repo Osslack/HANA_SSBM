@@ -1,4 +1,4 @@
-\chapter{Ausführung des Benchmarks}
+\chapter{Ausführung des Benchmarks}\label{chapter:run}
 
 Das HANA Studio Plugin für Eclipse ermöglicht die direkte Ausführung von SQL-Code über die SQL-Console und würde damit ausreichen um die Schemata anzulegen, die Daten zu importieren und den Benchmark auszuführen. Werden nun jedoch Ansprüche wie das mehrfache Ausführen des Benchmarks unter unterschiedlichen Bedingungen gestellt, so ist offensichtlich, dass das händische Ausführen der einzelnen Schritte nachteilig ist. Eine elegantere Lösung ist die des Einsatzes von Skripten, welche Logik implementieren zur automatisierten Ausführung der Benchmarks. Dem Prozess der Ausführung des Benchmarks liegen dabei mehrere Gedanken zugrunde, welche in diesem Kapitel vorgestellt werden. 
 
@@ -59,17 +59,17 @@ Durch ausführen des \href{https://github.com/Osslack/HANA_SSBM/blob/master/src/
 Dabei geht das Script davon aus dass die HANA Datenbank mit den Standardeinstellungen
 auf dem selben System installiert ist.
 Standardmäßig versucht das Script mittels des SYSTEM Users auf das System zuzugreifen.
-Um alle Einstellungen manuell zu ändern muss das Script mittels \verb+run_benchmark.sh -v+
-ausgeführt werden.
+Möchte man nicht die Standardeinstellungen verwenden, muss das Script mittels \verb+run_benchmark.sh -v+ ausgeführt werden.
+Dadurch bekommt man bei jedem Schritt die Möglichkeit, die Einstellung anzupassen.
 
 Um den Benchmark anzupassen können neue Tests dem Script hinzugefügt werden.
-Die Mentalität dabei ist, dass der Tester dem Framework sagt, wie seine
+Die Idee dabei ist, dass der Tester dem Framework sagt, wie seine
 Benchmarks strukturiert sind und anschließend mittels SQL\cite{sql} und BASH
 spezifische Queries ausführen und wiederholen kann.
 Anschließend werden die Laufzeitdaten der SQL Queries als JSON\cite{json} in einer
 Log Datei gespeichert.
 Dann kann ein Analyst mit seiner favorisierten Programmiersprache
-die Daten auswerten.
+die Daten auswerten. In unserem Fall erfolgte die Auswertung in Python unter zu Hilfe nahme von Jupyter Notebook zur Visualisierung der Ergebnisse.
 
 Dabei kann mittels des \verb+hdb_run_file_lite+ ein SQL-Script
 zum Setup und Cleanup der Datenbank vor bzw. nach jedem Benchmark ausgeführt werden.

@@ -1,14 +1,21 @@
 \chapter{Einleitung}
 
-Die SAP HANA Datenbank kann im Umfeld von \enquote{Data Warehouse} als Datenbanklösung eingesetzt werden. Damit verschiedene Datenbanksysteme miteinander verglichen werden können, hilft es den Star Schema Benchmark auszuführen und festgelegte Merkmale zu vergleichen.\\Im folgenden Dokument wird beschrieben, wie der allgemeine Aufbau des Benchmarks, sowie die Ausführung mit der HANA Datenbank realisiert wurde. Dabei werden die zwei Arten der Datenspeicherung (Row-Store vs. Column Store) der SAP HANA Datenbank betrachtet. Dabei sollen die Auswirkungen von Hardware-Regularien, wie z.B. die Größe des Arbeitsspeichers, beleuchtet werden. Neben den Hardware Komponenten wird ebenfalls versucht, softwaretechnische Verbesserungen, z.B. in Form von Indizes, in die Analyse mit einfließen zu lassen.
+Die SAP HANA Datenbank kann im Umfeld von \enquote{Data Warehouse} als Datenbanklösung eingesetzt werden. Damit verschiedene Datenbanksysteme miteinander verglichen werden können, hilft es den Star Schema Benchmark auszuführen und festgelegte Merkmale zu vergleichen.\\Im folgenden Dokument wird beschrieben, wie der allgemeine Aufbau des Benchmarks, sowie die Ausführung mit der HANA Datenbank realisiert wurde. Dabei werden die zwei Arten der Datenspeicherung (Rowstore vs. Columnstore) der SAP HANA Datenbank betrachtet. Dabei sollen die Auswirkungen von Hardware-Regularien, wie z.B. die Größe des Arbeitsspeichers, beleuchtet werden. Neben den Hardware Komponenten wird ebenfalls versucht, softwaretechnische Verbesserungen, z.B. in Form von Indizes, in die Analyse mit einfließen zu lassen.
 
 \section{Ziele}
 Die nachfolgende Ziele sollen dabei betrachtet werden:
 \begin{enumerate}
-	\item Vergleich der Ausführungszeiten des Benchmarks beim Column und Row Store
+	\item Vergleich der Ausführungszeiten des Benchmarks beim Column- und Rowstore
 	\item Vergleich der Ausführungszeiten des Benchmarks mit bzw. ohne Indizes
 	\item Vergleich der Ausführungszeiten des Benchmarks bei verschiedenen Hardwarevoraussetzungen
 \end{enumerate}
 
 \section{Aufbau}
-Im 2. Kapitel werden die Unterschiede von Column und Row-Store näher erläutert. Danach folgt in Kapitel 3 eine genauere Beschreibung des Star Schema Benchmarks. Das nachfolgende Kapitel 4 beschäftigt sich mit dem Grundlegenden Setup der In-Memory Datenbank, das für die in Kapitel 5 beschriebene Ausführung des Benchmarks als Grundlage benötigt. wird. Das letzte Kapitel, stellt eine Auswertung der gewonnen Erkenntnisse dar.
+In \autoref{chapter:col_row} werden die grundlegenden Unterschiede von Column- 
+und Rowstore näher erläutert. Danach folgt in \autoref{chapter:ssbm} eine genauere Beschreibung 
+des Star Schema Benchmarks. Das nachfolgende \autoref{chapter:setup} beschäftigt sich mit 
+dem Grundlegenden Setup der In-Memory Datenbank, das für die in \autoref{chapter:run} 
+beschriebene Ausführung des Benchmarks als Grundlage benötigt wird. Anschließend werden die Ergebnisse
+in \autoref{chapter:auswertung} untersucht und analysiert. \autoref{chapter:fazit} beinhaltet eine Zusammenfassung der
+Ergebnisse der Analyse.
+
