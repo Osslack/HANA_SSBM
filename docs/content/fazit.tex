@@ -11,9 +11,9 @@ Durch Indizes kann der Benchmark in beiden Fällen nochmals teils deutlich besch
 wo bestimmte Queries durch die Indizes extrem verlangsamt wurden. Indizes sollten also bewusst eingesetzt und auf ungewünschte Nebeneffekte geprüft werden.
 
 Außerdem hat sich gezeigt, dass die optimierte OLAP-Engine um Längen schneller ist, also die schnellste Variante der Column-Engine. In der Praxis
-würde es sich also durchaus lohnen, seine Abfragen als Analytical Views zu realisieren, um diese Engine nutzen zu können. Für Rowstores ist die Egine leider nicht verfügbar.
+würde es sich also durchaus lohnen, seine Abfragen als Analytical Views zu realisieren, um diese Engine nutzen zu können. Für Rowstores ist die Engine leider nicht verfügbar.
 
-Desweiteren hat sich gezeigt, dass der Columnstore immens von mehr CPU-Kernen profitiert, da hier sehr stark paralellisiert werden kann. 
+Des Weiteren hat sich gezeigt, dass der Columnstore immens von mehr CPU-Kernen profitiert, da hier sehr stark parallelisiert werden kann. 
 Die Messwerte lassen auf einen quadratischen Zuwachs der Ausführungszeit abhängig zur Anzahl der CPU-Kerne schliessen. Durch geringe Mengen an 
 Hauptspeicher nahm die Stabilität des Benchmarks stark ab, was vermutlich darauf zurückzuführen ist, dass bei reduziertem RAM externe Faktoren (Cache-Miss, Zugriffszeit) deutlicher zum tragen kommen. 
 
