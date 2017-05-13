@@ -152,7 +152,7 @@ durch den Columnstore bzw.\ den Rowstore bevorzugt werden.
 
 Aus \autoref{auswertung:comp:q3} lässt sich erkennen, dass Q3.1 sich relativ
 zu Q3.2, Q3.3 und Q3.4 verbessert hat.
-Um dies zu versehen werden im folgenden der Executionplan zu Q3.1 des Columnstores
+Um dies zu verstehen werden im folgenden der Executionplan zu Q3.1 des Columnstores
 und des Rowstores verglichen, welche in \autoref{auswertung:q3.1:col} und 
 \autoref{auswertung:q3.1:row} im Anhang zu finden sind.
 Beim Vergleich der Executionpläne wird deutlich dass der Columnstore dabei
@@ -170,7 +170,7 @@ wohingegen beim Rowstore diese Parallelisierung nicht möglich ist.
 Interessant ist der Vergleich der Unterabfragen von Q1, da Q1.1
 im Rowstore relativ zu Q1.2 langsamer ist, wohingegen im Columnstore
 Q1.1 schneller als Q1.3 ist.
-Vergleicht man die Executionpläne der Queries also Q.1.1 des Columnstores mit Q1.1 des Rowstores ist keine großer Unterschied zu erkennen, welcher diesen Effekt
+Vergleicht man die Executionpläne der Queries also Q1.1 des Columnstores mit Q1.1 des Rowstores ist keine großer Unterschied zu erkennen, welcher diesen Effekt
 erklären kann.
 Analog dazu kann beim Vergleich des Executionplans von Q1.2 des Columnstores
 mit dem Executionplan des Rowstores kein großer Unterschied erkannt werden.
@@ -184,7 +184,7 @@ Allerdings ist der Unterschied der Laufzeit beider Queries marginal.
 Insgesamt kann Q3 im Rowstore besser ausgeführt werden,
 da eine bessere Parallelisierung möglich ist.
 
-\section{Vergleich der Query Execution Pläne - Query 4.3}
+\section{Vergleich der Query Execution Pläne - Query 4.3}\label{section:query_vs_row}
 Um der Ursache für den großen Laufzeitunterschied zwischen Row- und Columnstore auf den Grund zu gehen, werden im folgenden exemplarisch die Query Execution Pläne für Query 4.3 untersucht, siehe \autoref{q42}.
 Die Wahl viel hierbei auf Q4.3, da er einerseits deutlich beschleunigt wurde, siehe \autoref{auswertung:row-vs-column}, andererseits handelt es sich um einen der komplexeren Queries, wovon wir uns interessantere Ergebnisse erhoffen.
 %In diesem Abschnitt werden die Query Execution Pläne für den Row- und Columnstore der SQL Abfrage 4.3, dargestellt in \autoref{q42}, verglichen. Ein Grund dafür sind die großen Laufzeitunterschiede zwischen Row und Columnstore.
