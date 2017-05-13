@@ -5,7 +5,8 @@ Dazu wird zu erst die Gesamtlaufzeit des Benchmarks in \autoref{auswertung:gener
 Tabellen unterschieden.
 Anschließend wird in \autoref{auswertung:queries} auf die Laufzeit der
 einzelnen Unterabfragen des Benchmarks eingegangen.
-Dabei soll untersucht werden welche Abfragen besonders schnell sind.
+Dabei soll untersucht werden welche Abfragen besonders schnell sind. 
+Anschließen werden in \autoref{section:query_vs_row} beispielhaft die Query Execution Pläne zwischen Column- und Rowstore verglichen.
 In \autoref{auswertung:basic_indizes} und \autoref{auswertung:hardware}
 wird der Einfluss von Indizes bzw.\ unterschiedlicher Hardwarekonfigurationen
 untersucht. In \autoref{auswertung:olap} wird die Ausuwirkung der OLAP-Engine genauer analysiert.
@@ -237,8 +238,8 @@ Anschließend an den Join wird eine Aggregation gebildet, die die Ergebnismenge 
 \begin{enumerate}
 	\item Als erster Schritt wird ein Tablescan auf \textbf{Supplier} ausgeführt, der die Tabelle nach der Nation \enquote{UNITED STATES} filtert(76 Ergebnisse).
 	\item Die Ergebnismenge wird mit der Tabelle \textbf{Lineorder} gejoint (228745 Ergebnisse)
-	\item Bevor der Hash Join ausgeführt werden kann, wird ein Index Search auf die Tabelle \textbf{PART} ausgeführt, der die Produktkategorie eingrenzt. (8029 Ergebnisse)
-	\item Es wird nun ein Hash Join auf mit den Ergebnisse der Schritte 1 und 2 mit den Ergebnissen des Schrittes 3 ausgeführt. Die Join wird über \textbf{LINEORDERS.LO\_Partkey} und \textbf{PART.P\_Partkey} ausgeführt. (9118 Ergebnisse)
+	\item Bevor der Hash Join ausgeführt werden kann, wird ein Index Search auf die Tabelle \textbf{Part} ausgeführt, der die Produktkategorie eingrenzt. (8029 Ergebnisse)
+	\item Es wird nun ein Hash Join auf mit den Ergebnisse der Schritte 1 und 2 mit den Ergebnissen des Schrittes 3 ausgeführt. Die Join wird über \textbf{Lineorder.LO\_Partkey} und \textbf{Part.P\_Partkey} ausgeführt. (9118 Ergebnisse)
 	\item Zeitgleich zu dem Hash Join kann ein Table Scan auf die Tabelle \textbf{DIM\_Date} erstellet werden. (729 Ergebnisse).
 	\item Anschließend werden die beiden Ergebnisse aus Schritt 4 und 5 wieder über eine Hash Join zu einem Ergebnis zusammengefasst. Dies geschieht über die Fremdschlüsselbeziehung der Tabelle \textbf{Lineorder} und \textbf{Dim\_Date} über die Spalte \enquote{LO\_Orderdatekey} bzw. \enquote{D\_Datekey}. (2194 Ergebnisse)
 	\item Im letzten Join, dem Index Join, werden die zuvor in Schritt 6 ermittelten Ergebnisse mit der Tabelle \textbf{Customer} verknüpft. Dies geschieht über die Beziehung \enquote{Lineorder.LO\_Custkey = Customer.C\_Customerkey}. (2194 Ergebnisse)
